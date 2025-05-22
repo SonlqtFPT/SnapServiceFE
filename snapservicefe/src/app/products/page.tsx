@@ -1,9 +1,10 @@
 import React from 'react'
+import Sort from './components/Sort'
 
-const page = () => {
+export default function page() {
   return (
-    <div>nay` chac point ve` home?</div>
+    <div>
+      <Sort />
+    </div>
   )
 }
-
-export default page
