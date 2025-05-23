@@ -1,11 +1,11 @@
 import React from 'react'
-import Banner from './components/Banner'
+// import Banner from './components/Banner'
 import Category from './components/Category'
 import NewProduct from './components/NewProduct'
 const page = () => {
   return (
     <div>
-      <Banner />
+      {/* <Banner /> */}
       <div className='bg-red-500 flex justify-between'>
         <div>
           Top Categories

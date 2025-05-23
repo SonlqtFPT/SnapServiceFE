@@ -1,4 +1,6 @@
 import React from 'react'
+import { Progress } from "@/components/ui/progress"
+
 
 const fakeNewProducts = [
   {
@@ -8,7 +10,8 @@ const fakeNewProducts = [
     salePrice: 350000,
     discountPercent: 30,
     sold: 120,
-    available: 30
+    available: 30,
+    stock: 150
   },
   {
     name: "California Pizza Kitchen Margherita, Crispy Thin Crust Pizza",
@@ -17,7 +20,8 @@ const fakeNewProducts = [
     salePrice: 640000,
     discountPercent: 20,
     sold: 80,
-    available: 15
+    available: 15,
+    stock: 95
   },
   {
     name: "California Pizza Kitchen Margherita, Crispy Thin Crust Pizza",
@@ -26,7 +30,8 @@ const fakeNewProducts = [
     salePrice: 900000,
     discountPercent: 25,
     sold: 200,
-    available: 50
+    available: 50,
+    stock: 250
   },
   {
     name: "California Pizza Kitchen Margherita, Crispy Thin Crust Pizza",
@@ -35,7 +40,8 @@ const fakeNewProducts = [
     salePrice: 210000,
     discountPercent: 30,
     sold: 60,
-    available: 10
+    available: 10,
+    stock: 70
   },
   {
     name: "California Pizza Kitchen Margherita, Crispy Thin Crust Pizza",
@@ -44,7 +50,8 @@ const fakeNewProducts = [
     salePrice: 1200000,
     discountPercent: 20,
     sold: 45,
-    available: 5
+    available: 5,
+    stock: 50
   },
   {
     name: "California Pizza Kitchen Margherita, Crispy Thin Crust Pizza",
@@ -53,7 +60,8 @@ const fakeNewProducts = [
     salePrice: 320000,
     discountPercent: 20,
     sold: 100,
-    available: 25
+    available: 25,
+    stock: 125
   },
   {
     name: "Product 7",
@@ -62,7 +70,8 @@ const fakeNewProducts = [
     salePrice: 480000,
     discountPercent: 20,
     sold: 70,
-    available: 20
+    available: 20,
+    stock: 90
   },
   {
     name: "Product 8",
@@ -71,7 +80,29 @@ const fakeNewProducts = [
     salePrice: 700000,
     discountPercent: 30,
     sold: 150,
-    available: 40
+    available: 40,
+    stock: 190
+  }
+]
+
+const ads = [
+  {
+    id: 1,
+    image: "https://i.pinimg.com/736x/01/8c/1a/018c1a9e67089a21473410073a39f4a5.jpg",
+    description: "Summer promotion",
+    title: "50% off on all services in June!",
+  },
+  {
+    id: 2,
+    image: "https://i.pinimg.com/736x/01/8c/1a/018c1a9e67089a21473410073a39f4a5.jpg",
+    description: "New service launch",
+    title: "Experience our new service with special offers.",
+  },
+  {
+    id: 3,
+    image: "https://i.pinimg.com/736x/01/8c/1a/018c1a9e67089a21473410073a39f4a5.jpg",
+    description: "Member exclusive",
+    title: "Members receive a 100k voucher instantly.",
   }
 ]
 export default function NewProduct() {
@@ -90,8 +121,8 @@ export default function NewProduct() {
                 className="h-[200px] w-full object-cover rounded"
               />
               {product.discountPercent > 0 && (
-                <span className="absolute top-1 left-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded">
-                  -{product.discountPercent}%
+                <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
+                  {product.discountPercent}%
                 </span>
               )}
             </div>
@@ -109,9 +140,28 @@ export default function NewProduct() {
             <hr className="my-2 border-gray-200" />
             <span className="text-xs text-gray-400">This product is about to run out</span>
             <div className="flex justify-between w-full text-xs text-gray-500">
-              <span>Đã bán: {product.sold}</span>
-              <span>Còn: {product.available}</span>
+              <Progress
+                value={(product.sold / product.stock) * 100}
+                className="w-full h-2 mt-1 mb-2"
+              />
+              {/* <span>Đã bán: {product.sold}</span> */}
             </div>
+            <span className="text-gray-500 text-xs">Available only:<span className="text-black font-bold italic text-sm" > {product.stock}</span></span>
+          </div>
+        ))}
+      </div>
+      <div className="adv mt-2 flex justify-around ">
+        {ads.slice(0, 3).map((ad) => (
+          <div key={ad.id} className="flex gap-2 rounded-r-md bg-gray-100 items-center rounded-l-md">
+             <div className="text-left p-2 mt-2 max-w-[300px]">
+              <h3 className="text-lg font-semibold">{ad.title}</h3>
+              <p className="text-sm text-gray-500">{ad.description}</p>
+            </div>
+              <img
+                src={ad.image}
+                alt={ad.title}
+                className="w-36 h-36 object-cover rounded-r-md ml-2"
+              />
           </div>
         ))}
       </div>
