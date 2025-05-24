@@ -2,58 +2,72 @@ import React from 'react'
 const fakeCategories = [
     {
         name: "Electronics",
-        image: "https://images.pexels.com/photos/1054397/pexels-photo-1054397.jpeg?auto=compress&w=400&q=80"
+        image: "https://img.thecdn.in/37982/1679980892087_WhatsAppImage20230327at94648PM2.jpeg?width=384&format=webp"
     },
     {
         name: "Books",
-        image: "https://images.pexels.com/photos/590493/pexels-photo-590493.jpeg?auto=compress&w=400&q=80"
+        image: "https://img.thecdn.in/37982/1679980892087_WhatsAppImage20230327at94648PM2.jpeg?width=384&format=webp"
     },
     {
         name: "Clothing",
-        image: "https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg?auto=compress&w=400&q=80"
+        image: "https://img.thecdn.in/37982/1679980892087_WhatsAppImage20230327at94648PM2.jpeg?width=384&format=webp"
     },
     {
         name: "Home",
-        image: "https://images.pexels.com/photos/271816/pexels-photo-271816.jpeg?auto=compress&w=400&q=80"
+        image: "https://img.thecdn.in/37982/1679980892087_WhatsAppImage20230327at94648PM2.jpeg?width=384&format=webp"
     },
     {
         name: "Toys",
-        image: "https://images.pexels.com/photos/3661350/pexels-photo-3661350.jpeg?auto=compress&w=400&q=80"
+        image: "https://img.thecdn.in/37982/1679980892087_WhatsAppImage20230327at94648PM2.jpeg?width=384&format=webp"
     },
     {
         name: "Sports",
-        image: "https://images.pexels.com/photos/2294361/pexels-photo-2294361.jpeg?auto=compress&w=400&q=80"
+        image: "https://img.thecdn.in/37982/1679980892087_WhatsAppImage20230327at94648PM2.jpeg?width=384&format=webp"
     },
     {
         name: "Beauty",
-        image: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&w=400&q=80"
+        image: "https://img.thecdn.in/37982/1679980892087_WhatsAppImage20230327at94648PM2.jpeg?width=384&format=webp"
     },
     {
         name: "Automotive",
-        image: "https://images.pexels.com/photos/358070/pexels-photo-358070.jpeg?auto=compress&w=400&q=80"
+        image: "https://img.thecdn.in/37982/1679980892087_WhatsAppImage20230327at94648PM2.jpeg?width=384&format=webp"
     }
 ];
 export default function Category() {
   return (
     <div className="">
-      <div className="grid grid-cols-8 ">
-        {fakeCategories.map((category, index) => (
-          <div
-            key={index}
-            className="flex flex-col items-center border  p-3 hover:shadow transition"
-          >
-            <img
-              src={category.image}
-              alt={category.name}
-              className="w-24 h-24 object-contain mb-2"
-            />
-            <span className="text-sm font-medium text-center">{category.name}</span>
-          </div>
-        ))}
-      </div>
-      <div>
-        <img src="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80" alt="category" className="w-full h-24 object-cover" />
-      </div>
-    </div>
+  <div className="grid grid-cols-8 mb-5">
+    {fakeCategories.map((category, index) => {
+      const isFirst = index === 0;
+      const isLast = index === fakeCategories.length - 1;
+      return (
+        <div
+          key={index}
+          className={`
+            flex flex-col items-center border p-3 hover:shadow transition 
+            ${isFirst ? 'rounded-l-md' : ''} 
+            ${isLast ? 'rounded-r-md' : ''}
+          `}
+        > {/* để chỉ ô đầu cuối bo góc */}
+          <img
+            src={category.image}
+            alt={category.name}
+            className="w-24 h-24 object-contain mb-2"
+          />
+          <span className="text-sm font-medium text-center">{category.name}</span>
+        </div>
+      );
+    })}
+  </div>
+
+  <div className="mb-5">
+    <img
+      src="https://vi.amoybrand.com/storage/uploads/images/202309/04/a4e0a2f1019bfde4d98664125b6384a0.jpg"
+      alt="category"
+      className="w-full h-24 rounded object-cover"
+    />
+  </div>
+</div>
+
   )
 }

@@ -1,66 +1,62 @@
-// import React from 'react'
-// import { Card, CardContent } from "@/components/ui/card"
-// import {
-//     Carousel,
-//     CarouselContent,
-//     CarouselItem,
-//     CarouselNext,
-//     CarouselPrevious,
-// } from "@/components/ui/carousel"
+'use client'
+import React from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay, Pagination, Navigation } from 'swiper/modules'
 
-// const adsData = [
-//     {
-//         id: 1,
-//         title: "Khuyến mãi mùa hè",
-//         image: "https://i.pinimg.com/736x/9b/61/ae/9b61ae53a888f56004c13e62596bb077.jpg",
-//         description: "Giảm giá 50% cho tất cả dịch vụ trong tháng 6!",
-//     },
-//     {
-//         id: 2,
-//         title: "Dịch vụ mới ra mắt",
-//         image: "https://i.pinimg.com/736x/b9/69/0a/b9690ac7ec4b7c94d44d9e519b6c30e7.jpg",
-//         description: "Trải nghiệm dịch vụ mới với ưu đãi hấp dẫn.",
-//     },
-//     {
-//         id: 3,
-//         title: "Ưu đãi thành viên",
-//         image: "https://i.pinimg.com/736x/97/80/69/978069390e94fe9d74510a93911af680.jpg",
-//         description: "Thành viên nhận ngay voucher 100k.",
-//     },
-//     {
-//         id: 4,
-//         title: "Giới thiệu bạn bè",
-//         image: "https://i.pinimg.com/736x/13/f3/ba/13f3ba5ff82b58d053423a1decc8e196.jpg",
-//         description: "Giới thiệu bạn nhận thưởng hấp dẫn.",
-//     },
-//     {
-//         id: 5,
-//         title: "Flash Sale cuối tuần",
-//         image: "https://i.pinimg.com/736x/dd/1c/ff/dd1cff06e41bbe14fd715dd01edff398.jpg",
-//         description: "Chỉ áp dụng từ 18h-22h, số lượng có hạn!",
-//     },
-// ]
-// export default function Banner() {
-//     return (
-//         <div>
-//             <div className="flex justify-center items-center ">
-//                 <Carousel className=" max-w-6xl">
-//                     <CarouselContent className="">
-//                         {adsData.map((ad) => (
-//                             <CarouselItem key={ad.id}>
-//                                 <Card className="w-full border-none ">
-//                                     <CardContent className="flex flex-col items-center justify-center aspect-square max-h-[400px] ">
-//                                         <img src={ad.image} alt={ad.title} className="w-full max-h-[400px] object-cover rounded " />
-//                                     </CardContent>
-//                                 </Card>
-//                             </CarouselItem>
-//                         ))}
-//                     </CarouselContent>
-//                     <CarouselPrevious />
-//                     <CarouselNext />
-//                 </Carousel>
-//             </div>
-            
-//         </div>
-//     )
-// }
+import 'swiper/css'
+import 'swiper/css/pagination'
+import 'swiper/css/navigation'
+
+const adsData = [
+    {
+        id: 1,
+        title: "Khuyến mãi mùa hè",
+        image: "https://images.squarespace-cdn.com/content/v1/57e1928bcd0f687b55ea0e2d/1569887522826-WVO9NQ21GUCLTCLE0218/kj_balmain_hp.png?format=2500w",
+        description: "Giảm giá 50% cho tất cả dịch vụ trong tháng 6!",
+    },
+    {
+        id: 2,
+        title: "Dịch vụ mới ra mắt",
+        image: "https://www.shoeshowmega.com/on/demandware.static/-/Library-Sites-ShoeShowSharedLibrary/default/dwd5ed15ca/images/homepage/shoeshow/quarter12025/shoe-show-heydude-banner-promo-banner-desktop-retina.jpg",
+        description: "Trải nghiệm dịch vụ mới với ưu đãi hấp dẫn.",
+    },
+    {
+        id: 3,
+        title: "Ưu đãi thành viên",
+        image: "https://nilsonline.lk/image/cache/catalog/nils/product/Home%20Page%20Slideshow%20Live/11.11-2880x1180.jpg",
+        description: "Thành viên nhận ngay voucher 100k.",
+    }
+]
+
+
+export default function Banner() {
+    
+    return (
+        <div className=" mx-auto mb-5">
+            <Swiper
+                modules={[Autoplay, Pagination, Navigation]}
+                spaceBetween={30}
+                centeredSlides={true}
+                autoplay={{
+                    delay: 3000,
+                    disableOnInteraction: false,
+                }}
+                pagination={{ clickable: true }}
+                navigation={false}
+                className="mySwiper"
+            >
+                {adsData.map((ad) => (
+                    <SwiperSlide key={ad.id}>
+                        <div className="flex justify-center items-center max-h-[400px]">
+                            <img
+                                src={ad.image}
+                                alt={ad.title}
+                                className="w-full max-h-[400px] object-cover rounded"
+                            />
+                        </div>
+                    </SwiperSlide>
+                ))}
+            </Swiper>
+        </div>
+    )
+}

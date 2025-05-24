@@ -88,19 +88,19 @@ const fakeNewProducts = [
 const ads = [
   {
     id: 1,
-    image: "https://i.pinimg.com/736x/01/8c/1a/018c1a9e67089a21473410073a39f4a5.jpg",
+    image: "https://1.bp.blogspot.com/-SoZlEU-8DXA/YOP8tPSO2EI/AAAAAAAIEJo/0mw1SH8614U170F4fPrMXRUZ1PAKEbWIQCLcBGAsYHQ/s1600/Fruzo-03.png",
     description: "Summer promotion",
     title: "50% off on all services in June!",
   },
   {
     id: 2,
-    image: "https://i.pinimg.com/736x/01/8c/1a/018c1a9e67089a21473410073a39f4a5.jpg",
+    image: "https://i.pinimg.com/736x/45/47/d2/4547d29e55eacaf3557c87ab0900c2e1.jpg",
     description: "New service launch",
     title: "Experience our new service with special offers.",
   },
   {
     id: 3,
-    image: "https://i.pinimg.com/736x/01/8c/1a/018c1a9e67089a21473410073a39f4a5.jpg",
+    image: "https://i.pinimg.com/736x/7d/5d/4a/7d5d4a6e40b4d13697ce6d90a810e47c.jpg",
     description: "Member exclusive",
     title: "Members receive a 100k voucher instantly.",
   }
@@ -150,21 +150,17 @@ export default function NewProduct() {
           </div>
         ))}
       </div>
-      <div className="adv mt-2 flex justify-around ">
-        {ads.slice(0, 3).map((ad) => (
-          <div key={ad.id} className="flex gap-2 rounded-r-md bg-gray-100 items-center rounded-l-md">
-             <div className="text-left p-2 mt-2 max-w-[300px]">
-              <h3 className="text-lg font-semibold">{ad.title}</h3>
-              <p className="text-sm text-gray-500">{ad.description}</p>
+      <div className="adv mt-5 flex justify-between">
+                {ads.slice(0, 3).map((ad) => (
+                    <div key={ad.id} className="flex items-center">
+                        <img
+                            src={ad.image}
+                            alt={ad.title}
+                            className=" w-[400px] h-52  object-cover rounded gap-[5px]"
+                        />
+                    </div>
+                ))}
             </div>
-              <img
-                src={ad.image}
-                alt={ad.title}
-                className="w-36 h-36 object-cover rounded-r-md ml-2"
-              />
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
