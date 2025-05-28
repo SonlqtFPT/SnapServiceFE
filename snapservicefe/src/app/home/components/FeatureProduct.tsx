@@ -140,7 +140,7 @@ const ads = [
 
 export default function FeatureProduct() {
     return (
-        <div className="">
+        <div>
             <div className="flex gap-4">
                 <Swiper
                     modules={[Navigation, Pagination, Autoplay]}

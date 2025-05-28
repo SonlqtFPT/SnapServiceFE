@@ -140,7 +140,7 @@ const ads = [
 
 export default function NewArrivals() {
     return (
-        <div className="">
+        <div>
             <div className="flex gap-4">
                 {/* <Carousel /> */}
                 <Swiper
