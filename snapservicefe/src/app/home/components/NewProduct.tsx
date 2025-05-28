@@ -108,7 +108,7 @@ const ads = [
 ]
 export default function NewProduct() {
   return (
-    <div>
+    <div className="">
       <div className="grid grid-cols-6 gap-4">
         {fakeNewProducts.slice(0, 6).map((product, index) => (
           <div
