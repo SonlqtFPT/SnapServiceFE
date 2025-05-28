@@ -1,0 +1,21 @@
+export type ProductType = {
+  id: string;
+  name: string;
+  created_at: Date;
+  price: number;
+  description: string;
+  image: string;
+  stock_in_quantity: number;
+  rating_average: number;
+  sku: string;
+  discount_price: number;
+  discount_percent: number;
+  sold_quantity: number;
+  available_quantity: number;
+  is_active: boolean;
+  is_sale: boolean;
+  is_favorite: boolean;
+  slug: string;
+  categories_id: number;
+  supplier_id: number;
+};
