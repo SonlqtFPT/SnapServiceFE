@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAllUsers } from "@/services/userService";
+import { getAllUsers } from "@/services/users/userService";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -12,7 +12,7 @@ export default function UsersPage() {
     const fetchUsers = async () => {
       try {
         const data = await getAllUsers();
-        setUsers(data); // nếu response.data là array
+        setUsers(data); 
       } catch (err: any) {
         setError(err.message || "Something went wrong");
       }
