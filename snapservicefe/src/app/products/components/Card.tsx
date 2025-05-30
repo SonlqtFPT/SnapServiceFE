@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { ProductType } from '../Type/ProductType'
+import { ProductType } from '@/types/product/ProductType'
 import Image from 'next/image'
 import { Heart, ShoppingCart } from 'lucide-react'
 import { ProductRating } from './ProductRating'

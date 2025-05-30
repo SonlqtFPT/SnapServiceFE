@@ -2,7 +2,7 @@
 import Sort from './components/Sort'
 import Category from './components/Category'
 import Card from './components/Card'
-import { ProductType } from './Type/ProductType'
+import { ProductType } from '@/types/product/ProductType'
 
 type Props = {
     products: ProductType[],

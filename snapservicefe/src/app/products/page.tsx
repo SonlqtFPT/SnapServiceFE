@@ -1,6 +1,5 @@
-// app/users/page.tsx (hoặc bất kỳ component nào)
 import ProductsClient from "./ProductClient";
-import { ProductType } from "./Type/ProductType";
+import { ProductType } from "@/types/product/ProductType";
 
 const fakeProducts: ProductType[] = [
   {

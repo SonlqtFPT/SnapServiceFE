@@ -1,7 +1,7 @@
 'use client'
 import { Checkbox } from '@/components/ui/checkbox'
 import React from 'react'
-import { CategoryType } from '../Type/CategoryType'
+import { CategoryType } from '@/types/product/CategoryType'
 
 export default function Category() {
      const categories: CategoryType[] =[
