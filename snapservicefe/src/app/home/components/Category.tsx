@@ -36,7 +36,7 @@ const fakeCategories = [
 ];
 export default function Category() {
   return (
-    <div className="">
+    <div >
   <div className="grid grid-cols-8 mb-5">
     {fakeCategories.map((category, index) => {
       const isFirst = index === 0;

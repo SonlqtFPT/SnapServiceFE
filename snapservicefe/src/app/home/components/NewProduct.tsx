@@ -109,8 +109,8 @@ const ads = [
 export default function NewProduct() {
   return (
     <div className="">
-      <div className="grid grid-cols-6 gap-4">
-        {fakeNewProducts.slice(0, 6).map((product, index) => (
+      <div className="grid grid-cols-6 gap-4 cursor-pointer">
+        {fakeNewProducts.slice(2, 8).map((product, index) => (
           <div
             key={index}
             className="flex flex-col border p-3 hover:shadow rounded"
@@ -127,7 +127,7 @@ export default function NewProduct() {
                 </span>
               )}
             </div>
-            <div className='max-w-60 min-h-10  line-clamp-2 font-semibold text-sm  text-ellipsis hover:text-blue-600 transition-colors mb-2'>
+            <div className='max-w-60 min-h-10  line-clamp-2 font-semibold text-sm  text-ellipsis mb-2  '>
               {product.name}
             </div>
             <div className="flex items-center gap-2 mb-1">

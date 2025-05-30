@@ -171,7 +171,7 @@ export default function NewArrivals() {
                     .map((product, index) => (
                         <div
                             key={index}
-                            className="flex flex-col border w-[250px] p-3 hover:shadow rounded"
+                            className="flex flex-col border w-[250px] p-3 hover:shadow rounded cursor-pointer"
                         >
                             <div className="relative mb-2">
                                 <img

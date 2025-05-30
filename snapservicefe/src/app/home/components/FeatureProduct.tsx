@@ -165,53 +165,53 @@ export default function FeatureProduct() {
                     ))}
                 </Swiper>
                 {fakeFeatureProducts
-                    .filter(product => product.available > 0)
+                    // .filter(product => product.available > 0)
                     .slice(0, 4)
                     .map((product, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex flex-col border w-[250px] p-3 hover:shadow rounded"
-                                            >
-                                                <div className="relative mb-2">
-                                                    <img
-                                                        src={product.image}
-                                                        alt={product.name}
-                                                        className="h-[200px] w-full object-cover rounded"
-                                                    />
-                                                    {product.discountPercent > 0 && (
-                                                        <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
-                                                            {product.discountPercent}%
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className='max-w-60 min-h-10  line-clamp-2 font-semibold text-sm  text-ellipsis hover:text-blue-600 transition-colors mb-2'>
-                                                    {product.name}
-                                                </div>
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="text-red-500 font-semibold">
-                                                        {product.salePrice.toLocaleString()}₫
-                                                    </span>
-                                                    <span className="text-xs text-gray-400 line-through">
-                                                        {product.originalPrice.toLocaleString()}₫
-                                                    </span>
-                                                </div>
-                                                <hr className="my-2 border-gray-200" />
-                                                <div className="flex justify-between w-full text-xs text-gray-500">
-                                                    <Progress
-                                                        value={(product.sold / product.stock) * 100}
-                                                        className="w-full h-2 mt-1 mb-2"
-                                                    />
-                                                </div>
-                                                <div className='flex justify-between'>
-                                                    <span className="text-gray-500 text-xs">Available only:
-                                                        <span className="text-black font-bold italic text-xs" > {product.stock}</span>
-                                                    </span>
-                                                    <span className='text-gray-500 text-xs'>rating:
-                                                        <span className='text-black font-bold italic text-xs'> {product.rate}</span>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ))}
+                        <div
+                            key={index}
+                            className="flex flex-col border w-[250px] p-3 hover:shadow rounded cursor-pointer"
+                        >
+                            <div className="relative mb-2">
+                                <img
+                                    src={product.image}
+                                    alt={product.name}
+                                    className="h-[200px] w-full object-cover rounded"
+                                />
+                                {product.discountPercent > 0 && (
+                                    <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
+                                        {product.discountPercent}%
+                                    </span>
+                                )}
+                            </div>
+                            <div className='max-w-60 min-h-10  line-clamp-2 font-semibold text-sm  text-ellipsis hover:text-blue-600 transition-colors mb-2'>
+                                {product.name}
+                            </div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="text-red-500 font-semibold">
+                                    {product.salePrice.toLocaleString()}₫
+                                </span>
+                                <span className="text-xs text-gray-400 line-through">
+                                    {product.originalPrice.toLocaleString()}₫
+                                </span>
+                            </div>
+                            <hr className="my-2 border-gray-200" />
+                            <div className="flex justify-between w-full text-xs text-gray-500">
+                                <Progress
+                                    value={(product.sold / product.stock) * 100}
+                                    className="w-full h-2 mt-1 mb-2"
+                                />
+                            </div>
+                            <div className='flex justify-between'>
+                                <span className="text-gray-500 text-xs">Available only:
+                                    <span className="text-black font-bold italic text-xs" > {product.stock}</span>
+                                </span>
+                                <span className='text-gray-500 text-xs'>rating:
+                                    <span className='text-black font-bold italic text-xs'> {product.rate}</span>
+                                </span>
+                            </div>
+                        </div>
+                    ))}
             </div>
             <div className="adv mt-5 flex justify-between">
                 {ads.slice(3, 6).map((ad) => (
