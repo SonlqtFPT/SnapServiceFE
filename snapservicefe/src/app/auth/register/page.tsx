@@ -1,12 +1,10 @@
-'use client';
-import React, { useState } from 'react';
+import React from 'react';
+import RegisterForm from './components/RegisterForm';
 
 const RegisterPage = () => {
 
   return (
-    <div style={{ maxWidth: 400, margin: '40px auto', padding: 24, border: '1px solid #ddd', borderRadius: 8 }}>
-      <h2>Đăng ký</h2>
-    </div>
+    <RegisterForm/>
   );
 };
 

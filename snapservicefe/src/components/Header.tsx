@@ -40,7 +40,7 @@ export default function Header() {
             </div>
 
         <div className="flex justify-end items-center space-x-4 font-bold whitespace-nowrap">
-            <Link href="/auth">Login/Register</Link>
+            <Link href="/auth/login">Login/Register</Link>
             <Link href="/cart" className="flex items-center gap-1">
             <ShoppingCart className="w-5 h-5" />
                 Cart
