@@ -2,7 +2,7 @@
 import React from 'react'
 import { Progress } from "@/components/ui/progress"
 import { ProductType } from '../type/ProductType'
-import {AdvType} from '../type/AdvType'
+import { AdvType } from '../type/AdvType'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
@@ -148,7 +148,7 @@ const products: ProductType[] = [
     },
 ]
 
-const ads: AdvType[] =  [
+const ads: AdvType[] = [
     {
         id: 1,
         image: "https://i.pinimg.com/736x/71/62/81/716281de45193a8ed4846269be62127d.jpg",
@@ -208,7 +208,7 @@ export default function NewArrivals() {
                     autoplay={{ delay: 3500, disableOnInteraction: false }}
                     className="w-[500px] rounded-md"
                 >
-                    {ads.filter(ads => ads.status==="carousel").map((ad) => (
+                    {ads.filter(ads => ads.status === "carousel").map((ad) => (
                         <SwiperSlide key={ad.id}>
                             <div className="flex gap-2  w-[500px] items-center rounded">
                                 <img
@@ -246,11 +246,11 @@ export default function NewArrivals() {
                             </div>
                             <div className="flex items-center gap-2 mb-1">
                                 <span className="text-red-500 font-semibold">
-                                                    {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                                    {/* {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
 
                                 </span>
                                 <span className="text-xs text-gray-400 line-through">
-                                    {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                                    {/* {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
 
                                 </span>
                             </div>

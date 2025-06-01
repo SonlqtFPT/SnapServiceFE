@@ -8,7 +8,7 @@ export type ProductType = {
   stock_in_quantity: number;
   rating_average: number;
   sku: string;
-  discount_price: number;
+  discountPrice: number;
   discount_percent: number;
   sold_quantity: number;
   available_quantity: number;

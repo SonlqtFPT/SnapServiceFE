@@ -190,10 +190,10 @@ export default function NewProduct() {
             </div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-red-500 font-semibold">
-                {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                {/* {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
               </span>
               <span className="text-xs text-gray-400 line-through">
-                {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                {/* {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
               </span>
             </div>
             <hr className="my-2 border-gray-200" />
