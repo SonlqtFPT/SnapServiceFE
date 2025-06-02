@@ -65,7 +65,7 @@ export default function Card({ products }: Props) {
                             <div className='flex gap-2 items-center'>
                                 {item.is_sale ? (
                                     <div className="flex gap-2 items-center">
-                                        <p className="text-red-500 font-bold text-2xl">${item.discount_price}</p>
+                                        <p className="text-red-500 font-bold text-2xl">${item.discountPrice}</p>
                                         <p className="text-gray-500 line-through">${item.price}</p>
                                     </div>
                                 ) : (

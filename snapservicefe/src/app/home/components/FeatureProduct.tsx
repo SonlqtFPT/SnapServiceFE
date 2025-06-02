@@ -7,8 +7,10 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { fetchProducts} from "../../../services/product/ProductService"
+import { fetchProducts } from "../../../services/product/ProductService"
 import { use, useEffect, useState } from "react"
+import { productListRequest } from "@/model/request/productRequest"
+import { ProductListResponse } from "@/model/response/productRespone"
 
 // const products: ProductType[] = [
 //     {
@@ -149,7 +151,7 @@ import { use, useEffect, useState } from "react"
 //     },
 // ]
 
-const ads: AdvType[] =  [
+const ads: AdvType[] = [
     {
         id: 1,
         image: "https://i.pinimg.com/736x/cd/b6/af/cdb6afd935e8020c6955c970bbe2d9a3.jpg",
@@ -195,23 +197,32 @@ const ads: AdvType[] =  [
 ]
 
 export default function FeatureProduct() {
- 
-const [products, setProducts] = useState<ProductType[]>([]); 
 
-useEffect(() => {
-    const fetchData = async () => {
-        try {
-            const fetchedProducts: ProductType[] = await fetchProducts();
-            setProducts(fetchedProducts);
-        } catch (error) {
-            console.error("Error fetching products:", error);
-        }
-    };
+    const [products, setProducts] = useState<ProductListResponse[]>([]);
+    // const [request, setRequest] = useState<productListRequest>({
+    //     page: 1,
+    //     pageSize: 10,
+    // }); Chỗ này là excample cho ai thắc mắc nếu xài productListRequest trong useState còn tui để 
+    // này để lun trong useEffect là vì nó không có chuyển trang
 
-    fetchData();
-    console.log("Fetched products:", products);
+    useEffect(() => {
+        const fetchData = async () => {
+            const request: productListRequest = {
+                page: 1,
+                pageSize: 10,
+            };
+            try {
+                const fetchedProducts: ProductListResponse[] = await fetchProducts(request);
+                setProducts(fetchedProducts);
+                console.log("Fetched products:", fetchedProducts);
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
+        };
 
-}, [])
+        fetchData();
+
+    }, [])
 
     return (
         <div className="">
@@ -225,7 +236,7 @@ useEffect(() => {
                     autoplay={{ delay: 3500, disableOnInteraction: false }}
                     className="w-[500px] rounded-md"
                 >
-                    {ads.filter(ads => ads.status==="carousel").map((ad) => (
+                    {ads.filter(ads => ads.status === "carousel").map((ad) => (
                         <SwiperSlide key={ad.id}>
                             <div className="flex gap-2  w-[500px] items-center rounded">
                                 <img
@@ -248,13 +259,13 @@ useEffect(() => {
                         >
                             <div className="relative mb-2">
                                 <img
-                                    src={product.image}
+                                    src={product.imageUrl}
                                     alt={product.name}
                                     className="h-[200px] w-full object-cover rounded"
                                 />
-                                {product.discount_percent > 0 && (
+                                {product.discountPercent > 0 && (
                                     <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
-                                        {product.discount_percent}%
+                                        {product.discountPercent}%
                                     </span>
                                 )}
                             </div>
@@ -263,8 +274,8 @@ useEffect(() => {
                             </div>
                             <div className="flex items-center gap-2 mb-1">
                                 <span className="text-red-500 font-semibold">
-                                   {/* {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
-                                   {product.discountPrice} sometihnfg
+                                    {/* {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
+                                    {product.discountPrice} sometihnfg
                                 </span>
                                 <span className="text-xs text-gray-400 line-through">
                                     {/* {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
@@ -273,23 +284,23 @@ useEffect(() => {
                             <hr className="my-2 border-gray-200" />
                             <div className="flex justify-between w-full text-xs text-gray-500">
                                 <Progress
-                                    value={(product.sold_quantity / product.stock_in_quantity) * 100}
+                                    value={(product.soldQuantity / product.stockInQuantity) * 100}
                                     className="w-full h-2 mt-1 mb-2"
                                 />
                             </div>
                             <div className='flex justify-between'>
                                 <span className="text-gray-500 text-xs">Available only:
-                                    <span className="text-black font-bold italic text-xs" > {product.stock_in_quantity}</span>
+                                    <span className="text-black font-bold italic text-xs" > {product.stockInQuantity}</span>
                                 </span>
                                 <span className='text-gray-500 text-xs'>rating:
-                                    <span className='text-black font-bold italic text-xs'> {product.rating_average}</span>
+                                    <span className='text-black font-bold italic text-xs'> {product.ratingAverage}</span>
                                 </span>
                             </div>
                         </div>
                     ))}
             </div>
             <div className="adv mt-5 flex justify-between">
-                {ads.filter(ads=>ads.status==="banner").map((ad) => (
+                {ads.filter(ads => ads.status === "banner").map((ad) => (
                     <div key={ad.id} className="flex items-center">
                         <img
                             src={ad.image}
