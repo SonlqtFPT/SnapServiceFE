@@ -13,7 +13,7 @@ export default function Sort({totalProduct}: Props) {
                 <div>Sort: <strong className='text-black'>Sort by latest</strong></div>
             </div>
             <div className='flex justify-end w-[30%] gap-2'>
-                | Show:<strong className='text-black'>20 item</strong> 
+                | Show:<strong className='text-black'>10 item</strong> 
             </div>
         </div>
     )

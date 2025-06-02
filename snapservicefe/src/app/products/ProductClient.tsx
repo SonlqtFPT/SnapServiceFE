@@ -3,12 +3,28 @@ import Sort from './components/Sort'
 import Category from './components/Category'
 import Card from './components/Card'
 import { ProductType } from '@/types/product/ProductType'
+import { fetchProducts } from '@/services/product/ProductService'
+import { useEffect, useState } from 'react'
 
-type Props = {
-    products: ProductType[],
-}
 
-export default function ProductsClient({ products }: Props) {
+
+export default function ProductsClient() {
+    const [products, setProducts] = useState<ProductType[]>([]);
+
+    const firstProduct = async () => {
+        try {
+            const response = await fetchProducts(1, 10);
+            setProducts(response);
+            return response;
+        } catch (error) {
+            console.error("Failed to fetch products:", error);
+            return [];
+        }
+    }
+    useEffect(() => {
+        firstProduct()
+    }, [])
+
     return (
         <div className='flex gap-4'>
             <div className='w-[20%]'>
