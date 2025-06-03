@@ -3,6 +3,7 @@
 import { loginUser } from '@/services/users/userService'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default function LoginForm() {
   const [emailOrPhone, setEmailOrPhone] = useState('')
@@ -12,21 +13,25 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    try{
-    const res = await loginUser({ emailOrPhone, password })
-    if(res?.token){
-      localStorage.setItem('token', res.token)
-      route.push('/home')
+    try {
+      const res = await loginUser({ emailOrPhone, password })
+      if (res?.token) {
+        localStorage.setItem('token', res.token)
+        toast.success("Đăng nhập thành công")
+        setTimeout(() => {
+          route.push('/home')
+        }, 4000)
+      }
+    } catch (error: any) {
+      toast.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin đăng nhập của bạn.")
+      console.log(error);
     }
-    }catch(error: any){
-       alert("Đăng nhập thất bại")
-    }
-    
+
   }
 
   return (
     <div className="max-w-md mx-auto mt-20 px-6">
-
+      <ToastContainer position='top-center' autoClose={3000} />
       <p className="text-center text-sm text-gray-600 mb-6">
         If you have an account, sign in with your username or email address.
       </p>
@@ -71,7 +76,7 @@ export default function LoginForm() {
 
         <button
           type="submit"
-          className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition"
+          className="w-full cursor-pointer bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition"
         >
           Log in
         </button>
