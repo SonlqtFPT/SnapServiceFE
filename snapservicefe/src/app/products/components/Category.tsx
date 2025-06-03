@@ -1,12 +1,12 @@
 'use client'
 import { Checkbox } from '@/components/ui/checkbox'
 import React, { useEffect, useState } from 'react'
-import { CategoryType } from '@/types/product/CategoryType'
 import { fetchCategories } from '@/services/product/ProductService'
 import Image from 'next/image'
+import { CategoryResponse } from '@/model/response/categoryResponse'
 
 export default function Category() {
-    const [categories, setCategories] = useState<CategoryType[]>([]);
+    const [categories, setCategories] = useState<CategoryResponse[]>([]);
     const getCategories = async () => {
         try {
             const response = await fetchCategories();

@@ -1,6 +1,5 @@
 'use client'
 import { Progress } from "@/components/ui/progress"
-import { ProductType } from "../../../types/product/ProductType"
 import { AdvType } from "../type/AdvType"
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -8,7 +7,7 @@ import 'swiper/css/pagination'
 import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { fetchProducts } from "../../../services/product/ProductService"
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { productListRequest } from "@/model/request/productRequest"
 import { ProductListResponse } from "@/model/response/productRespone"
 
@@ -198,7 +197,7 @@ const ads: AdvType[] = [
 
 export default function FeatureProduct() {
 
-    const [products, setProducts] = useState<ProductListResponse[]>([]);
+    const [products, setProducts] = useState<ProductListResponse>();
     // const [request, setRequest] = useState<productListRequest>({
     //     page: 1,
     //     pageSize: 10,
@@ -212,7 +211,7 @@ export default function FeatureProduct() {
                 pageSize: 10,
             };
             try {
-                const fetchedProducts: ProductListResponse[] = await fetchProducts(request);
+                const fetchedProducts: ProductListResponse = await fetchProducts(request);
                 setProducts(fetchedProducts);
                 console.log("Fetched products:", fetchedProducts);
             } catch (error) {
@@ -249,7 +248,7 @@ export default function FeatureProduct() {
                         </SwiperSlide>
                     ))}
                 </Swiper>
-                {products
+                {products?.items
                     // .filter(product => product.available > 0)
                     .slice(0, 4)
                     .map((product, index) => (
