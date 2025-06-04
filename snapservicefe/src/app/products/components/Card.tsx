@@ -3,25 +3,53 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { ShoppingCart } from 'lucide-react'
 import { ProductRating } from './ProductRating'
-import { fetchProducts } from '@/services/product/ProductService'
+import { fetchProductsByQuery } from '@/services/product/ProductService'
 import { ItemResponse, ProductListResponse } from '@/model/response/productRespone'
-import { productListRequest } from '@/model/request/productRequest'
+import { searchProductRequest } from '@/model/request/productRequest'
+import Sort from './Sort'
+import { useSearchParams } from 'next/navigation'
 
 type Props = {
-    products: ProductListResponse
-}
+    categoryId: number | null;
+};
 
-export default function Card({ products }: Props) {
-    const [product, setProduct] = useState<ProductListResponse>(products);
-    const [productList, setProductList] = useState<ItemResponse[]>(products?.items || []);
-    const [page, setPage] = useState<productListRequest>({
-        page: 1,
-        pageSize: 20,
+export default function Card({ categoryId }: Props) {
+    const searchParams = useSearchParams()
+    const [page, setPage] = useState<searchProductRequest>({
+        q: searchParams.get('q') || '',
+        page: parseInt(searchParams.get('page') || '1', 10),
+        size: parseInt(searchParams.get('size') || '20', 10),
+        sortOrder: (searchParams.get('sortOrder') || 'desc'),
+        sortBy: (searchParams.get('sortBy') || 'createdAt'),
     });
 
-    const getproducts = async () => {
+    useEffect(() => {
+        const newPage: searchProductRequest = {
+            q: searchParams.get('q') || '',
+            page: parseInt(searchParams.get('page') || '1', 10),
+            size: parseInt(searchParams.get('size') || '20', 10),
+            sortOrder: (searchParams.get('sortOrder') || 'desc'),
+            sortBy: (searchParams.get('sortBy') || 'createdAt'),
+            categoryId: null,
+        };
+        setPage(newPage);
+    }, [searchParams]);
+
+    const [product, setProduct] = useState<ProductListResponse>(
+    {
+        totalItems: 0,
+        totalPage: 0,
+        page: 1,
+        pageSize: 20,
+        items: [],
+    }
+    );
+    const [productList, setProductList] = useState<ItemResponse[]>([]);
+
+
+    const getProductsByQuery = async () => {
         try {
-            const response = await fetchProducts(page);
+            const response = await fetchProductsByQuery(page);
             setProduct(response);
             setProductList(response?.items || []);
             console.log("Fetched products:", response);
@@ -31,12 +59,21 @@ export default function Card({ products }: Props) {
     }
 
     useEffect(() => {
+        setPage(prev => ({
+            ...prev,
+            categoryId: categoryId,
+            page: 1 // reset về trang 1 nếu filter thay đổi
+        }));
+    }, [categoryId]);
+
+    useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top when page changes
-        getproducts();
+        getProductsByQuery();
     }, [page]);
 
     return (
-        <div>
+        <div className='flex flex-col gap-4'>
+            <Sort products={product} />
             <div className="grid grid-cols-5 gap-4">
                 {productList.map((item) => {
                     return (
@@ -46,7 +83,7 @@ export default function Card({ products }: Props) {
                                     {item?.discountPercent}%
                                 </span>
                             )}
-                            <div className="w-[150px] h-[200px] relative">
+                            <div className="w-[200px] h-[200px] relative">
                                 <Image
                                     src={item.imageUrl}
                                     alt={item.name}
@@ -86,7 +123,10 @@ export default function Card({ products }: Props) {
                 <div className="flex items-center justify-center gap-2 mt-6">
                     {/* Previous */}
                     <button
-                        onClick={() => setPage({ ...page, page: page.page - 1 })}
+                        onClick={() => setPage(prev => ({
+                            ...prev,
+                            page: prev.page - 1,
+                        }))}
                         disabled={page.page === 1}
                         className="px-3 py-1 text-sm disabled:text-gray-400 cursor-pointer"
                     >
@@ -113,7 +153,10 @@ export default function Card({ products }: Props) {
                                         ? 'bg-gray-800 text-gray-300 border border-white'
                                         : 'hover:bg-gray-800 hover:text-gray-300 cursor-pointer'
                                         }`}
-                                    onClick={() => setPage({ ...page, page: p })}
+                                    onClick={() => setPage(prev => ({
+                                        ...prev,
+                                        page: p,
+                                    }))}
                                 >
                                     {p}
                                 </button>
@@ -122,7 +165,10 @@ export default function Card({ products }: Props) {
 
                     {/* Next */}
                     <button
-                        onClick={() => setPage({ ...page, page: page.page + 1 })}
+                        onClick={() => setPage(prev => ({
+                            ...prev,
+                            page: prev.page + 1,
+                        }))}
                         disabled={page.page === product.totalPage}
                         className="px-3 py-1 text-sm disabled:text-gray-400 cursor-pointer"
                     >

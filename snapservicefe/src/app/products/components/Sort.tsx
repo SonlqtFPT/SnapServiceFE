@@ -13,8 +13,8 @@ export default function Sort({products}: Props) {
                 <div className=''>Found <strong className='text-black'>{products?.totalItems}</strong> result</div>
                 <div>Sort: <strong className='text-black'>Sort by latest</strong></div>
             </div>
-            <div className='flex justify-end w-[30%] gap-2'>
-                | Show:<strong className='text-black'>{products?.pageSize}</strong> 
+            <div className='flex justify-end w-[30%] gap-2 items-center'>
+                | Show per page:<strong className='text-black flex items-center'>{products?.pageSize}</strong> 
             </div>
         </div>
     )

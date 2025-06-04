@@ -12,6 +12,8 @@ export interface ItemResponse {
   supplierId: number;
   discountPercent: number;
   soldQuantity: number;
+  createdAt: string;
+  isActive: boolean;
 };
 
 export interface ProductListResponse {

@@ -1,5 +1,5 @@
 import { getAPI } from "@/lib/axios";
-import { productListRequest } from "@/model/request/productRequest";
+import { productListRequest, searchProductRequest } from "@/model/request/productRequest";
 import { ProductListResponse } from "@/model/response/productRespone";
 import { CategoryResponse } from '@/model/response/categoryResponse';
 
@@ -27,4 +27,25 @@ export const fetchCategories = async (): Promise<CategoryResponse[]> => {
         return [];
     }
     
+}
+
+export const fetchProductsByQuery = async (request: searchProductRequest): Promise<ProductListResponse> => {
+    const api = getAPI();
+    try{
+        const response = await api.get('/api/Product/Search', {
+            params:{
+                q: request.q,
+                page: request.page,
+                size: request.size,
+                sortOrder: request.sortOrder || 'desc',
+                sortBy: request.sortBy || 'createdAt',
+                categoryId: request.categoryId || null,
+            }
+        });
+        console.log("Fetched products by query:", response.data);
+        return response.data;
+    }catch (error) {
+        console.error("Failed to fetch products by query:", error);
+        throw error; // Ném lại lỗi để xử lý ở nơi gọi hàm
+    }
 }
