@@ -1,4 +1,4 @@
-export interface ProductListResponse {
+export interface ItemResponse {
   id: number;
   name: string;
   price: number;
@@ -12,6 +12,15 @@ export interface ProductListResponse {
   supplierId: number;
   discountPercent: number;
   soldQuantity: number;
+  createdAt: string;
+  isActive: boolean;
 };
 
+export interface ProductListResponse {
+  totalItems: number;
+  totalPage: number;
+  page: number;
+  pageSize: number;
+  items: ItemResponse[];
+}
 

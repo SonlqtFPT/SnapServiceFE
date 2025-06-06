@@ -3,9 +3,11 @@
 import { registerUser } from '@/services/users/userService'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast, ToastContainer } from 'react-toastify'
 
 export default function RegisterForm() {
-    const [username, setUsername] = useState('')
+    const [fullname, setFullname] = useState('')
+    const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [role, setRole] = useState<'customer' | 'vendor'>('customer')
@@ -14,24 +16,28 @@ export default function RegisterForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const res = await registerUser({ username, password, email })
+            const res = await registerUser({ fullname, phone, password, email })
             if (res && res.username && res.email) {
-                alert("Đăng kí thành công")
-                route.push('/auth/login')
+                toast.success("Đăng kí thành công")
+                setTimeout(() => {
+                    route.push('/auth/login')
+                }, 4000)
             }
         } catch (error: any) {
             const message = error.response?.data?.message
-            if(message === "Tên đăng nhập đã tồn tại"){
-                alert("Tên đăng nhập đã tồn tại, vui lòng chọn tên khác")
-            }else{
-                alert("Lỗi")
+            if (message === "Số điện thoại đã tồn tại.") {
+                toast.error("Số điện thoại đã tồn tại")
+            } else if (message === "Email đã được sử dụng.") {
+                toast.error("Email đã tồn tại")
+            } else {
+                console.error("Lỗi đăng ký:", error)
             }
         }
     }
 
     return (
         <div className="max-w-md mx-auto mt-20 px-6">
-
+            <ToastContainer position='top-center' autoClose={3000}/>
             <p className="text-center text-sm text-gray-600 mb-6">
                 There are many advantages to creating an account: the payment process is faster,
                 shipment tracking is possible and much more.
@@ -39,11 +45,22 @@ export default function RegisterForm() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium mb-1">Username *</label>
+                    <label className="block text-sm font-medium mb-1">Fullname *</label>
                     <input
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={fullname}
+                        onChange={(e) => setFullname(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 border rounded-md outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-1">Phone *</label>
+                    <input
+                        type="text"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                         required
                         className="w-full px-3 py-2 border rounded-md outline-none focus:ring-2 focus:ring-purple-500"
                     />
