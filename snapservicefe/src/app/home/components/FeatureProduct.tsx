@@ -10,6 +10,8 @@ import { fetchProducts } from "../../../services/product/ProductService"
 import { useEffect, useState } from "react"
 import { productListRequest } from "@/model/request/productRequest"
 import { ProductListResponse } from "@/model/response/productRespone"
+import Link from 'next/link';
+
 
 // const products: ProductType[] = [
 //     {
@@ -250,52 +252,54 @@ export default function FeatureProduct() {
                 </Swiper>
                 {products?.items
                     // .filter(product => product.available > 0)
-                    .slice(0, 4)
+                    .slice(5, 9)
                     .map((product, index) => (
-                        <div
-                            key={index}
-                            className="flex flex-col border w-[250px] p-3 hover:shadow rounded cursor-pointer"
-                        >
-                            <div className="relative mb-2">
-                                <img
-                                    src={product.imageUrl}
-                                    alt={product.name}
-                                    className="h-[200px] w-full object-cover rounded"
-                                />
-                                {product.discountPercent > 0 && (
-                                    <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
-                                        {product.discountPercent}%
+                        <Link key={product.id} href={`/products/${product.slug}`}>
+                            <div
+                                key={index}
+                                className="flex flex-col border w-[200px] p-3 hover:shadow rounded cursor-pointer"
+                            >
+                                <div className="relative mb-2">
+                                    <img
+                                        src={product.imageUrl}
+                                        alt={product.name}
+                                        className="h-[200px] w-full object-cover rounded"
+                                    />
+                                    {product.discountPercent > 0 && (
+                                        <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
+                                            {product.discountPercent}%
+                                        </span>
+                                    )}
+                                </div>
+                                <div className='max-w-60 min-h-10  line-clamp-2 font-semibold text-sm  text-ellipsis hover:text-blue-600 transition-colors mb-2'>
+                                    {product.name}
+                                </div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-red-500 font-semibold">
+                                        {/* {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
+                                        {product.discountPrice} 
                                     </span>
-                                )}
+                                    <span className="text-xs text-gray-400 line-through">
+                                        {/* {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
+                                    </span>
+                                </div>
+                                <hr className="my-2 border-gray-200" />
+                                <div className="flex justify-between w-full text-xs text-gray-500">
+                                    <Progress
+                                        value={(product.soldQuantity / product.stockInQuantity) * 100}
+                                        className="w-full h-2 mt-1 mb-2"
+                                    />
+                                </div>
+                                <div className='flex justify-between'>
+                                    <span className="text-gray-500 text-xs">Available only:
+                                        <span className="text-black font-bold italic text-xs" > {product.stockInQuantity}</span>
+                                    </span>
+                                    <span className='text-gray-500 text-xs'>rating:
+                                        <span className='text-black font-bold italic text-xs'> {product.ratingAverage}</span>
+                                    </span>
+                                </div>
                             </div>
-                            <div className='max-w-60 min-h-10  line-clamp-2 font-semibold text-sm  text-ellipsis hover:text-blue-600 transition-colors mb-2'>
-                                {product.name}
-                            </div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="text-red-500 font-semibold">
-                                    {/* {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
-                                    {product.discountPrice} sometihnfg
-                                </span>
-                                <span className="text-xs text-gray-400 line-through">
-                                    {/* {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
-                                </span>
-                            </div>
-                            <hr className="my-2 border-gray-200" />
-                            <div className="flex justify-between w-full text-xs text-gray-500">
-                                <Progress
-                                    value={(product.soldQuantity / product.stockInQuantity) * 100}
-                                    className="w-full h-2 mt-1 mb-2"
-                                />
-                            </div>
-                            <div className='flex justify-between'>
-                                <span className="text-gray-500 text-xs">Available only:
-                                    <span className="text-black font-bold italic text-xs" > {product.stockInQuantity}</span>
-                                </span>
-                                <span className='text-gray-500 text-xs'>rating:
-                                    <span className='text-black font-bold italic text-xs'> {product.ratingAverage}</span>
-                                </span>
-                            </div>
-                        </div>
+                        </Link>
                     ))}
             </div>
             <div className="adv mt-5 flex justify-between">
@@ -309,6 +313,6 @@ export default function FeatureProduct() {
                     </div>
                 ))}
             </div>
-        </div>
+        </div >
     )
 }

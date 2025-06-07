@@ -1,8 +1,10 @@
 import React from 'react'
-
+import  CartClient  from './CartClient'
 const page = () => {
   return (
-    <div>checkout page, money ayaya</div>
+    <div>
+     <CartClient />
+    </div>
   )
 }
 

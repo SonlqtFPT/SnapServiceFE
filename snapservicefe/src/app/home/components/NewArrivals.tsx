@@ -1,152 +1,158 @@
 'use client'
 import React from 'react'
 import { Progress } from "@/components/ui/progress"
-import { ProductType } from '../type/ProductType'
 import { AdvType } from '../type/AdvType'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination, Autoplay } from 'swiper/modules'
+import { productListRequest } from "@/model/request/productRequest"
+import { ProductListResponse } from "@/model/response/productRespone"
+import { fetchProducts } from "../../../services/product/ProductService"
+import { use, useEffect, useState } from "react"
+import { ProductType } from '../../../types/product/ProductType'
+import Link from 'next/link'
 
-const products: ProductType[] = [
-    {
-        id: "1",
-        name: "California Pizza Kitchen Margherita, Crispy Thin Crust Pizza",
-        image: "https://images.pexels.com/photos/3661350/pexels-photo-3661350.jpeg?auto=compress&w=400&q=80",
-        price: 500000,
-        discount_price: 350000,
-        discount_percent: 30,
-        sold_quantity: 120,
-        available_quantity: 30,
-        stock_in_quantity: 150,
-        rating_average: 4.5,
-        is_active: true,
-        is_sale: true,
-        is_favorite: false,
-        categories_id: 1,
-        supplier_id: 1,
-    },
-    {
-        id: "2",
-        name: "Pepperoni Feast Pizza",
-        image: "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&w=400&q=80",
-        price: 800000,
-        discount_price: 640000,
-        discount_percent: 20,
-        sold_quantity: 80,
-        available_quantity: 15,
-        stock_in_quantity: 95,
-        rating_average: 4.0,
-        is_active: true,
-        is_sale: true,
-        is_favorite: true,
-        categories_id: 1,
-        supplier_id: 2,
-    },
-    {
-        id: "3",
-        name: "BBQ Chicken Pizza",
-        image: "https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&w=400&q=80",
-        price: 1200000,
-        discount_price: 900000,
-        discount_percent: 25,
-        sold_quantity: 200,
-        available_quantity: 50,
-        stock_in_quantity: 250,
-        rating_average: 3.0,
-        is_active: true,
-        is_sale: false,
-        is_favorite: false,
-        categories_id: 2,
-        supplier_id: 1,
-    },
-    {
-        id: "4",
-        name: "Veggie Lovers Pizza",
-        image: "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&w=400&q=80",
-        price: 300000,
-        discount_price: 210000,
-        discount_percent: 30,
-        sold_quantity: 60,
-        available_quantity: 10,
-        stock_in_quantity: 70,
-        rating_average: 3.5,
-        is_active: false,
-        is_sale: true,
-        is_favorite: true,
-        categories_id: 2,
-        supplier_id: 3,
-    },
-    {
-        id: "5",
-        name: "Seafood Deluxe Pizza",
-        image: "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=400&q=80",
-        price: 1500000,
-        discount_price: 1200000,
-        discount_percent: 20,
-        sold_quantity: 45,
-        available_quantity: 5,
-        stock_in_quantity: 50,
-        rating_average: 4.8,
-        is_active: true,
-        is_sale: false,
-        is_favorite: false,
-        categories_id: 3,
-        supplier_id: 2,
-    },
-    {
-        id: "6",
-        name: "Hawaiian Pizza",
-        image: "https://images.pexels.com/photos/724216/pexels-photo-724216.jpeg?auto=compress&w=400&q=80",
-        price: 400000,
-        discount_price: 320000,
-        discount_percent: 20,
-        sold_quantity: 125,
-        available_quantity: 0,
-        stock_in_quantity: 125,
-        rating_average: 4.2,
-        is_active: false,
-        is_sale: true,
-        is_favorite: true,
-        categories_id: 1,
-        supplier_id: 1,
-    },
-    {
-        id: "7",
-        name: "Four Cheese Pizza",
-        image: "https://images.pexels.com/photos/2232/vegetables-italian-pizza-restaurant.jpg?auto=compress&w=400&q=80",
-        price: 600000,
-        discount_price: 480000,
-        discount_percent: 20,
-        sold_quantity: 70,
-        available_quantity: 20,
-        stock_in_quantity: 90,
-        rating_average: 4.1,
-        is_active: true,
-        is_sale: false,
-        is_favorite: false,
-        categories_id: 2,
-        supplier_id: 3,
-    },
-    {
-        id: "8",
-        name: "Spicy Sausage Pizza",
-        image: "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=400&q=80",
-        price: 1000000,
-        discount_price: 700000,
-        discount_percent: 30,
-        sold_quantity: 150,
-        available_quantity: 0,
-        stock_in_quantity: 190,
-        rating_average: 4.7,
-        is_active: true,
-        is_sale: true,
-        is_favorite: true,
-        categories_id: 3,
-        supplier_id: 2,
-    },
-]
+
+// const products: ProductType[] = [
+//     {
+//         id: "1",
+//         name: "California Pizza Kitchen Margherita, Crispy Thin Crust Pizza",
+//         image: "https://images.pexels.com/photos/3661350/pexels-photo-3661350.jpeg?auto=compress&w=400&q=80",
+//         price: 500000,
+//         discount_price: 350000,
+//         discount_percent: 30,
+//         sold_quantity: 120,
+//         available_quantity: 30,
+//         stock_in_quantity: 150,
+//         rating_average: 4.5,
+//         is_active: true,
+//         is_sale: true,
+//         is_favorite: false,
+//         categories_id: 1,
+//         supplier_id: 1,
+//     },
+//     {
+//         id: "2",
+//         name: "Pepperoni Feast Pizza",
+//         image: "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&w=400&q=80",
+//         price: 800000,
+//         discount_price: 640000,
+//         discount_percent: 20,
+//         sold_quantity: 80,
+//         available_quantity: 15,
+//         stock_in_quantity: 95,
+//         rating_average: 4.0,
+//         is_active: true,
+//         is_sale: true,
+//         is_favorite: true,
+//         categories_id: 1,
+//         supplier_id: 2,
+//     },
+//     {
+//         id: "3",
+//         name: "BBQ Chicken Pizza",
+//         image: "https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&w=400&q=80",
+//         price: 1200000,
+//         discount_price: 900000,
+//         discount_percent: 25,
+//         sold_quantity: 200,
+//         available_quantity: 50,
+//         stock_in_quantity: 250,
+//         rating_average: 3.0,
+//         is_active: true,
+//         is_sale: false,
+//         is_favorite: false,
+//         categories_id: 2,
+//         supplier_id: 1,
+//     },
+//     {
+//         id: "4",
+//         name: "Veggie Lovers Pizza",
+//         image: "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&w=400&q=80",
+//         price: 300000,
+//         discount_price: 210000,
+//         discount_percent: 30,
+//         sold_quantity: 60,
+//         available_quantity: 10,
+//         stock_in_quantity: 70,
+//         rating_average: 3.5,
+//         is_active: false,
+//         is_sale: true,
+//         is_favorite: true,
+//         categories_id: 2,
+//         supplier_id: 3,
+//     },
+//     {
+//         id: "5",
+//         name: "Seafood Deluxe Pizza",
+//         image: "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=400&q=80",
+//         price: 1500000,
+//         discount_price: 1200000,
+//         discount_percent: 20,
+//         sold_quantity: 45,
+//         available_quantity: 5,
+//         stock_in_quantity: 50,
+//         rating_average: 4.8,
+//         is_active: true,
+//         is_sale: false,
+//         is_favorite: false,
+//         categories_id: 3,
+//         supplier_id: 2,
+//     },
+//     {
+//         id: "6",
+//         name: "Hawaiian Pizza",
+//         image: "https://images.pexels.com/photos/724216/pexels-photo-724216.jpeg?auto=compress&w=400&q=80",
+//         price: 400000,
+//         discount_price: 320000,
+//         discount_percent: 20,
+//         sold_quantity: 125,
+//         available_quantity: 0,
+//         stock_in_quantity: 125,
+//         rating_average: 4.2,
+//         is_active: false,
+//         is_sale: true,
+//         is_favorite: true,
+//         categories_id: 1,
+//         supplier_id: 1,
+//     },
+//     {
+//         id: "7",
+//         name: "Four Cheese Pizza",
+//         image: "https://images.pexels.com/photos/2232/vegetables-italian-pizza-restaurant.jpg?auto=compress&w=400&q=80",
+//         price: 600000,
+//         discount_price: 480000,
+//         discount_percent: 20,
+//         sold_quantity: 70,
+//         available_quantity: 20,
+//         stock_in_quantity: 90,
+//         rating_average: 4.1,
+//         is_active: true,
+//         is_sale: false,
+//         is_favorite: false,
+//         categories_id: 2,
+//         supplier_id: 3,
+//     },
+//     {
+//         id: "8",
+//         name: "Spicy Sausage Pizza",
+//         image: "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=400&q=80",
+//         price: 1000000,
+//         discount_price: 700000,
+//         discount_percent: 30,
+//         sold_quantity: 150,
+//         available_quantity: 0,
+//         stock_in_quantity: 190,
+//         rating_average: 4.7,
+//         is_active: true,
+//         is_sale: true,
+//         is_favorite: true,
+//         categories_id: 3,
+//         supplier_id: 2,
+//     },
+// ]
 
 const ads: AdvType[] = [
     {
@@ -195,6 +201,27 @@ const ads: AdvType[] = [
 
 
 export default function NewArrivals() {
+     const [products, setProducts] = useState<ProductListResponse[]>([]);
+   
+    useEffect(() => {
+        const fetchData = async () => {
+            const request: productListRequest = {
+                page: 3,
+                pageSize: 15,
+            };
+            try {
+                const fetchedProducts: ProductListResponse[] = await fetchProducts(request);
+                setProducts(fetchedProducts);
+                console.log("Fetched products:", fetchedProducts);
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
+        };
+
+        fetchData();
+
+    }, [])
+
     return (
         <div className="">
             <div className="flex gap-4">
@@ -222,22 +249,24 @@ export default function NewArrivals() {
                     ))}
                 </Swiper>
                 {products
-                    .filter(product => product.available_quantity > 0)
-                    .slice(0, 4)
+                    // .filter(product => product.stockInQuantity > 0)
+                    .slice(6, 10)
                     .map((product, index) => (
+                        <Link key={product.id} href={`/products/${product.slug}`}>
+
                         <div
                             key={index}
-                            className="flex flex-col border w-[250px] p-3 hover:shadow rounded cursor-pointer"
+                            className="flex flex-col border w-[200px] p-3 hover:shadow rounded cursor-pointer"
                         >
                             <div className="relative mb-2">
                                 <img
-                                    src={product.image}
+                                    src={product.imageUrl}
                                     alt={product.name}
                                     className="h-[200px] w-full object-cover rounded"
                                 />
-                                {product.discount_percent > 0 && (
+                                {product.discountPercent > 0 && (
                                     <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
-                                        {product.discount_percent}%
+                                        {product.discountPercent}%
                                     </span>
                                 )}
                             </div>
@@ -246,30 +275,31 @@ export default function NewArrivals() {
                             </div>
                             <div className="flex items-center gap-2 mb-1">
                                 <span className="text-red-500 font-semibold">
-                                    {/* {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
+                                    {product.discountPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
 
                                 </span>
                                 <span className="text-xs text-gray-400 line-through">
-                                    {/* {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
+                                    {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
 
                                 </span>
                             </div>
                             <hr className="my-2 border-gray-200" />
                             <div className="flex justify-between w-full text-xs text-gray-500">
                                 <Progress
-                                    value={(product.sold_quantity / product.stock_in_quantity) * 100}
+                                    value={(product.soldQuantity / product.stockInQuantity) * 100}
                                     className="w-full h-2 mt-1 mb-2"
                                 />
                             </div>
                             <div className='flex justify-between'>
                                 <span className="text-gray-500 text-xs">Available only:
-                                    <span className="text-black font-bold italic text-xs" > {product.stock_in_quantity}</span>
+                                    <span className="text-black font-bold italic text-xs" > {product.stockInQuantity}</span>
                                 </span>
                                 <span className='text-gray-500 text-xs'>rating:
-                                    <span className='text-black font-bold italic text-xs'> {product.rating_average}</span>
+                                    <span className='text-black font-bold italic text-xs'> {product.ratingAverage}</span>
                                 </span>
                             </div>
                         </div>
+                        </Link>
                     ))}
             </div>
             <div className="adv mt-5 flex justify-between">
