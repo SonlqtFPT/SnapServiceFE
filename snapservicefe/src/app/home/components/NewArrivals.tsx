@@ -8,10 +8,9 @@ import 'swiper/css/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination, Autoplay } from 'swiper/modules'
 import { productListRequest } from "@/model/request/productRequest"
-import { ProductListResponse } from "@/model/response/productRespone"
+import { ItemResponse, ProductListResponse } from "@/model/response/productRespone"
 import { fetchProducts } from "../../../services/product/ProductService"
-import { use, useEffect, useState } from "react"
-import { ProductType } from '../../../types/product/ProductType'
+import { useEffect, useState } from "react"
 import Link from 'next/link'
 
 
@@ -201,7 +200,7 @@ const ads: AdvType[] = [
 
 
 export default function NewArrivals() {
-     const [products, setProducts] = useState<ProductListResponse[]>([]);
+     const [products, setProducts] = useState<ItemResponse[]>([]);
    
     useEffect(() => {
         const fetchData = async () => {
@@ -210,8 +209,8 @@ export default function NewArrivals() {
                 pageSize: 15,
             };
             try {
-                const fetchedProducts: ProductListResponse[] = await fetchProducts(request);
-                setProducts(fetchedProducts);
+                const fetchedProducts: ProductListResponse = await fetchProducts(request);
+                setProducts(fetchedProducts.items || []);
                 console.log("Fetched products:", fetchedProducts);
             } catch (error) {
                 console.error("Error fetching products:", error);

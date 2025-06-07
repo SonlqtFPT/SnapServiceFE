@@ -1,11 +1,10 @@
 'use client'
 import React from 'react'
 import { Progress } from "@/components/ui/progress"
-import { ProductType } from '../../../types/product/ProductType'
 import { productListRequest } from "@/model/request/productRequest"
-import { ProductListResponse } from "@/model/response/productRespone"
+import { ItemResponse, ProductListResponse } from "@/model/response/productRespone"
 import { fetchProducts } from "../../../services/product/ProductService"
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from 'next/link'
 
 
@@ -170,7 +169,7 @@ const ads = [
   }
 ]
 export default function NewProduct() {
-  const [products, setProducts] = useState<ProductListResponse[]>([]);
+  const [products, setProducts] = useState<ItemResponse[]>([]);
   useEffect(() => {
     const fetchData = async () => {
       const request: productListRequest = {
@@ -178,8 +177,8 @@ export default function NewProduct() {
         pageSize: 15,
       };
       try {
-        const fetchedProducts: ProductListResponse[] = await fetchProducts(request);
-        setProducts(fetchedProducts);
+        const fetchedProducts: ProductListResponse = await fetchProducts(request);
+        setProducts(fetchedProducts.items || []);
         console.log("Fetched products:", fetchedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
