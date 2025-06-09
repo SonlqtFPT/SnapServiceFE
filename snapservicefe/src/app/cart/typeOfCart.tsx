@@ -3,24 +3,24 @@
 export type CartItem = {
   id: string;
   name: string;
-  created_at: Date;
+  createdAt: Date;
   price: number;
   description: string;
-  image: string;
-  stock_in_quantity: number;
-  rating_average: number;
+  imageUrl: string;
+  stockInQuantity: number;
+  ratingAverage: number;
   sku: string;
   discountPrice: number;
-  discount_percent: number;
-  sold_quantity: number;
-  available_quantity: number;
-  is_active: boolean;
-  is_sale: boolean;
-  is_favorite: boolean;
+  discountPercent: number;
+  soldQuantity: number;
+  availableQuantity: number;
+  isActive: boolean;
+  isSale: boolean;
   slug: string;
-  categories_id: number;
-  supplier_id: number;
+  categoriesId: number;
+  supplierId: number;
   quantity: number;
+  isChecked: boolean;
 }
 // Lưu trạng thái checkbox chọn sản phẩm
 export type CartSelectionMap = { [itemId: string]: boolean };
