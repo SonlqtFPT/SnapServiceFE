@@ -1,21 +1,30 @@
+import type { CategoryType } from "./CategoryType";
+import type { SupplierType } from "./SupplierType";
+
+export type ProductImageType = {
+  id: number;
+  productImageUrl: string;
+  isMain: boolean;
+};
+
 export type ProductType = {
-  id: string;
+  id: number;
   name: string;
-  created_at: Date;
+  createdAt: string;
   price: number;
   description: string;
-  image: string;
-  stock_in_quantity: number;
-  rating_average: number;
+  stockInQuantity: number;
+  ratingAverage: number;
   sku: string;
   discountPrice: number;
-  discount_percent: number;
-  sold_quantity: number;
-  available_quantity: number;
-  is_active: boolean;
-  is_sale: boolean;
-  is_favorite: boolean;
+  discountPercent: number;
+  soldQuantity: number;
+  availableQuantity: number;
+  isActive: boolean;
+  isSale: boolean;
+  isFavorite?: boolean;
   slug: string;
-  categories_id: number;
-  supplier_id: number;
+  images?: ProductImageType[];
+  categories: CategoryType;
+  supplier: SupplierType;
 };
