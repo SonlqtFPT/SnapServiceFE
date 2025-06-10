@@ -1,12 +1,12 @@
 import { getAPI } from "@/lib/axios";
-import { productListRequest, searchProductRequest } from "@/model/request/productRequest";
-import { ProductListResponse } from "@/model/response/productRespone";
+import { productDetailSlugRequest, productListRequest, searchProductRequest } from "@/model/request/productRequest";
+import { ProductDetailResponse, ProductListResponse } from "@/model/response/productRespone";
 import { CategoryResponse } from '@/model/response/categoryResponse';
 
+const api = getAPI();
+
 export const fetchProducts = async (request: productListRequest): Promise<ProductListResponse> => {
-    const api = getAPI();
       const response = await api.get(`/api/Product`, {
-    // const response = await api.get(`http://103.112.211.196:1801/api/Product`, {
         params: {
             page: request.page,
             pageSize: request.pageSize,
@@ -17,7 +17,6 @@ export const fetchProducts = async (request: productListRequest): Promise<Produc
 };
 
 export const fetchCategories = async (): Promise<CategoryResponse[]> => {
-    const api = getAPI();
     try{
         const response = await api.get('/api/Category');
         console.log("Fetched categories:", response.data.data.items);
@@ -30,7 +29,6 @@ export const fetchCategories = async (): Promise<CategoryResponse[]> => {
 }
 
 export const fetchProductsByQuery = async (request: searchProductRequest): Promise<ProductListResponse> => {
-    const api = getAPI();
     try{
         const response = await api.get('/api/Product/Search', {
             params:{
@@ -47,5 +45,17 @@ export const fetchProductsByQuery = async (request: searchProductRequest): Promi
     }catch (error) {
         console.error("Failed to fetch products by query:", error);
         throw error; // Ném lại lỗi để xử lý ở nơi gọi hàm
+    }
+}
+
+export const fetchProductDetailBySlug = async(request: productDetailSlugRequest): Promise<ProductDetailResponse> =>
+{
+    try {
+    const response = await api.get(`/api/Product/${request.slug}`);
+    console.log("Khong ra detail t nhay lau",response.data);
+    return response.data.data;
+    } catch (error) {
+        console.log("Oh no, loi~ ne`:", error)
+        throw error; //bye bye error
     }
 }

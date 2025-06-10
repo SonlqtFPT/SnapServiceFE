@@ -1,7 +1,10 @@
-import React from 'react'
+import ProductDetailClient from "./ProductDetailCilent";
 
-export default function page() {
+
+export default function ProductDetailPage() {
   return (
-    <div>page</div>
-  )
+    <main className="max-w-6xl mx-auto p-4">
+      <ProductDetailClient />
+    </main>
+  );
 }

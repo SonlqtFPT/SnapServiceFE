@@ -12,3 +12,6 @@ export interface searchProductRequest {
     sortOrder: string;
 }
 
+export interface productDetailSlugRequest {
+    slug: string;
+}
