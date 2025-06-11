@@ -22,7 +22,7 @@ export default function LoginForm() {
           route.push('/home')
         }, 4000)
       }
-    } catch (error: any) {
+    } catch (error) {
       toast.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin đăng nhập của bạn.")
       console.log(error);
     }

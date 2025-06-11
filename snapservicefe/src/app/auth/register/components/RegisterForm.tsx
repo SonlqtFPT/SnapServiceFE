@@ -1,6 +1,7 @@
 'use client'
 
 import { registerUser } from '@/services/users/userService'
+import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
@@ -23,21 +24,23 @@ export default function RegisterForm() {
                     route.push('/auth/login')
                 }, 4000)
             }
-        } catch (error: any) {
-            const message = error.response?.data?.message
-            if (message === "Số điện thoại đã tồn tại.") {
-                toast.error("Số điện thoại đã tồn tại")
-            } else if (message === "Email đã được sử dụng.") {
-                toast.error("Email đã tồn tại")
-            } else {
-                console.error("Lỗi đăng ký:", error)
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data?.message
+                if (message === "Số điện thoại đã tồn tại.") {
+                    toast.error("Số điện thoại đã tồn tại")
+                } else if (message === "Email đã được sử dụng.") {
+                    toast.error("Email đã tồn tại")
+                } else {
+                    console.error("Lỗi đăng ký:", error)
+                }
             }
         }
     }
 
     return (
         <div className="max-w-md mx-auto mt-20 px-6">
-            <ToastContainer position='top-center' autoClose={3000}/>
+            <ToastContainer position='top-center' autoClose={3000} />
             <p className="text-center text-sm text-gray-600 mb-6">
                 There are many advantages to creating an account: the payment process is faster,
                 shipment tracking is possible and much more.
