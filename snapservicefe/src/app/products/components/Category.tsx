@@ -1,43 +1,44 @@
 'use client'
-import { Checkbox } from '@/components/ui/checkbox'
-import React from 'react'
-import { CategoryType } from '../Type/CategoryType'
+import React, { useEffect, useState } from 'react'
+import { fetchCategories } from '@/services/product/ProductService'
+import Image from 'next/image'
+import { CategoryResponse } from '@/model/response/categoryResponse'
 
-export default function Category() {
-     const categories: CategoryType[] =[
-    {
-      id: 1,
-      name: 'Category 1',
-      slug: 'category-1'
-    },
-    {
-      id: 2,
-      name: 'Category 2',
-      slug: 'category-2'
-    },
-    {
-      id: 3,
-      name: 'Category 3',
-      slug: 'category-3'
+type Props = {
+    onSelectCategory?: (id: number | null) => void;
+};
+
+export default function Category({ onSelectCategory }: Props) {
+    const [categories, setCategories] = useState<CategoryResponse[]>([]);
+    const getCategories = async () => {
+        try {
+            const response = await fetchCategories();
+            setCategories(response);
+            console.log("Fetched categories:", response);
+            return response;
+        } catch (error) {
+            console.error("Failed to fetch categories:", error);
+            return [];
+        }
     }
-  ]
+    useEffect(() => {
+        getCategories();
+    }, []);
+
     return (
-        <div className='flex flex-col gap-2'>
-            <div>Product Category</div>
+        <div className='flex flex-col gap-2 border border-gray-200 p-4 rounded-md bg-white shadow-md h-157'>
+            <button className='flex justify-center text-2xl font-bold cursor-pointer hover:bg-gray-100 py-1 rounded-md' onClick={() => onSelectCategory?.(null)}>Category</button>
             <div className='flex flex-col gap-2'>
-                <div className="flex items-center gap-2">
-                    <Checkbox id="all" />
-                    <label htmlFor="all" className="text-black font-bold">
-                        All
-                    </label>
-                </div>
                 {categories.map((category) => (
-                    <div key={category.id} className="flex items-center gap-2">
-                        <Checkbox id={category.slug} />
-                        <label htmlFor={category.slug} className="text-gray-500">
+                    <button key={category.id} onClick={() => onSelectCategory?.(category.id)}
+                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 py-1 rounded-md">
+                        <div className="w-[30px] h-[30px] relative">
+                            <Image src={category.imageUrl} alt={category.name} fill className='rounded-2xl' />
+                        </div>
+                        <div className="text-gray-500">
                             {category.name}
-                        </label>
-                    </div>
+                        </div>
+                    </button>
                 ))}
             </div>
         </div>

@@ -1,0 +1,30 @@
+// src/types.ts
+
+export type CartItem = {
+  id: string;
+  name: string;
+  createdAt: Date;
+  price: number;
+  description: string;
+  imageUrl: string;
+  stockInQuantity: number;
+  ratingAverage: number;
+  sku: string;
+  discountPrice: number;
+  discountPercent: number;
+  soldQuantity: number;
+  availableQuantity: number;
+  isActive: boolean;
+  isSale: boolean;
+  slug: string;
+  categoriesId: number;
+  supplierId: number;
+  quantity: number;
+  isChecked: boolean;
+}
+// Lưu trạng thái checkbox chọn sản phẩm
+export type CartSelectionMap = { [itemId: string]: boolean };
+
+// Nhóm sản phẩm theo supplier_id
+export type SupplierGroupedItems = { [supplierId: number]: CartItem[] };
+

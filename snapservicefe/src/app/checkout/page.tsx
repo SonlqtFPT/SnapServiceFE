@@ -1,8 +1,11 @@
 import React from 'react'
+import CheckoutClient from './CheckOutClient'
 
 const page = () => {
   return (
-    <div>checkout page, send money do`</div>
+    <div>
+      <CheckoutClient/>
+    </div>
   )
 }
 

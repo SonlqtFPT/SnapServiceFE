@@ -1,22 +1,19 @@
 'use client'
-import Sort from './components/Sort'
 import Category from './components/Category'
 import Card from './components/Card'
-import { ProductType } from './Type/ProductType'
+import { useState } from 'react'
 
-type Props = {
-    products: ProductType[],
-}
 
-export default function ProductsClient({ products }: Props) {
+export default function ProductsClient() {
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
+    
     return (
         <div className='flex gap-4'>
-            <div className='w-[20%]'>
-                <Category />
+            <div className='w-[20%] sticky top-5 h-full'>
+                <Category onSelectCategory={setSelectedCategoryId}/>
             </div>
             <div className='flex flex-col w-[80%] gap-5'>
-                <Sort totalProduct={products.length} />
-                <Card products={products} />
+                <Card categoryId={selectedCategoryId} />
             </div>
         </div>
     )
