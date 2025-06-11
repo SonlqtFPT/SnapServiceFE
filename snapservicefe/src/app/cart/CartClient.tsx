@@ -15,10 +15,10 @@ export default function CartClient() {
     // nhóm sản phẩm theo supplier
     const suppliers: SupplierGroupedItems = {};
     cartItems.forEach((item) => {
-        if (!suppliers[item.supplierId]) {
-            suppliers[item.supplierId] = [];
+        if (!suppliers[item.supplier.id]) {
+            suppliers[item.supplier.id] = [];
         }
-        suppliers[item.supplierId].push(item);
+        suppliers[item.supplier.id].push(item);
     });
 
     // ccheckbox
@@ -131,8 +131,8 @@ export default function CartClient() {
                                     </div>
 
                                     <div className="col-span-2 text-center text-sm">
-                                        <span className="text-red-500 font-bold">${item.discountPrice}</span>
-                                        <div className="text-gray-400 line-through text-sm">${item.price}</div>
+                                        <span className="text-red-500 font-bold">{item.discountPrice.toLocaleString()}đ</span>
+                                        <div className="text-gray-400 line-through text-sm">{item.price.toLocaleString()}đ</div>
                                     </div>
 
                                     <div className="col-span-2 flex items-center  justify-center gap-2">

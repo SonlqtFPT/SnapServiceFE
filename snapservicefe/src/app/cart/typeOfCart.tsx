@@ -21,7 +21,9 @@ export type CartItem = {
   isSale: boolean;
   slug: string;
   categoriesId: number;
-  supplierId: number;
+  supplier:{
+    id:number;
+  }
   quantity: number;
   isChecked: boolean;
 }
