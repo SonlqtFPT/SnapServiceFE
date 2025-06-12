@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { CartItem, SupplierGroupedItems } from './typeOfCart';
 import { useRouter } from 'next/navigation';
-import CartSumary from '@/components/CartSumary';
+// import { Checkbox } from '@radix-ui/react-checkbox';
 //  import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 
