@@ -20,7 +20,7 @@ export default function CartSumary(cart: Props) {
                 <div className='rounded-b-md shadow px-4 py-2' >
                     <div className="flex justify-between items-center mb-2">
                         <span>Subtotal</span>
-                        <span>${subtotal}</span>
+                        <span>{subtotal.toLocaleString()}đ</span>
                     </div>
                     <div className="flex justify-between items-center mb-2">
                         <span>Shipping</span>
@@ -29,7 +29,7 @@ export default function CartSumary(cart: Props) {
                     <hr className="border-dashed border-t-2 border-gray-300 my-4" />
                     <div className="flex justify-between items-center font-bold text-lg mb-6">
                         <span>Total</span>
-                        <span>${subtotal}</span>
+                        <span>{subtotal.toLocaleString()}đ</span>
                     </div>
 
                     <div className="flex flex-col items-center space-y-3">
