@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import CartSumary from '@/components/CartSumary';
 import { CartItem } from '../cart/typeOfCart';
 
