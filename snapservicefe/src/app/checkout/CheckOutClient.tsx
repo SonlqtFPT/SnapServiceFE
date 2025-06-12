@@ -7,7 +7,7 @@ import { CartItem } from '../cart/typeOfCart';
 
 export default function CheckoutClient() {
     const router = useRouter();
-    const initialItems = localStorage.getItem('cart');
+    const initialItems = localStorage.getItem('checkout');
     const cartItems: CartItem[] = initialItems ? JSON.parse(initialItems) : [];
     const selectedItems = cartItems.filter(item => item.isChecked);
     const [formData, setFormData] = useState({

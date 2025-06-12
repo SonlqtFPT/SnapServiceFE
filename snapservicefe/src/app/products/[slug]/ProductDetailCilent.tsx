@@ -33,7 +33,7 @@ export default function ProductDetailClient() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
       <ProductImageGallery images={product.images} productName={product.name} />
-      <ProductDetails product={product} />
+      <ProductDetails product={product} imageUrl={product.images} />
     </div>
   );
 }

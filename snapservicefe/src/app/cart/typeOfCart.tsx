@@ -1,12 +1,15 @@
 // src/types.ts
 
 export type CartItem = {
-  id: string;
+  id: number;
   name: string;
   createdAt: Date;
   price: number;
   description: string;
-  imageUrl: string;
+  images: {
+    id: number;
+    productImageUrl: string;
+  }[];
   stockInQuantity: number;
   ratingAverage: number;
   sku: string;
@@ -18,7 +21,9 @@ export type CartItem = {
   isSale: boolean;
   slug: string;
   categoriesId: number;
-  supplierId: number;
+  supplier:{
+    id:number;
+  }
   quantity: number;
   isChecked: boolean;
 }
