@@ -22,15 +22,4 @@ const loginUser = async (data: any) => {
   }
 };
 
-export const getAllUsers = async () => {
-  try {
-    const api = getAPI();
-    const response = await api.get("/api/User/GetAllUser");
-    return response.data.data;
-  } catch (error: any) {
-    console.error("Failed to fetch users:", error.response?.data || error.message);
-    throw error;
-  }
-};
-
 export { registerUser, loginUser };
