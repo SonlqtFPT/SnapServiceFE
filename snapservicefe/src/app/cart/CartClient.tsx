@@ -1,151 +1,127 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Image from 'next/image';
 import { useState } from 'react';
-import { CartItem, CartSelectionMap, SupplierGroupedItems } from './typeOfCart';
+import { CartItem, SupplierGroupedItems } from './typeOfCart';
 import { useRouter } from 'next/navigation';
 // import { Checkbox } from '@radix-ui/react-checkbox';
 //  import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 
-const initialItems: CartItem[] = [
+const fakeData: CartItem[] = [
     {
         id: "1",
         name: "Wireless Headphones",
-        created_at: new Date("2025-05-01T10:00:00Z"),
+        createdAt: new Date("2025-05-01T10:00:00Z"),
         price: 120.0,
         description: "High-quality wireless headphones with noise cancellation.",
-        image: "https://images.squarespace-cdn.com/content/v1/53883795e4b016c956b8d243/1671853906962-RV08WWNIS1LTNE453MOX/Artboard%2B2.jpg?format=750w",
-        stock_in_quantity: 150,
-        rating_average: 4.5,
+        imageUrl: "https://images.squarespace-cdn.com/content/v1/53883795e4b016c956b8d243/1671853906962-RV08WWNIS1LTNE453MOX/Artboard%2B2.jpg?format=750w",
+        stockInQuantity: 150,
+        ratingAverage: 4.5,
         sku: "WH-001",
         discountPrice: 100.0,
-        discount_percent: 16.7,
-        sold_quantity: 500,
-        available_quantity: 150,
-        is_active: true,
-        is_sale: true,
-        is_favorite: true,
+        discountPercent: 16.7,
+        soldQuantity: 500,
+        availableQuantity: 150,
+        isActive: true,
+        isSale: true,
         slug: "wireless-headphones",
-        categories_id: 2,
-        supplier_id: 1,
+        categoriesId: 2,
+        supplierId: 1,
         quantity: 1, // Assuming a default quantity for the cart
+        isChecked: false, // Assuming a default unchecked state for the checkbox
     },
     {
         id: "2",
-        name: "Gaming Mouse",
-        created_at: new Date("2025-04-28T09:30:00Z"),
-        price: 45.0,
-        description: "Ergonomic gaming mouse with RGB lighting and 6 buttons.",
-        image: "https://images.squarespace-cdn.com/content/v1/53883795e4b016c956b8d243/1671853906962-RV08WWNIS1LTNE453MOX/Artboard%2B2.jpg?format=750w",
-        stock_in_quantity: 300,
-        rating_average: 4.2,
-        sku: "GM-002",
-        discountPrice: 39.0,
-        discount_percent: 13.3,
-        sold_quantity: 320,
-        available_quantity: 180,
-        is_active: true,
-        is_sale: true,
-        is_favorite: false,
-        slug: "gaming-mouse",
-        categories_id: 3,
-        supplier_id: 2,
+        name: "Smartphone",
+        createdAt: new Date("2025-05-02T10:00:00Z"),
+        price: 800.0,
+        description: "Latest model smartphone with advanced features.",
+        imageUrl: "https://images.squarespace-cdn.com/content/v1/53883795e4b016c956b8d243/1671853906962-RV08WWNIS1LTNE453MOX/Artboard%2B2.jpg?format=750w",
+        stockInQuantity: 200,
+        ratingAverage: 4.7,
+        sku: "SP-002",
+        discountPrice: 750.0,
+        discountPercent: 6.25,
+        soldQuantity: 300,
+        availableQuantity: 200,
+        isActive: true,
+        isSale: true,
+        slug: "smartphone",
+        categoriesId: 3,
+        supplierId: 2,
         quantity: 1, // Assuming a default quantity for the cart
+        isChecked: false, // Assuming a default unchecked state for the checkbox
     },
     {
         id: "3",
-        name: "Smartphone Stand",
-        created_at: new Date("2025-03-15T08:15:00Z"),
-        price: 20.0,
-        description: "Adjustable metal stand for all smartphones and tablets.",
-        image: "https://images.squarespace-cdn.com/content/v1/53883795e4b016c956b8d243/1671853906962-RV08WWNIS1LTNE453MOX/Artboard%2B2.jpg?format=750w",
-        stock_in_quantity: 500,
-        rating_average: 4.7,
-        sku: "SS-003",
-        discountPrice: 15.0,
-        discount_percent: 25.0,
-        sold_quantity: 700,
-        available_quantity: 350,
-        is_active: true,
-        is_sale: true,
-        is_favorite: false,
-        slug: "smartphone-stand",
-        categories_id: 5,
-        supplier_id: 3,
+        name: "Laptop",
+        createdAt: new Date("2025-05-03T10:00:00Z"),
+        price: 1500.0,
+        description: "High-performance laptop for gaming and work.",
+        imageUrl: "https://images.squarespace-cdn.com/content/v1/53883795e4b016c956b8d243/1671853906962-RV08WWNIS1LTNE453MOX/Artboard%2B2.jpg?format=750w",
+        stockInQuantity: 100,
+        ratingAverage: 4.8,
+        sku: "LP-003",
+        discountPrice: 1400.0,
+        discountPercent: 6.67,
+        soldQuantity: 200,
+        availableQuantity: 100,
+        isActive: true,
+        isSale: true,
+        slug: "laptop",
+        categoriesId: 4,
+        supplierId: 1,
         quantity: 1, // Assuming a default quantity for the cart
+        isChecked: false, // Assuming a default unchecked state for the checkbox
     },
     {
         id: "4",
-        name: "Bluetooth Speaker",
-        created_at: new Date("2025-02-10T13:20:00Z"),
-        price: 60.0,
-        description: "Portable Bluetooth speaker with deep bass and long battery life.",
-        image: "https://images.squarespace-cdn.com/content/v1/53883795e4b016c956b8d243/1671853906962-RV08WWNIS1LTNE453MOX/Artboard%2B2.jpg?format=750w",
-        stock_in_quantity: 200,
-        rating_average: 4.6,
-        sku: "BS-004",
-        discountPrice: 50.0,
-        discount_percent: 16.7,
-        sold_quantity: 450,
-        available_quantity: 120,
-        is_active: true,
-        is_sale: true,
-        is_favorite: true,
-        slug: "bluetooth-speaker",
-        categories_id: 2,
-        supplier_id: 2,
+        name: "Smartwatch",
+        createdAt: new Date("2025-05-04T10:00:00Z"),
+        price: 250.0,
+        description: "Stylish smartwatch with fitness tracking features.",
+        imageUrl: "https://images.squarespace-cdn.com/content/v1/53883795e4b016c956b8d243/1671853906962-RV08WWNIS1LTNE453MOX/Artboard%2B2.jpg?format=750w",
+        stockInQuantity: 300,
+        ratingAverage: 4.3,
+        sku: "SW-004",
+        discountPrice: 200.0,
+        discountPercent: 20.0,
+        soldQuantity: 400,
+        availableQuantity: 300,
+        isActive: true,
+        isSale: true,
+        slug: "smartwatch",
+        categoriesId: 5,
+        supplierId: 4,
         quantity: 1, // Assuming a default quantity for the cart
-    },
-    {
-        id: "5",
-        name: "Laptop Cooling Pad",
-        created_at: new Date("2025-01-25T11:45:00Z"),
-        price: 35.0,
-        description: "Ultra-quiet laptop cooling pad with adjustable fan speed.",
-        image: "https://images.squarespace-cdn.com/content/v1/53883795e4b016c956b8d243/1671853906962-RV08WWNIS1LTNE453MOX/Artboard%2B2.jpg?format=750w",
-        stock_in_quantity: 250,
-        rating_average: 4.3,
-        sku: "CP-005",
-        discountPrice: 30.0,
-        discount_percent: 14.3,
-        sold_quantity: 275,
-        available_quantity: 200,
-        is_active: true,
-        is_sale: true,
-        is_favorite: false,
-        slug: "laptop-cooling-pad",
-        categories_id: 4,
-        supplier_id: 1,
-        quantity: 1, // Assuming a default quantity for the cart
+        isChecked: false, // Assuming a default unchecked state for the checkbox
     },
 ];
 
 export default function CartClient() {
     const router = useRouter();
-
-    const [cartItems, setCartItems] = useState<CartItem[]>(initialItems);
-    const [selectedItems, setSelectedItems] = useState<CartSelectionMap>({});
+    const initialItems = localStorage.getItem('cart');
+    const [cartItems, setCartItems] = useState<CartItem[]>(initialItems ? JSON.parse(initialItems) : []);
 
     // nhóm sản phẩm theo supplier
     const suppliers: SupplierGroupedItems = {};
     cartItems.forEach((item) => {
-        if (!suppliers[item.supplier_id]) {
-            suppliers[item.supplier_id] = [];
+        if (!suppliers[item.supplierId]) {
+            suppliers[item.supplierId] = [];
         }
-        suppliers[item.supplier_id].push(item);
+        suppliers[item.supplierId].push(item);
     });
 
     // ccheckbox
     const handleCheckboxChange = (itemId: string) => {
-        setSelectedItems((prev) => ({
-            ...prev,
-            [itemId]: !prev[itemId],
-        }));
+        const updatedItems = cartItems.map(item =>
+            item.id === itemId ? { ...item, isChecked: !item.isChecked } : item
+        );
+        setCartItems(updatedItems);
     };
 
-    const selectedItemList = cartItems.filter((item) => selectedItems[item.id]);
-    const subtotal = selectedItemList.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
+
 
     // tăng quan
     const handleIncrease = (itemId: string) => {
@@ -167,7 +143,24 @@ export default function CartClient() {
                     : item
             )
         );
+        localStorage.setItem('cart', JSON.stringify(cartItems));
     };
+
+    useEffect(() => {
+        const existing = localStorage.getItem('cart');
+
+        if (existing) {
+            setCartItems(JSON.parse(existing));
+        } else {
+            localStorage.setItem('cart', JSON.stringify(fakeData));
+            setCartItems(fakeData);
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+    }, [cartItems]);
+
     if (cartItems.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-screen">
@@ -209,12 +202,12 @@ export default function CartClient() {
                                     <div className="col-span-5 flex items-center gap-2">
                                         <input
                                             type="checkbox"
-                                            checked={!!selectedItems[item.id]}
+                                            checked={item.isChecked}
                                             onChange={() => handleCheckboxChange(item.id)}
                                             className="w-5 h-5"
                                         />
                                         <Image
-                                            src={item.image}
+                                            src={item.imageUrl}
                                             alt={item.name}
                                             width={80}
                                             height={80}
@@ -266,44 +259,7 @@ export default function CartClient() {
                         </div>
                     ))}
                 </div>
-
-                <div className="col-span-3">
-                    <div className="sticky top-6 z-10">
-                        <div className="text-xl text-center  font-bold rounded-t-md p-2 text-gray-600 bg-gray-200">Summary</div>
-
-                        <div className='rounded-b-md shadow px-4 py-2' >
-                            <div className="flex justify-between items-center mb-2">
-                                <span>Subtotal</span>
-                                <span>${subtotal}</span>
-                            </div>
-                            <div className="flex justify-between items-center mb-2">
-                                <span>Shipping</span>
-                                <span>Free</span>
-                            </div>
-                            <hr className="border-dashed border-t-2 border-gray-300 my-4" />
-                            <div className="flex justify-between items-center font-bold text-lg mb-6">
-                                <span>Total</span>
-                                <span>${subtotal}</span>
-                            </div>
-
-                            <div className="flex flex-col items-center space-y-3">
-                                {subtotal > 0 && (
-                                    <button
-                                        className="w-[80%] bg-[#634C9F] text-white py-2 rounded-4xl text-lg cursor-pointer"
-                                        onClick={() => router.push('/checkout')}
-                                    >
-                                        Proceed to Checkout ⟶
-                                    </button>
-                                )}
-                                <button className="w-[80%] bg-gray-100 text-[#634C9F] py-2 rounded-4xl text-lg cursor-pointer"
-                                    onClick={() => router.push('/home')}
-                                >
-                                    ⟵ Continue Shopping
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <CartSumary cartItems={cartItems} />
             </div>
         </div>
     );
