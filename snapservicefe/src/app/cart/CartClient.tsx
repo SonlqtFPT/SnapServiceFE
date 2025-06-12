@@ -10,8 +10,8 @@ import CartSumary from '@/components/CartSumary';
 
 export default function CartClient() {
     const router = useRouter();
-    const initialItems = localStorage.getItem('cart');
-    const [cartItems, setCartItems] = useState<CartItem[]>(initialItems ? JSON.parse(initialItems) : []);
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
     // nhóm sản phẩm theo supplier
     const suppliers: SupplierGroupedItems = {};
@@ -52,11 +52,11 @@ export default function CartClient() {
                     : item
             )
         );
-        localStorage.setItem('cart', JSON.stringify(cartItems));
     };
 
     useEffect(() => {
         const existing = localStorage.getItem('cart');
+        localStorage.setItem('checkoutMode', 'cart');
         if (existing) {
             const parsed = JSON.parse(existing).map((item: CartItem) => ({
                 ...item,
@@ -64,17 +64,16 @@ export default function CartClient() {
             }));
             setCartItems(parsed);
         }
-        console.log(cartItems)
+        setIsInitialized(true);
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cartItems));
-        cartItems.map(() => {
-            localStorage.setItem('checkout', JSON.stringify(cartItems.filter(i => i.isChecked)));
-        }
-        );
+        if (!isInitialized) return;
 
-    }, [cartItems]);
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+        const selected = cartItems.filter(i => i.isChecked);
+        localStorage.setItem('checkout', JSON.stringify(selected));
+    }, [cartItems, isInitialized]);
 
     if (cartItems.length === 0) {
         return (
@@ -122,7 +121,7 @@ export default function CartClient() {
                                             className="w-5 h-5"
                                         />
                                         <Image
-                                            src={item.images[2].productImageUrl}
+                                            src={item?.images[2]?.productImageUrl || '/fallback.jpg'}
                                             alt={item.name}
                                             width={80}
                                             height={80}
@@ -154,7 +153,7 @@ export default function CartClient() {
                                     </div>
 
                                     <div className="col-span-2  text-center font-semibold">
-                                        ${(item.discountPrice * item.quantity)}
+                                        {(item.discountPrice * item.quantity).toLocaleString()}đ
                                     </div>
 
                                     <div className="col-span-1 text-center">

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { ProductImageType, ProductType } from '@/types/product/ProductType';
 import { toast, ToastContainer } from 'react-toastify';
 import { CartItem } from '@/app/cart/typeOfCart';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   product: ProductType;
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export default function ProductDetails({ product }: Props) {
+  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const localCart = localStorage.getItem('cart');
   const cartItems: CartItem[] = localCart ? JSON.parse(localCart) : [];
@@ -24,11 +26,21 @@ export default function ProductDetails({ product }: Props) {
     const existingItemIndex = cartItems.findIndex((item: ProductType) => item.id === product.id);
 
     if (existingItemIndex === -1) {
-      cartItems.push({ ...product, quantity})
+      cartItems.push({ ...product, quantity })
       localStorage.setItem('cart', JSON.stringify(cartItems));
       toast.success('Product added to cart successfully')
       forceUpdate(prev => !prev);
     }
+  }
+
+  const handleBuyNow = () => {
+    localStorage.removeItem('checkout')
+    const newCheckout = [
+      { ...product, quantity },
+    ];
+    localStorage.setItem('checkout', JSON.stringify(newCheckout));
+    localStorage.setItem('checkoutMode', 'buyNow');
+    router.push('/checkout');
   }
 
   return (
@@ -37,9 +49,9 @@ export default function ProductDetails({ product }: Props) {
       <h1 className="text-2xl font-bold">{product.name}</h1>
       <p className="text-gray-600">SKU: {product.sku}</p>
       <p className="text-xl font-semibold text-green-600">
-        ${product.discountPrice > 0 ? product.discountPrice : product.price}
+        {product.discountPrice > 0 ? product.discountPrice.toLocaleString() : product.price.toLocaleString()}đ
         {product.discountPrice > 0 && (
-          <span className="ml-2 text-sm line-through text-gray-400">${product.price}</span>
+          <span className="ml-2 text-sm line-through text-gray-400">{product.price.toLocaleString()}đ</span>
         )}
       </p>
       <p className="text-sm text-yellow-600">⭐ {product.ratingAverage} rating</p>
@@ -64,7 +76,7 @@ export default function ProductDetails({ product }: Props) {
         )
         }
 
-        <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl">
+        <button onClick={handleBuyNow} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl">
           Buy Now
         </button>
       </div>

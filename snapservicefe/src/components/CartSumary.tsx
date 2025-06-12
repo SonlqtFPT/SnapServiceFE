@@ -1,17 +1,38 @@
 'use client'
 import { CartItem } from '@/app/cart/typeOfCart';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation';
 
 type Props = {
-    cartItems: CartItem[]
+    cartItems?: CartItem[]
 }
 
-export default function CartSumary(cart: Props) {
+export default function CartSumary({cartItems = []}: Props) {
     const pathname = usePathname();
     const router = useRouter();
-    const selectedItemList = cart.cartItems.filter((item) => item.isChecked);
-    const subtotal = selectedItemList.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
+    const [cartData, setCartData] = useState<CartItem[]>([]);
+
+    useEffect(() => {
+        if (pathname === '/checkout') {
+            const mode = localStorage.getItem('checkoutMode');
+            if (mode === 'buyNow') {
+                const local = localStorage.getItem('checkout');
+                const parsed: CartItem[] = local ? JSON.parse(local) : [];
+                setCartData(parsed);
+            } else {
+                const local = localStorage.getItem('cart');
+                const parsed: CartItem[] = local ? JSON.parse(local) : [];
+                const selected = parsed.filter(item => item.isChecked);
+                setCartData(selected);
+            }
+        } else {
+            const selected = cartItems.filter(item => item.isChecked);
+            setCartData(selected);
+        }
+    }, [pathname, cartItems]);
+
+    const subtotal = cartData.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
+
     return (
         <div className="col-span-3">
             <div className="sticky top-6 z-10">
