@@ -60,9 +60,25 @@ export default function ProductDetails({ product }: Props) {
 
       <div className="flex items-center gap-4 mt-4">
         <div className="flex items-center border rounded">
-          <button onClick={() => handleQuantityChange(-1)} className="px-3 py-1 text-lg font-bold">-</button>
-          <span className="px-4">{quantity}</span>
-          <button onClick={() => handleQuantityChange(1)} className="px-3 py-1 text-lg font-bold">+</button>
+          <button
+            onClick={() => handleQuantityChange(-1)}
+            className={`px-3 py-1 text-lg font-bold rounded border border-gray-300 transition 
+                        ${quantity === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+            disabled={quantity === 1}
+          >
+            -
+          </button>
+
+          <span className="px-4 text-lg font-medium">{quantity}</span>
+
+          <button
+            onClick={() => handleQuantityChange(1)}
+            className={`px-3 py-1 text-lg font-bold rounded border border-gray-300 transition 
+                        ${quantity === product.availableQuantity ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
+            disabled={quantity === product.availableQuantity}
+          >
+            +
+          </button>
         </div>
         {cartItems.some(item => item.id === product.id) ? (
           <button disabled className="bg-gray-400 text-white px-4 py-2 rounded-xl cursor-not-allowed">
