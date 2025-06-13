@@ -5,13 +5,23 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**', // chấp nhận mọi domain
+        hostname: '**', 
       },
     ],
   },
 
   eslint: {
     ignoreDuringBuilds: true,
+  },
+
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/home',
+        permanent: true, // set to false if this redirect is temporary
+      },
+    ];
   },
 };
 
