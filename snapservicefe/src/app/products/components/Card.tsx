@@ -8,6 +8,7 @@ import { ItemResponse, ProductListResponse } from '@/model/response/productRespo
 import { searchProductRequest } from '@/model/request/productRequest'
 import Sort from './Sort'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 type Props = {
     categoryId: number | null;
@@ -77,7 +78,7 @@ export default function Card({ categoryId }: Props) {
             <div className="grid grid-cols-5 gap-4">
                 {productList.map((item) => {
                     return (
-                        <div key={item?.id} className="flex flex-col gap-2 bg-white shadow-md rounded-md p-4 relative cursor-pointer hover:scale-105 transition-transform duration-300">
+                        <Link href={`/products/${item.slug}`} key={item?.id} className="flex flex-col gap-2 bg-white shadow-md rounded-md p-4 relative cursor-pointer hover:scale-105 transition-transform duration-300">
                             {item?.isSale && (
                                 <span className="bg-red-500 text-white text-sm px-2 py-1 rounded-md absolute top-2 left-2 z-10">
                                     {item?.discountPercent}%
@@ -96,11 +97,11 @@ export default function Card({ categoryId }: Props) {
                             <div className='flex gap-2 items-center'>
                                 {item.isSale ? (
                                     <div className="flex flex-col-reverse gap-2 items-center">
-                                        <p className="text-red-500 font-bold text-2xl">${item.discountPrice}</p>
-                                        <p className="text-gray-500 line-through">${item.price}</p>
+                                        <p className="text-red-500 font-bold text-2xl">{item.discountPrice.toLocaleString()}đ</p>
+                                        <p className="text-gray-500 line-through">{item.price.toLocaleString()}đ</p>
                                     </div>
                                 ) : (
-                                    <p className="text-black flex items-center text-2xl h-16">${item?.price}</p>
+                                    <p className="text-black flex items-center text-2xl h-16">{item?.price.toLocaleString()}đ</p>
                                 )}
                             </div>
                             {item?.stockInQuantity > 0 ? (
@@ -115,7 +116,7 @@ export default function Card({ categoryId }: Props) {
                                 </div>
                             )}
 
-                        </div>
+                        </Link>
                     );
                 })}
             </div>
