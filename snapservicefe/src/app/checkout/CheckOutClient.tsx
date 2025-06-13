@@ -1,15 +1,11 @@
 'use client';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 import CartSumary from '@/components/CartSumary';
 import { CartItem } from '../cart/typeOfCart';
 
 
 export default function CheckoutClient() {
-    const router = useRouter();
-    const initialItems = localStorage.getItem('checkout');
-    const cartItems: CartItem[] = initialItems ? JSON.parse(initialItems) : [];
-    const selectedItems = cartItems.filter(item => item.isChecked);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -21,6 +17,20 @@ export default function CheckoutClient() {
         email: '',
         notes: '',
     });
+     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const storedItems = localStorage.getItem('checkout');
+            if (storedItems) {
+                try {
+                    setCartItems(JSON.parse(storedItems));
+                } catch (error) {
+                    console.error('Failed to parse checkout items from localStorage:', error);
+                }
+            }
+        }
+    }, []);
+
+    const selectedItems = cartItems.filter(item => item.isChecked);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
