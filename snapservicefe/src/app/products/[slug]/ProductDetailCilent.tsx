@@ -37,8 +37,9 @@ export default function ProductDetailClient() {
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     <DynamicBreadcrumbs/>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <ProductImageGallery images={product.images} productName={product.name} />
         <ProductDetails product={product} imageUrl={product.images} />
       </div>

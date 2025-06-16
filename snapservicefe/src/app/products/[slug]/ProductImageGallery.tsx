@@ -28,7 +28,7 @@ export default function ProductImageGallery({ images = [], productName }: Props)
             alt={productName}
             width={560}
             height={560}
-            className=" object-contain transition-transform duration-300 group-hover:scale-105"
+            className=" object-contain rounded-xl transition-transform duration-300 "
           />
         )}
       </div>
