@@ -3,7 +3,7 @@ import ProductDetailClient from "./ProductDetailCilent";
 
 export default function ProductDetailPage() {
   return (
-    <main className="max-w-6xl mx-auto p-4">
+    <main className=" mx-24 p-4">
       <ProductDetailClient />
     </main>
   );

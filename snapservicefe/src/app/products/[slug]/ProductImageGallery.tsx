@@ -26,9 +26,9 @@ export default function ProductImageGallery({ images = [], productName }: Props)
           <Image
             src={selectedImage.productImageUrl}
             alt={productName}
-            width={500}
-            height={500}
-            className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+            width={560}
+            height={560}
+            className=" object-contain transition-transform duration-300 group-hover:scale-105"
           />
         )}
       </div>
@@ -42,7 +42,7 @@ export default function ProductImageGallery({ images = [], productName }: Props)
             alt="Thumbnail"
             width={80}
             height={80}
-            className={`cursor-pointer rounded border-2 transition duration-200 hover:scale-105 ${
+            className={`cursor-pointer rounded border-2 transition duration-200  ${
               selectedImage?.id === image.id ? 'border-blue-500' : 'border-transparent'
             }`}
             onClick={() => setSelectedImage(image)}
