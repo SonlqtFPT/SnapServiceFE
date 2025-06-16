@@ -18,6 +18,7 @@ export default function ProductDetails({ product }: Props) {
   const localCart = localStorage.getItem('cart');
   const cartItems: CartItem[] = localCart ? JSON.parse(localCart) : [];
   const [_, forceUpdate] = useState(false);
+
   const handleQuantityChange = (delta: number) => {
     setQuantity(prev => Math.max(1, prev + delta));
   };
@@ -27,18 +28,16 @@ export default function ProductDetails({ product }: Props) {
     const existingItemIndex = cartItems.findIndex((item: ProductType) => item.id === product.id);
 
     if (existingItemIndex === -1) {
-      cartItems.push({ ...product, quantity })
+      cartItems.push({ ...product, quantity });
       localStorage.setItem('cart', JSON.stringify(cartItems));
-      toast.success('Product added to cart successfully')
+      toast.success('Product added to cart successfully');
       forceUpdate(prev => !prev);
     }
-  }
+  };
 
   const handleBuyNow = () => {
-    localStorage.removeItem('checkout')
-    const newCheckout = [
-      { ...product, quantity },
-    ];
+    localStorage.removeItem('checkout');
+    const newCheckout = [{ ...product, quantity }];
     localStorage.setItem('checkout', JSON.stringify(newCheckout));
     localStorage.setItem('checkoutMode', 'buyNow');
     router.push('/checkout');

@@ -10,6 +10,7 @@ import NewArrivals from '../../home/components/NewArrivals';
 import ProductTabs from './ProductTab';
 import { mockReviews } from '../data/mock-reviews';
 
+import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs';
 
 export default function ProductDetailClient() {
   const [product, setProduct] = useState<ProductType | null>(null);
@@ -37,6 +38,7 @@ export default function ProductDetailClient() {
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <DynamicBreadcrumbs/>
         <ProductImageGallery images={product.images} productName={product.name} />
         <ProductDetails product={product} imageUrl={product.images} />
       </div>
