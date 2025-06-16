@@ -6,6 +6,7 @@ import { ProductType } from '@/types/product/ProductType';
 import ProductImageGallery from './ProductImageGallery';
 import ProductDetails from './ProductDetails';
 import { useParams } from "next/navigation";
+import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs';
 
 export default function ProductDetailClient() {
   const [product, setProduct] = useState<ProductType | null>(null);
@@ -30,10 +31,15 @@ export default function ProductDetailClient() {
   if (error) return <div className="text-red-500">Product not found or an error occurred.</div>;
   if (!product) return <div>Loading...</div>;
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+return (
+  <div className="p-4 space-y-6">
+    <DynamicBreadcrumbs />
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <ProductImageGallery images={product.images} productName={product.name} />
       <ProductDetails product={product} imageUrl={product.images} />
     </div>
-  );
+  </div>
+);
+
 }
