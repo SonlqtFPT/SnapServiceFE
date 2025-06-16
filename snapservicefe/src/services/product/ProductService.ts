@@ -56,6 +56,6 @@ export const fetchProductDetailBySlug = async(request: ProductDetailSlugRequest)
     return response.data.data;
     } catch (error) {
         console.log("Oh no, loi~ ne`:", error)
-        throw error; //bye bye error
+        throw error; 
     }
 }
