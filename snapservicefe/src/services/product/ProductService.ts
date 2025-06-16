@@ -1,5 +1,5 @@
 import { getAPI } from "@/lib/axios";
-import { productDetailSlugRequest, productListRequest, searchProductRequest } from "@/model/request/productRequest";
+import { ProductDetailSlugRequest, productListRequest, searchProductRequest } from "@/model/request/productRequest";
 import { ProductDetailResponse, ProductListResponse } from "@/model/response/productRespone";
 import { CategoryResponse } from '@/model/response/categoryResponse';
 
@@ -48,7 +48,7 @@ export const fetchProductsByQuery = async (request: searchProductRequest): Promi
     }
 }
 
-export const fetchProductDetailBySlug = async(request: productDetailSlugRequest): Promise<ProductDetailResponse> =>
+export const fetchProductDetailBySlug = async(request: ProductDetailSlugRequest): Promise<ProductDetailResponse> =>
 {
     try {
     const response = await api.get(`/api/Product/${request.slug}`);
