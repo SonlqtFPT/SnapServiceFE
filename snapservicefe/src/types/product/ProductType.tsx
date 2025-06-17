@@ -28,3 +28,15 @@ export type ProductType = {
   categories: CategoryType;
   supplier: SupplierType;
 };
+
+export type ReviewType = {
+  id: number;
+  productId: number;
+  content: string;
+  rating: number;
+  createdAt: string;
+  user: {
+    id: number;
+    username: string;
+  };
+};
