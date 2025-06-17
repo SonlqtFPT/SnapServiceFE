@@ -17,6 +17,7 @@ export default function LoginForm() {
       const res = await loginUser({ emailOrPhone, password })
       if (res?.token) {
         localStorage.setItem('token', res.token)
+        document.cookie = `token=${res.token}; path=/; max-age=3600`;
         window.dispatchEvent(new Event('login'));
         toast.success("Đăng nhập thành công")
         setTimeout(() => {
