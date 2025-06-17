@@ -17,10 +17,12 @@ export default function LoginForm() {
       const res = await loginUser({ emailOrPhone, password })
       if (res?.token) {
         localStorage.setItem('token', res.token)
+        document.cookie = `token=${res.token}; path=/; max-age=3600`;
+        window.dispatchEvent(new Event('login'));
         toast.success("Đăng nhập thành công")
         setTimeout(() => {
           route.push('/home')
-        }, 4000)
+        }, 2000)
       }
     } catch (error) {
       toast.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin đăng nhập của bạn.")
@@ -31,7 +33,7 @@ export default function LoginForm() {
 
   return (
     <div className="max-w-md mx-auto mt-20 px-6">
-      <ToastContainer position='top-center' autoClose={3000} />
+      <ToastContainer position='top-center' autoClose={2000} />
       <p className="text-center text-sm text-gray-600 mb-6">
         If you have an account, sign in with your username or email address.
       </p>
