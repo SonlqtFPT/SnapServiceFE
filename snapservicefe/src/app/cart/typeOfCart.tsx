@@ -9,6 +9,7 @@ export type CartItem = {
   images: {
     id: number;
     productImageUrl: string;
+    isMain: boolean;
   }[];
   stockInQuantity: number;
   ratingAverage: number;

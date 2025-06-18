@@ -121,13 +121,15 @@ export default function CartClient() {
                                             className="w-5 h-5"
                                         />
                                         <Image
-                                            src={item?.images[2]?.productImageUrl || '/fallback.jpg'}
+                                            src={item.images.find((image) => image.isMain)!.productImageUrl}
                                             alt={item.name}
                                             width={80}
                                             height={80}
-                                            className="rounded object-cover"
+                                            className="object-cover rounded-md"
                                         />
-                                        <h3 className="text-md font-semibold">{item.name}</h3>
+
+
+                                        <h3 className="text-md font-semibold w-full">{item.name}</h3>
                                     </div>
 
                                     <div className="col-span-2 text-center text-sm">

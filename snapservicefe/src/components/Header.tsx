@@ -34,7 +34,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white text-[#6B7280] py-4 px-8 border-b border-[#E5E7EB] relative z-50">
+    <header className="bg-gray-200 text-[#6B7280] py-4 px-8 border-b border-[#E5E7EB] relative z-50">
       <nav className="grid grid-cols-3 items-center gap-4">
         <div>
           <Link href="/" className="text-xl font-bold whitespace-nowrap">

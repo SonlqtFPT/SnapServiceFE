@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
 
     // Nếu không có token => chuyển hướng về trang login
     if (!token) {
-        return NextResponse.redirect(new URL('/login', request.url));
+        return NextResponse.redirect(new URL('auth/login', request.url));
     }
 
     try {
@@ -34,7 +34,7 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     } catch (err) {
         console.log(err)
-        return NextResponse.redirect(new URL('/login', request.url));
+        return NextResponse.redirect(new URL('auth/login', request.url));
     }
 
 }

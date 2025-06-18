@@ -10,12 +10,58 @@ import Sort from './Sort'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
+// Skeleton Components
+const ProductCardSkeleton = () => (
+    <div className="flex flex-col gap-2 bg-white shadow-md rounded-md p-4 animate-pulse">
+        {/* Image skeleton */}
+        <div className="w-[200px] h-[200px] bg-gray-300 rounded-md"></div>
+        
+        {/* Title skeleton */}
+        <div className="mt-2 space-y-2">
+            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+        </div>
+        
+        {/* Rating skeleton */}
+        <div className="flex gap-3 items-center mt-2">
+            <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                    <div key={i} className="w-4 h-4 bg-gray-300 rounded"></div>
+                ))}
+            </div>
+            <div className="h-4 bg-gray-300 rounded w-8"></div>
+        </div>
+        
+        {/* Price skeleton */}
+        <div className="flex gap-2 items-center mt-2">
+            <div className="h-6 bg-gray-300 rounded w-20"></div>
+        </div>
+        
+        {/* Stock status skeleton */}
+        <div className="flex gap-2 items-center mt-2">
+            <div className="w-10 h-10 bg-gray-300 rounded-2xl"></div>
+            <div className="h-4 bg-gray-300 rounded w-16"></div>
+        </div>
+    </div>
+)
+
+const PaginationSkeleton = () => (
+    <div className="flex items-center justify-center gap-2 mt-6 animate-pulse">
+        <div className="h-8 bg-gray-300 rounded w-20"></div>
+        {[...Array(5)].map((_, i) => (
+            <div key={i} className="w-8 h-8 bg-gray-300 rounded"></div>
+        ))}
+        <div className="h-8 bg-gray-300 rounded w-16"></div>
+    </div>
+)
+
 type Props = {
     categoryId: number | null;
 };
 
 export default function Card({ categoryId }: Props) {
     const searchParams = useSearchParams()
+    const [isLoading, setIsLoading] = useState(true)
     const [page, setPage] = useState<searchProductRequest>({
         q: searchParams.get('q') || '',
         page: parseInt(searchParams.get('page') || '1', 10),
@@ -47,15 +93,17 @@ export default function Card({ categoryId }: Props) {
     );
     const [productList, setProductList] = useState<ItemResponse[]>([]);
 
-
     const getProductsByQuery = async () => {
         try {
+            setIsLoading(true)
             const response = await fetchProductsByQuery(page);
             setProduct(response);
             setProductList(response?.items || []);
             console.log("Fetched products:", response);
         } catch (error) {
             console.error("Failed to fetch products:", error);
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -71,6 +119,27 @@ export default function Card({ categoryId }: Props) {
         window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top when page changes
         getProductsByQuery();
     }, [page]);
+
+    if (isLoading) {
+        return (
+            <div className='flex flex-col gap-4'>
+                {/* Sort skeleton */}
+                <div className="h-10 bg-gray-300 rounded animate-pulse"></div>
+                
+                {/* Product cards skeleton */}
+                <div className="grid grid-cols-5 gap-4">
+                    {[...Array(20)].map((_, index) => (
+                        <ProductCardSkeleton key={index} />
+                    ))}
+                </div>
+                
+                {/* Pagination skeleton */}
+                <div className='flex justify-center mt-4'>
+                    <PaginationSkeleton />
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className='flex flex-col gap-4'>
@@ -115,7 +184,6 @@ export default function Card({ categoryId }: Props) {
                                     <div className='text-red-600'>OUT OF STOCK</div>
                                 </div>
                             )}
-
                         </Link>
                     );
                 })}
@@ -176,7 +244,6 @@ export default function Card({ categoryId }: Props) {
                         Next &gt;
                     </button>
                 </div>
-
             </div>
         </div>
     );
