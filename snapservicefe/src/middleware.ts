@@ -21,13 +21,23 @@ export function middleware(request: NextRequest) {
 
     try {
         // Giải mã token để lấy role 
-        const payload: UserPayload = jwtDecode(token); // bạn tự viết hàm này hoặc dùng thư viện
+        const payload: UserPayload = jwtDecode(token);
         const userRole = payload.Role;
         if (pathname.startsWith('/admin') && userRole !== 'ADMIN') {
             return NextResponse.redirect(new URL('/unauthorized', request.url));
         }
 
         if (pathname.startsWith('/supplier') && userRole !== 'SUPPLIER') {
+            return NextResponse.redirect(new URL('/unauthorized', request.url));
+        }
+        if (
+            userRole === 'ADMIN' &&
+            (
+                pathname.startsWith('/checkout') ||
+                pathname.startsWith('/cart') ||
+                pathname.startsWith('/orders')
+            )
+        ) {
             return NextResponse.redirect(new URL('/unauthorized', request.url));
         }
 
@@ -42,5 +52,9 @@ export const config = {
     matcher: [
         '/admin/:path*',
         '/supplier/:path*',
+        '/checkout/:path*',
+        '/cart/:path*',
+        '/orders/:path*',
+
     ],
 };  

@@ -4,6 +4,11 @@ import { loginUser } from '@/services/users/userService'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
+import { jwtDecode } from 'jwt-decode'
+
+type UserPayload = {
+  Role: string
+}
 
 export default function LoginForm() {
   const [emailOrPhone, setEmailOrPhone] = useState('')
@@ -17,12 +22,21 @@ export default function LoginForm() {
       const res = await loginUser({ emailOrPhone, password })
       if (res?.token) {
         localStorage.setItem('token', res.token)
+        const decodeData = jwtDecode(res.token)
+        const userRole = (decodeData as UserPayload).Role;
         document.cookie = `token=${res.token}; path=/; max-age=3600`;
         window.dispatchEvent(new Event('login'));
-        toast.success("Đăng nhập thành công")
-        setTimeout(() => {
-          route.push('/home')
-        }, 2000)
+        if (userRole === 'ADMIN') {
+          toast.success("Chào mừng bạn đến với trang quản trị")
+          setTimeout(() => {
+            route.push('/admin')
+          }, 2000)
+        } else {
+          toast.success("Đăng nhập thành công, chào mừng bạn đến với SnapService")
+          setTimeout(() => {
+            route.push('/home')
+          }, 2000)
+        }
       }
     } catch (error) {
       toast.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin đăng nhập của bạn.")
