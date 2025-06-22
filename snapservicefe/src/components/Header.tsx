@@ -85,6 +85,14 @@ export default function Header() {
                       >
                         Profile
                       </Link>
+                      {user.Role === 'ADMIN' && (
+                        <Link
+                          href="/admin"
+                          className="px-4 py-2 hover:bg-gray-100 text-sm"
+                        >
+                          Admin
+                        </Link>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="cursor-pointer px-4 py-2 hover:bg-gray-100 text-left text-sm"
