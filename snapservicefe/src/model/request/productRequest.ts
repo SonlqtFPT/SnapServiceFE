@@ -25,5 +25,15 @@ export interface AddProductRequest {
   isSale: boolean;
   sku: string;
   categoriesId: number;
-  supplierId: number;
+}
+
+export interface UpdateProductRequest {
+  name: string;
+  price: number;
+  description: string;
+  stockInQuantity: number;
+  discountPercent: number;
+  isSale: boolean;
+  sku: string;
+  categoriesId: number;
 }
