@@ -29,8 +29,10 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem('token')
+    document.cookie = "token=; path=/; max-age=0";
     window.dispatchEvent(new Event('logout'))
     setShowDropdown(false)
+    router.push('/home')
   }
 
   return (

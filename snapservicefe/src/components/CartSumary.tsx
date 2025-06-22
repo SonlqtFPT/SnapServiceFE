@@ -2,17 +2,25 @@
 import { CartItem } from '@/app/cart/typeOfCart';
 import React, { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation';
+import { toast, ToastContainer } from 'react-toastify';
 
 type Props = {
     cartItems?: CartItem[]
 }
 
-export default function CartSumary({cartItems = []}: Props) {
+export default function CartSumary({ cartItems = [] }: Props) {
     const pathname = usePathname();
     const router = useRouter();
     const [cartData, setCartData] = useState<CartItem[]>([]);
+    const [token, setToken] = useState<string | null>(null);
 
     useEffect(() => {
+        const getCookie = (name: string): string | null => {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        };
+        setToken(getCookie('token') || null);
+
         if (pathname === '/checkout') {
             const mode = localStorage.getItem('checkoutMode');
             if (mode === 'buyNow') {
@@ -35,6 +43,7 @@ export default function CartSumary({cartItems = []}: Props) {
 
     return (
         <div className="col-span-3">
+            <ToastContainer position='top-center' autoClose={2000} />
             <div className="sticky top-6 z-10">
                 <div className="text-xl text-center  font-bold rounded-t-md p-2 text-gray-600 bg-gray-200">Summary</div>
 
@@ -57,7 +66,13 @@ export default function CartSumary({cartItems = []}: Props) {
                         {subtotal > 0 && pathname === '/cart' && (
                             <button
                                 className="w-[80%] bg-[#634C9F] text-white py-2 rounded-4xl text-lg cursor-pointer"
-                                onClick={() => router.push('/checkout')}
+                                onClick={() => {
+                                    if (token === null) {
+                                        toast.error('Please login before proceeding to checkout');
+                                    } else {
+                                        router.push('/checkout');
+                                    }
+                                }}
                             >
                                 Proceed to Checkout ⟶
                             </button>
@@ -65,7 +80,13 @@ export default function CartSumary({cartItems = []}: Props) {
                         {pathname === '/checkout' && (
                             <button
                                 className="w-[80%] bg-[#634C9F] text-white py-2 rounded-4xl text-lg cursor-pointer"
-                                onClick={() => router.push('/checkout/payment')}
+                                onClick={() => {
+                                    if (token === null) {
+                                        toast.error('Please login before proceeding to checkout');
+                                    } else {
+                                        router.push('/checkout/payment');
+                                    }
+                                }}
                             >
                                 Place Order
                             </button>

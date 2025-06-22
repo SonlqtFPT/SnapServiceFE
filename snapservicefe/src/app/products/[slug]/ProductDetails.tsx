@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProductImageType, ProductType } from '@/types/product/ProductType';
 import { toast, ToastContainer } from 'react-toastify';
 import { CartItem } from '@/app/cart/typeOfCart';
@@ -18,6 +18,15 @@ export default function ProductDetails({ product }: Props) {
   const localCart = localStorage.getItem('cart');
   const cartItems: CartItem[] = localCart ? JSON.parse(localCart) : [];
   const [_, forceUpdate] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getCookie = (name: string): string | null => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : null;
+    };
+    setToken(getCookie('token') || null);
+  }, []);
 
   const handleQuantityChange = (delta: number) => {
     setQuantity(prev => Math.max(1, prev + delta));
@@ -36,11 +45,15 @@ export default function ProductDetails({ product }: Props) {
   };
 
   const handleBuyNow = () => {
-    localStorage.removeItem('checkout');
-    const newCheckout = [{ ...product, quantity }];
-    localStorage.setItem('checkout', JSON.stringify(newCheckout));
-    localStorage.setItem('checkoutMode', 'buyNow');
-    router.push('/checkout');
+    if (token === null) {
+      toast.error('Please login before buying');
+    } else {
+      localStorage.removeItem('checkout');
+      const newCheckout = [{ ...product, quantity }];
+      localStorage.setItem('checkout', JSON.stringify(newCheckout));
+      localStorage.setItem('checkoutMode', 'buyNow');
+      router.push('/checkout');
+    }
   }
   const renderStars = (rating: number, size: "sm" | "md" | "lg" = "sm") => {
     const sizeClasses = {
