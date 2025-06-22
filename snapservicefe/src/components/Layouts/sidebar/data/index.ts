@@ -7,98 +7,58 @@ export const NAV_DATA = [
       {
         title: "Dashboard",
         icon: Icons.HomeIcon,
+        roles: ["admin", "supplier"],
         items: [
-          {
-            title: "eCommerce",
-            url: "/",
-          },
+          { title: "eCommerce", url: "dashboard" },
         ],
       },
+
       {
-        title: "Calendar",
-        url: "/calendar",
-        icon: Icons.Calendar,
+        title: "Users",
+        icon: Icons.User,
+        roles: ["admin"],
+        url: "users",
         items: [],
       },
+
+      {
+        title: "Report",
+        icon: Icons.PieChart,
+        roles: ["admin"],
+        url: "report",
+        items: [],
+      },
+
+      {
+        title: "Inventory",
+        icon: Icons.BoxIcon, // ✅ Updated: more intuitive than Table
+        roles: ["supplier"],
+        url: "inventory",
+        items: [],
+      },
+
+      {
+        title: "Orders",
+        icon: Icons.PackageIcon, // ✅ Updated: replaces 'Alphabet'
+        roles: ["supplier"],
+        url: "orders",
+        items: [],
+      },
+
+      {
+        title: "Report",
+        icon: Icons.PieChart,
+        roles: ["supplier"],
+        url: "report",
+        items: [],
+      },
+
       {
         title: "Profile",
-        url: "/profile",
         icon: Icons.User,
+        roles: ["admin", "supplier"],
+        url: "profile",
         items: [],
-      },
-      {
-        title: "Forms",
-        icon: Icons.Alphabet,
-        items: [
-          {
-            title: "Form Elements",
-            url: "/forms/form-elements",
-          },
-          {
-            title: "Form Layout",
-            url: "/forms/form-layout",
-          },
-        ],
-      },
-      {
-        title: "Tables",
-        url: "/tables",
-        icon: Icons.Table,
-        items: [
-          {
-            title: "Tables",
-            url: "/tables",
-          },
-        ],
-      },
-      {
-        title: "Pages",
-        icon: Icons.Alphabet,
-        items: [
-          {
-            title: "Settings",
-            url: "/pages/settings",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: "OTHERS",
-    items: [
-      {
-        title: "Charts",
-        icon: Icons.PieChart,
-        items: [
-          {
-            title: "Basic Chart",
-            url: "/charts/basic-chart",
-          },
-        ],
-      },
-      {
-        title: "UI Elements",
-        icon: Icons.FourCircle,
-        items: [
-          {
-            title: "Alerts",
-            url: "/ui-elements/alerts",
-          },
-          {
-            title: "Buttons",
-            url: "/ui-elements/buttons",
-          },
-        ],
-      },
-      {
-        title: "Authentication",
-        icon: Icons.Authentication,
-        items: [
-          {
-            title: "Sign In",
-            url: "/auth/login",
-          },
-        ],
       },
     ],
   },
