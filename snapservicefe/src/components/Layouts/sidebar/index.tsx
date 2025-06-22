@@ -10,41 +10,67 @@ import { ArrowLeftIcon, ChevronUp } from "./icons";
 import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
 
-export function Sidebar() {
+interface SidebarProps {
+  role: "admin" | "supplier";
+}
+
+function getPrefixedUrl(url: string, role: string) {
+  return `/${role}/${url.replace(/^\/+/, "")}`;
+}
+
+
+export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const toggleExpanded = (title: string) => {
     setExpandedItems((prev) => (prev.includes(title) ? [] : [title]));
-
-    // Uncomment the following line to enable multiple expanded items
-    // setExpandedItems((prev) =>
-    //   prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title],
-    // );
   };
 
+  // Filter and prefix NAV_DATA based on role
+  const filteredNav = NAV_DATA.map((section) => ({
+    ...section,
+    items: section.items
+      .filter((item) => !item.roles || item.roles.includes(role))
+      .map((item) => ({
+        ...item,
+        url: item.url ? getPrefixedUrl(item.url, role) : undefined,
+        items: item.items?.map((subItem) => ({
+          ...subItem,
+          url: getPrefixedUrl(subItem.url, role),
+        })) || [],
+      })),
+  }));
+
   useEffect(() => {
-    // Keep collapsible open, when it's subpage is active
-    NAV_DATA.some((section) => {
-      return section.items.some((item) => {
-        return item.items.some((subItem) => {
+    // Keep collapsible open when subpage is active
+    filteredNav.some((section) =>
+      section.items.some((item) =>
+        item.items.some((subItem) => {
           if (subItem.url === pathname) {
             if (!expandedItems.includes(item.title)) {
               toggleExpanded(item.title);
             }
-
-            // Break the loop
             return true;
           }
-        });
-      });
-    });
+          return false;
+        })
+      )
+    );
   }, [pathname]);
+
+  const [hasMounted, setHasMounted] = useState(false);
+
+useEffect(() => {
+  setHasMounted(true);
+}, []);
+
+if (!hasMounted) return null;
+
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isMobile && isOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
@@ -57,16 +83,17 @@ export function Sidebar() {
         className={cn(
           "max-w-[290px] overflow-hidden border-r border-gray-200 bg-white transition-[width] duration-200 ease-linear dark:border-gray-800 dark:bg-gray-dark",
           isMobile ? "fixed bottom-0 top-0 z-50" : "sticky top-0 h-screen",
-          isOpen ? "w-full" : "w-0",
+          isOpen ? "w-full" : "w-0"
         )}
         aria-label="Main navigation"
         aria-hidden={!isOpen}
         inert={!isOpen}
       >
         <div className="flex h-full flex-col py-10 pl-[25px] pr-[7px]">
+          {/* Logo */}
           <div className="relative pr-4.5">
             <Link
-              href={"/"}
+              href={`/${role}`}
               onClick={() => isMobile && toggleSidebar()}
               className="px-0 py-2.5 min-[850px]:py-0"
             >
@@ -79,7 +106,6 @@ export function Sidebar() {
                 className="absolute left-3/4 right-4.5 top-1/2 -translate-y-1/2 text-right"
               >
                 <span className="sr-only">Close Menu</span>
-
                 <ArrowLeftIcon className="ml-auto size-7" />
               </button>
             )}
@@ -87,7 +113,7 @@ export function Sidebar() {
 
           {/* Navigation */}
           <div className="custom-scrollbar mt-6 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
-            {NAV_DATA.map((section) => (
+            {filteredNav.map((section) => (
               <div key={section.label} className="mb-6">
                 <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
                   {section.label}
@@ -97,11 +123,11 @@ export function Sidebar() {
                   <ul className="space-y-2">
                     {section.items.map((item) => (
                       <li key={item.title}>
-                        {item.items.length ? (
+                        {item.items.length > 0 ? (
                           <div>
                             <MenuItem
                               isActive={item.items.some(
-                                ({ url }) => url === pathname,
+                                ({ url }) => url === pathname
                               )}
                               onClick={() => toggleExpanded(item.title)}
                             >
@@ -109,14 +135,12 @@ export function Sidebar() {
                                 className="size-6 shrink-0"
                                 aria-hidden="true"
                               />
-
                               <span>{item.title}</span>
-
                               <ChevronUp
                                 className={cn(
                                   "ml-auto rotate-180 transition-transform duration-200",
                                   expandedItems.includes(item.title) &&
-                                  "rotate-0",
+                                    "rotate-0"
                                 )}
                                 aria-hidden="true"
                               />
@@ -134,7 +158,6 @@ export function Sidebar() {
                                       href={subItem.url}
                                       isActive={pathname === subItem.url}
                                     >
-
                                       <span>{subItem.title}</span>
                                     </MenuItem>
                                   </li>
@@ -143,29 +166,18 @@ export function Sidebar() {
                             )}
                           </div>
                         ) : (
-                          (() => {
-                            const href =
-                              "url" in item
-                                ? item.url + ""
-                                : "/" +
-                                item.title.toLowerCase().split(" ").join("-");
-
-                            return (
-                              <MenuItem
-                                className="flex items-center gap-3 py-3"
-                                as="link"
-                                href={href}
-                                isActive={pathname === href}
-                              >
-                                <item.icon
-                                  className="size-6 shrink-0"
-                                  aria-hidden="true"
-                                />
-
-                                <span>{item.title}</span>
-                              </MenuItem>
-                            );
-                          })()
+                          <MenuItem
+                            className="flex items-center gap-3 py-3"
+                            as="link"
+                            href={item.url || "#"}
+                            isActive={pathname === item.url}
+                          >
+                            <item.icon
+                              className="size-6 shrink-0"
+                              aria-hidden="true"
+                            />
+                            <span>{item.title}</span>
+                          </MenuItem>
                         )}
                       </li>
                     ))}
