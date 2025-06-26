@@ -29,19 +29,33 @@ export function Sidebar({ role }: SidebarProps) {
   };
 
   // Filter and prefix NAV_DATA based on role
+   // ÁP DỤNG THAY ĐỔI TỪ ĐÂY
   const filteredNav = NAV_DATA.map((section) => ({
     ...section,
     items: section.items
       .filter((item) => !item.roles || item.roles.includes(role))
-      .map((item) => ({
-        ...item,
-        url: item.url ? getPrefixedUrl(item.url, role) : undefined,
-        items: item.items?.map((subItem) => ({
-          ...subItem,
-          url: getPrefixedUrl(subItem.url, role),
-        })) || [],
-      })),
+      .map((item) => {
+        // Bước 1: Tính toán URL đầy đủ của item cha (ví dụ: /admin/users)
+        const parentFullUrl = item.url ? getPrefixedUrl(item.url, role) : undefined;
+
+        return {
+          ...item,
+          url: parentFullUrl, // URL cho chính item cha
+          items: item.items?.map((subItem) => {
+            // Bước 2: Nối URL của item cha với URL của subItem để có URL đầy đủ cho subItem
+            const subItemFullUrl = parentFullUrl && subItem.url
+              ? `${parentFullUrl}/${subItem.url.replace(/^\/+/, "")}`
+              : undefined; // Đảm bảo subItem.url không có '/' ở đầu nếu parentFullUrl đã có
+
+            return {
+              ...subItem,
+              url: subItemFullUrl,
+            };
+          }) || [],
+        };
+      }),
   }));
+  // KẾT THÚC THAY ĐỔI
 
   useEffect(() => {
     // Keep collapsible open when subpage is active
@@ -155,7 +169,7 @@ if (!hasMounted) return null;
                                   <li key={subItem.title} role="none">
                                     <MenuItem
                                       as="link"
-                                      href={subItem.url}
+                                     href={subItem.url || '#'}
                                       isActive={pathname === subItem.url}
                                     >
                                       <span>{subItem.title}</span>
