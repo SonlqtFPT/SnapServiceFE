@@ -7,9 +7,10 @@ export const NAV_DATA = [
       {
         title: "Dashboard",
         icon: Icons.HomeIcon,
+        url: "dashboard",
         roles: ["admin", "supplier"],
         items: [
-          { title: "eCommerce", url: "dashboard" },
+         
         ],
       },
 
