@@ -12,6 +12,28 @@ export interface searchProductRequest {
     sortOrder: string;
 }
 
-export interface productDetailSlugRequest {
+export interface ProductDetailSlugRequest {
     slug: string;
+}
+
+export interface AddProductRequest {
+  name: string;
+  price: number;
+  description: string;
+  stockInQuantity: number;
+  discountPercent: number;
+  isSale: boolean;
+  sku: string;
+  categoriesId: number;
+}
+
+export interface UpdateProductRequest {
+  name: string;
+  price: number;
+  description: string;
+  stockInQuantity: number;
+  discountPercent: number;
+  isSale: boolean;
+  sku: string;
+  categoriesId: number;
 }

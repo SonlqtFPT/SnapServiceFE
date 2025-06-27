@@ -1,4 +1,8 @@
 import { SVGProps } from "react";
+import { Package, Box } from "lucide-react";
+
+export const PackageIcon = Package; // For 'Orders'
+export const BoxIcon = Box;         // For 'Inventory'
 
 export type PropsType = SVGProps<SVGSVGElement>;
 
