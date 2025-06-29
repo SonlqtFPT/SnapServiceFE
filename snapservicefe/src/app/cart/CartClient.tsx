@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { CartItem, SupplierGroupedItems } from './typeOfCart';
 import { useRouter } from 'next/navigation';
-import CartSumary from '@/components/CartSumary';
+import CartSumary from './components/CartSumary';
 // import { Checkbox } from '@radix-ui/react-checkbox';
 //  import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -71,8 +71,6 @@ export default function CartClient() {
         if (!isInitialized) return;
 
         localStorage.setItem('cart', JSON.stringify(cartItems));
-        const selected = cartItems.filter(i => i.isChecked);
-        localStorage.setItem('checkout', JSON.stringify(selected));
     }, [cartItems, isInitialized]);
 
     if (cartItems.length === 0) {
