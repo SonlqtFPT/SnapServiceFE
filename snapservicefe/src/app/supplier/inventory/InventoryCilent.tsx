@@ -8,6 +8,7 @@ import { fetchSupplierProducts, deleteProductById } from "@/services/product/Pro
 import { SupplierItemResponse } from "@/model/response/productRespone"
 import { productListRequest } from "@/model/request/productRequest"
 import ProductInventoryTable from "./ProductInventoryTable"
+import LoadingOverlay from "@/components/ui/LoadingOverlay"
 
 export default function InventoryClient() {
   const [products, setProducts] = useState<SupplierItemResponse[]>([])
@@ -41,7 +42,11 @@ export default function InventoryClient() {
   }
 
   if (loading) {
-    return <div className="p-6 text-gray-600">Loading inventory...</div>
+    return (
+      <div className="relative min-h-[300px]">
+        <LoadingOverlay text="Loading inventory..." />
+      </div>
+    )
   }
 
   if (products.length === 0) {
@@ -73,7 +78,10 @@ export default function InventoryClient() {
           Add Product
         </button>
       </div>
-      <ProductInventoryTable products={products} onDelete={handleDeleteProduct} />
+      <ProductInventoryTable
+        products={products}
+        onDelete={handleDeleteProduct}
+      />
     </div>
   )
 }

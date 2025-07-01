@@ -24,6 +24,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import LoadingOverlay from '@/components/ui/LoadingOverlay'
 
 export default function AddProductClient() {
   const router = useRouter()
@@ -61,9 +62,19 @@ export default function AddProductClient() {
     >
   ) => {
     const { name, value, type } = e.target
+    let newValue: string | number = type === 'number' ? Number(value) : value
+
+    if (name === 'discountPercent') {
+      const num = Number(value)
+      if (num < 0 || num > 100) {
+        toast.error("Discount must be between 0 and 100.")
+        return
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? Number(value) : value
+      [name]: newValue
     }))
   }
 
@@ -146,13 +157,13 @@ export default function AddProductClient() {
       if (newProductId) {
         try {
           await deleteProductById(newProductId)
-          toast.error('⚠️ Upload failed. Product was rolled back.')
+          toast.error('Upload failed. Product was rolled back.')
         } catch (deleteError) {
           console.error('Failed to delete product:', deleteError)
-          toast.error('❌ Upload failed and rollback unsuccessful.')
+          toast.error('Upload failed and rollback unsuccessful.')
         }
       } else {
-        toast.error('❌ Failed to create product.')
+        toast.error('Failed to create product.')
       }
     } finally {
       setLoading(false)
@@ -161,14 +172,7 @@ export default function AddProductClient() {
 
   return (
     <div className='relative max-w-7xl mx-auto p-6'>
-      {loading && (
-        <div className='absolute inset-0 bg-white/80 z-50 flex items-center justify-center'>
-          <div className='text-center'>
-            <div className='animate-spin h-10 w-10 border-4 border-blue-400 border-t-transparent rounded-full mx-auto mb-2' />
-            <p className='text-gray-600 font-medium'>Processing...</p>
-          </div>
-        </div>
-      )}
+      {loading && <LoadingOverlay text="Processing product..." />}
 
       <form onSubmit={handleSubmit} className='space-y-6'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
