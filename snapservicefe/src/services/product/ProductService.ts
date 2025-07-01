@@ -100,3 +100,21 @@ export const addSupplierProduct = async (
 
   return response.data.data
 }
+
+export const deleteProductById = async (productId: number): Promise<void> => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found");
+
+  try {
+    await api.delete(`/api/Product/${productId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "text/plain",
+      },
+    });
+    console.log(`Product ${productId} deleted successfully.`);
+  } catch (error) {
+    console.error(`Failed to delete product ${productId}:`, error);
+    throw error;
+  }
+};

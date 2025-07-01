@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { PlusCircle } from "lucide-react"
 
-import { fetchSupplierProducts } from "@/services/product/ProductService"
+import { fetchSupplierProducts, deleteProductById } from "@/services/product/ProductService"
 import { SupplierItemResponse } from "@/model/response/productRespone"
 import { productListRequest } from "@/model/request/productRequest"
 import ProductInventoryTable from "./ProductInventoryTable"
@@ -30,6 +30,16 @@ export default function InventoryClient() {
     router.push("/supplier/inventory/add")
   }
 
+  const handleDeleteProduct = async (productId: number) => {
+    try {
+      await deleteProductById(productId)
+      setProducts((prev) => prev.filter(p => p.id !== productId))
+    } catch (err) {
+      console.error("Delete failed:", err)
+      alert("Failed to delete product.")
+    }
+  }
+
   if (loading) {
     return <div className="p-6 text-gray-600">Loading inventory...</div>
   }
@@ -41,7 +51,7 @@ export default function InventoryClient() {
         <div className="mt-4">
           <button
             onClick={handleAddProduct}
-            className="inline-flex items-center gap-2 bg-purple-600 text-white font-medium px-4 py-2 rounded-md hover:bg-purple-700 transition-shadow shadow-md hover:shadow-lg"
+            className="inline-flex items-center gap-2 bg-green-500 text-white font-medium px-4 py-2 rounded-md hover:bg-green-600 transition-shadow shadow-md hover:shadow-lg"
           >
             <PlusCircle className="w-5 h-5" />
             Add Product
@@ -63,7 +73,7 @@ export default function InventoryClient() {
           Add Product
         </button>
       </div>
-      <ProductInventoryTable products={products} />
+      <ProductInventoryTable products={products} onDelete={handleDeleteProduct} />
     </div>
   )
 }
