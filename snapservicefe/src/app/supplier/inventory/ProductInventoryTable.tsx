@@ -1,12 +1,26 @@
+"use client"
+
+import { useState } from "react"
 import { SupplierItemResponse } from "@/model/response/productRespone"
 import { Badge } from "@/components/ui/badge"
 import { Pencil, Trash2 } from "lucide-react"
 
 type Props = {
   products: SupplierItemResponse[]
+  onDelete: (productId: number) => void
 }
 
-export default function ProductInventoryTable({ products }: Props) {
+export default function ProductInventoryTable({ products, onDelete }: Props) {
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+
+  const handleDeleteClick = async (id: number) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
+    setDeletingId(id)
+    onDelete(id)
+  }
+
   return (
     <div className="overflow-x-auto rounded-lg border bg-white shadow-sm">
       <table className="min-w-full text-sm text-gray-800">
@@ -43,9 +57,7 @@ export default function ProductInventoryTable({ products }: Props) {
               <td className="px-4 py-3">{product.soldQuantity}</td>
               <td className="px-4 py-3">
                 {product.isSale ? (
-                  <Badge variant="warning">
-                    -{product.discountPercent}%
-                  </Badge>
+                  <Badge variant="warning">-{product.discountPercent}%</Badge>
                 ) : (
                   <span className="text-gray-400 text-sm">None</span>
                 )}
@@ -64,8 +76,10 @@ export default function ProductInventoryTable({ products }: Props) {
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button
-                    className="p-1 rounded hover:bg-red-100 text-red-600 transition"
+                    className={`p-1 rounded hover:bg-red-100 text-red-600 transition ${deletingId === product.id ? "opacity-50 cursor-not-allowed" : ""}`}
                     title="Delete"
+                    disabled={deletingId === product.id}
+                    onClick={() => handleDeleteClick(product.id)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

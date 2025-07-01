@@ -1,117 +1,320 @@
 'use client'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { toast } from "react-toastify"
-import { addSupplierProduct } from "@/services/product/ProductService"
-import { AddProductRequest } from "@/model/request/productRequest"
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
+import { getAPI } from '@/lib/axios'
+import {
+  addSupplierProduct,
+  deleteProductById,
+  fetchCategories
+} from '@/services/product/ProductService'
+import { AddProductRequest } from '@/model/request/productRequest'
+import { CategoryResponse } from '@/model/response/categoryResponse'
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 
 export default function AddProductClient() {
   const router = useRouter()
+  const api = getAPI()
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const [formData, setFormData] = useState<AddProductRequest>({
-    name: "",
+    name: '',
     price: 0,
-    description: "",
+    description: '',
     stockInQuantity: 0,
     discountPercent: 0,
     isSale: false,
-    sku: "",
-    categoriesId: 0,
+    sku: '',
+    categoriesId: 0
   })
 
+  const [categories, setCategories] = useState<CategoryResponse[]>([])
+  const [files, setFiles] = useState<File[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    fetchCategories()
+      .then((res) => setCategories(res))
+      .catch((err) => {
+        console.error('Failed to load categories', err)
+        toast.error('Failed to load categories')
+      })
+  }, [])
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value, type } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "number" ? Number(value) : value,
+      [name]: type === 'number' ? Number(value) : value
     }))
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files))
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    const droppedFiles = Array.from(e.dataTransfer.files).filter(file =>
+      file.type.startsWith("image/")
+    )
+    if (droppedFiles.length > 0) {
+      setFiles(prev => [...prev, ...droppedFiles])
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+  }
+
+  const removeImage = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (files.length === 0) {
+      toast.error('Please upload at least one image!')
+      return
+    }
+
+    setLoading(true)
+    let newProductId: number | null = null
+
     try {
-      await addSupplierProduct(formData)
-      toast.success("Product added successfully!")
-      router.push("/supplier/inventory")
-    } catch (error) {
-      console.error("Add product failed:", error)
-      toast.error("Failed to add product.")
+      const product = await addSupplierProduct(formData)
+      newProductId = product.id
+
+      const contentTypes = files.map((f) => f.type)
+      const presignRes = await api.post('/api/Upload/upload-images', {
+        productId: product.id,
+        productSlug: product.slug,
+        supplierId: product.supplierId,
+        categoryId: product.categoriesId,
+        contentTypes
+      })
+
+      const uploads = presignRes.data.data.uploads
+      if (!uploads || uploads.length !== files.length) {
+        throw new Error('Mismatch between presigned URLs and selected files.')
+      }
+
+      await Promise.all(
+        uploads.map((upload: any, idx: number) =>
+          api.put(upload.url, files[idx], {
+            headers: {
+              'Content-Type': files[idx].type
+            }
+          })
+        )
+      )
+
+      const imageUrls = uploads.map((u: any) => u.imageUrl)
+      await api.post(`/api/Upload/${product.id}/confirm-upload`, imageUrls, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'text/plain'
+        }
+      })
+
+      toast.success('✅ Product added with images!')
+      router.push('/supplier/inventory')
+    } catch (err) {
+      console.error('Error occurred:', err)
+      if (newProductId) {
+        try {
+          await deleteProductById(newProductId)
+          toast.error('⚠️ Upload failed. Product was rolled back.')
+        } catch (deleteError) {
+          console.error('Failed to delete product:', deleteError)
+          toast.error('❌ Upload failed and rollback unsuccessful.')
+        }
+      } else {
+        toast.error('❌ Failed to create product.')
+      }
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Add New Product</CardTitle>
-          <CardDescription>Fill in the details below to create a new product.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Product Name</Label>
-                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
-              </div>
-              <div>
-                <Label htmlFor="sku">SKU</Label>
-                <Input id="sku" name="sku" value={formData.sku} onChange={handleChange} required />
-              </div>
-              <div>
-                <Label htmlFor="price">Price</Label>
-                <Input id="price" name="price" type="number" value={formData.price} onChange={handleChange} required />
-              </div>
-              <div>
-                <Label htmlFor="discountPercent">Discount (%)</Label>
-                <Input id="discountPercent" name="discountPercent" type="number" value={formData.discountPercent} onChange={handleChange} />
-              </div>
-              <div>
-                <Label htmlFor="stockInQuantity">Stock Quantity</Label>
-                <Input id="stockInQuantity" name="stockInQuantity" type="number" value={formData.stockInQuantity} onChange={handleChange} />
-              </div>
-              <div>
-                <Label htmlFor="categoriesId">Category ID</Label>
-                <Input id="categoriesId" name="categoriesId" type="number" value={formData.categoriesId} onChange={handleChange} />
-              </div>
-            </div>
+    <div className='relative max-w-7xl mx-auto p-6'>
+      {loading && (
+        <div className='absolute inset-0 bg-white/80 z-50 flex items-center justify-center'>
+          <div className='text-center'>
+            <div className='animate-spin h-10 w-10 border-4 border-blue-400 border-t-transparent rounded-full mx-auto mb-2' />
+            <p className='text-gray-600 font-medium'>Processing...</p>
+          </div>
+        </div>
+      )}
 
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Enter a brief product description..."
-              />
-            </div>
+      <form onSubmit={handleSubmit} className='space-y-6'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+          <div className='md:col-span-2 space-y-6'>
+            {/* General Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle>General Information</CardTitle>
+                <CardDescription>Basic details about the product.</CardDescription>
+              </CardHeader>
+              <CardContent className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <Label htmlFor='name'>Product Name</Label>
+                  <Input id='name' name='name' value={formData.name} onChange={handleChange} required />
+                </div>
+                <div>
+                  <Label htmlFor='sku'>SKU</Label>
+                  <Input id='sku' name='sku' value={formData.sku} onChange={handleChange} required />
+                </div>
+                <div className='md:col-span-2'>
+                  <Label htmlFor='description'>Description</Label>
+                  <Textarea id='description' name='description' value={formData.description} onChange={handleChange} />
+                </div>
+              </CardContent>
+            </Card>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="isSale"
-                  checked={formData.isSale}
-                  onCheckedChange={(checked) =>
-                    setFormData((prev) => ({ ...prev, isSale: checked }))
-                  }
-                />
-                <Label htmlFor="isSale">Enable Sale</Label>
-              </div>
-              <Button type="submit">Add Product</Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            {/* Pricing */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Pricing and Stock</CardTitle>
+              </CardHeader>
+              <CardContent className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <Label htmlFor='price'>Price</Label>
+                  <Input id='price' name='price' type='number' value={formData.price} onChange={handleChange} required />
+                </div>
+                <div>
+                  <Label htmlFor='discountPercent'>Discount (%)</Label>
+                  <Input
+                    id='discountPercent'
+                    name='discountPercent'
+                    type='number'
+                    value={formData.discountPercent}
+                    onChange={handleChange}
+                    disabled={!formData.isSale}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor='stockInQuantity'>Stock Quantity</Label>
+                  <Input id='stockInQuantity' name='stockInQuantity' type='number' value={formData.stockInQuantity} onChange={handleChange} />
+                </div>
+                <div className='flex items-center gap-2 mt-6'>
+                  <Switch
+                    id='isSale'
+                    checked={formData.isSale}
+                    onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isSale: checked }))}
+                  />
+                  <Label htmlFor='isSale'>Enable Sale</Label>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right side: Uploads + Category */}
+          <div className='space-y-6'>
+            <Card className='flex flex-col'>
+              <CardHeader>
+                <CardTitle>Upload Image</CardTitle>
+              </CardHeader>
+              <CardContent className='flex-grow'>
+                <div
+                  className='border-dashed border-2 border-gray-300 rounded-md p-6 text-center hover:bg-gray-50 cursor-pointer transition-colors'
+                  onClick={() => fileInputRef.current?.click()}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                >
+                  <p className='text-gray-600'>Click or drag & drop to upload images</p>
+                  <input
+                    type='file'
+                    multiple
+                    accept='image/*'
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className='hidden'
+                  />
+                </div>
+
+                {files.length > 0 && (
+                  <div className='grid grid-cols-2 md:grid-cols-3 gap-3 mt-4'>
+                    {files.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className='relative aspect-[1/1] border border-gray-200 rounded overflow-hidden shadow-sm group'
+                      >
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`preview-${idx}`}
+                          className='object-cover w-full h-full'
+                        />
+                        <button
+                          type='button'
+                          onClick={() => removeImage(idx)}
+                          className='absolute top-1 right-1 bg-white text-red-500 border border-red-300 rounded-full w-6 h-6 text-xs font-bold flex items-center justify-center shadow-sm opacity-80 group-hover:opacity-100'
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Category</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Label htmlFor='categoriesId'>Category</Label>
+                <select
+                  id='categoriesId'
+                  name='categoriesId'
+                  value={formData.categoriesId}
+                  onChange={handleChange}
+                  className='w-full border rounded px-3 py-2 mt-2'
+                  required
+                >
+                  <option value={0} disabled>Select category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <div className='text-right pt-4'>
+          <Button type='submit' disabled={loading}>
+            {loading ? 'Uploading...' : 'Add Product'}
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }
