@@ -1,94 +1,223 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { SupplierItemResponse } from "@/model/response/productRespone"
-import { Badge } from "@/components/ui/badge"
-import { Pencil, Trash2 } from "lucide-react"
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  flexRender,
+  ColumnDef,
+  SortingState,
+} from '@tanstack/react-table'
+import { useMemo, useState } from 'react'
+import { SupplierItemResponse } from '@/model/response/productRespone'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Pencil, Trash2 } from 'lucide-react'
+import LoadingOverlay from '@/components/ui/LoadingOverlay'
+import { Input } from '@/components/ui/input'
 
 type Props = {
   products: SupplierItemResponse[]
-  onDelete: (productId: number) => void
+  onDelete: (productId: number) => Promise<void>
 }
 
 export default function ProductInventoryTable({ products, onDelete }: Props) {
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [globalFilter, setGlobalFilter] = useState('')
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [selectedId, setSelectedId] = useState<number | null>(null)
 
-  const handleDeleteClick = async (id: number) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
-    if (!confirmDelete) return;
+  const confirmDelete = async () => {
+    if (selectedId === null) return
+    setDeletingId(selectedId)
+    setSelectedId(null)
 
-    setDeletingId(id)
-    onDelete(id)
+    try {
+      await onDelete(selectedId)
+    } finally {
+      setDeletingId(null)
+    }
   }
 
-  return (
-    <div className="overflow-x-auto rounded-lg border bg-white shadow-sm">
-      <table className="min-w-full text-sm text-gray-800">
-        <thead className="bg-gray-100 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
-          <tr>
-            <th className="px-4 py-3">Image</th>
-            <th className="px-4 py-3">Product Name</th>
-            <th className="px-4 py-3">Category</th>
-            <th className="px-4 py-3">Price</th>
-            <th className="px-4 py-3">In Stock</th>
-            <th className="px-4 py-3">Sold</th>
-            <th className="px-4 py-3">Discount</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3 text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {products.map((product, index) => (
-            <tr
-              key={product.id}
-              className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition-colors`}
+  const columns = useMemo<ColumnDef<SupplierItemResponse>[]>(() => [
+    {
+      accessorKey: 'imageUrl',
+      header: 'Image',
+      cell: ({ row }) => (
+        <img
+          src={row.original.imageUrl}
+          alt={row.original.name}
+          className="h-12 w-12 rounded-md object-cover border"
+        />
+      ),
+      enableSorting: false,
+    },
+    {
+      accessorKey: 'name',
+      header: 'Product Name',
+    },
+    {
+      accessorKey: 'categoryName',
+      header: 'Category',
+    },
+    {
+      accessorKey: 'price',
+      header: 'Price',
+      cell: ({ getValue }) =>
+        `${(getValue<number>() || 0).toLocaleString()} VND`,
+    },
+    {
+      accessorKey: 'stockInQuantity',
+      header: 'In Stock',
+    },
+    {
+      accessorKey: 'soldQuantity',
+      header: 'Sold',
+    },
+    {
+      accessorKey: 'discountPercent',
+      header: 'Discount',
+      cell: ({ row }) =>
+        row.original.isSale ? (
+          <Badge variant="warning">-{row.original.discountPercent}%</Badge>
+        ) : (
+          <span className="text-gray-400 text-sm">None</span>
+        ),
+    },
+    {
+      accessorKey: 'isActive',
+      header: 'Status',
+      cell: ({ getValue }) =>
+        getValue() ? (
+          <Badge variant="success">Active</Badge>
+        ) : (
+          <Badge variant="destructive">Inactive</Badge>
+        ),
+    },
+    {
+      id: 'actions',
+      header: () => <div className="text-center">Actions</div>,
+      cell: ({ row }) => {
+        const id = row.original.id
+        return (
+          <div className="flex justify-center gap-2">
+            <button
+              className="p-1 rounded hover:bg-blue-100 text-blue-600 transition"
+              title="Edit"
             >
-              <td className="px-4 py-3">
-                <img
-                  src={product.imageUrl}
-                  alt={product.name}
-                  className="h-12 w-12 rounded-md object-cover border"
-                />
-              </td>
-              <td className="px-4 py-3 font-medium">{product.name}</td>
-              <td className="px-4 py-3">{product.categoryName}</td>
-              <td className="px-4 py-3">{product.price.toLocaleString()} VND</td>
-              <td className="px-4 py-3">{product.stockInQuantity}</td>
-              <td className="px-4 py-3">{product.soldQuantity}</td>
-              <td className="px-4 py-3">
-                {product.isSale ? (
-                  <Badge variant="warning">-{product.discountPercent}%</Badge>
-                ) : (
-                  <span className="text-gray-400 text-sm">None</span>
-                )}
-              </td>
-              <td className="px-4 py-3">
-                <Badge variant={product.isActive ? "success" : "danger"}>
-                  {product.isActive ? "Active" : "Inactive"}
-                </Badge>
-              </td>
-              <td className="px-4 py-3 text-center">
-                <div className="flex justify-center gap-2">
-                  <button
-                    className="p-1 rounded hover:bg-blue-100 text-blue-600 transition"
-                    title="Edit"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
-                    className={`p-1 rounded hover:bg-red-100 text-red-600 transition ${deletingId === product.id ? "opacity-50 cursor-not-allowed" : ""}`}
-                    title="Delete"
-                    disabled={deletingId === product.id}
-                    onClick={() => handleDeleteClick(product.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              className={`p-1 rounded hover:bg-red-100 text-red-600 transition ${deletingId === id ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title="Delete"
+              disabled={deletingId === id}
+              onClick={() => setSelectedId(id)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        )
+      },
+      enableSorting: false,
+    },
+  ], [deletingId])
+
+  const table = useReactTable({
+    data: products,
+    columns,
+    state: {
+      sorting,
+      globalFilter,
+    },
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+  })
+
+  return (
+    <div className="relative overflow-x-auto rounded-lg border bg-white shadow-sm p-4">
+      {deletingId !== null && <LoadingOverlay text="Deleting product..." />}
+      
+      <Input
+        placeholder="Search product name or category..."
+        value={globalFilter}
+        onChange={(e) => setGlobalFilter(e.target.value)}
+        className="mb-4 max-w-sm"
+      />
+
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map(headerGroup => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map(header => (
+                <TableHead
+                  key={header.id}
+                  onClick={header.column.getToggleSortingHandler()}
+                  className="cursor-pointer select-none"
+                >
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                  {header.column.getIsSorted() === 'asc' ? ' ↑' :
+                   header.column.getIsSorted() === 'desc' ? ' ↓' : ''}
+                </TableHead>
+              ))}
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows.map(row => (
+            <TableRow key={row.id}>
+              {row.getVisibleCells().map(cell => (
+                <TableCell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+          {table.getRowModel().rows.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="text-center text-gray-500 py-6">
+                No products found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={selectedId !== null} onOpenChange={() => setSelectedId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Product</DialogTitle>
+          </DialogHeader>
+          <div className="text-sm text-gray-600">
+            Are you sure you want to delete this product? This action cannot be undone.
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deletingId !== null}
+            >
+              Confirm Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
