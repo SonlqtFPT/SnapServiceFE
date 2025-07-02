@@ -29,4 +29,23 @@ const loginUser = async (data: loginRequest) => {
   }
 };
 
+export const userProfile = async () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      const res = await api.get("/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Fetching user profile failed:", error.response?.data || error.message);
+        throw error;
+      }
+    }
+  }
+}
+
 export { registerUser, loginUser };
