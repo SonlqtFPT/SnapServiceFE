@@ -22,6 +22,7 @@ export default function CartSumary({ cartItems = [] }: Props) {
 
         const selected = cartItems.filter(item => item.isChecked);
         setCartData(selected);
+        localStorage.setItem('checkout', JSON.stringify(selected));
     }, [cartItems]);
 
     const subtotal = cartData.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);

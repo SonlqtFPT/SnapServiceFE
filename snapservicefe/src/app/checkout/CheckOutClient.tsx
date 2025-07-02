@@ -99,9 +99,17 @@ export default function CheckoutClient() {
     const selectedItems = cartItems.filter(item => item.isChecked);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        updateFormData({ [e.target.name]: e.target.value });
     };
 
+
+    const updateFormData = (updates: Partial<typeof formData>) => {
+        setFormData(prev => {
+            const next = { ...prev, ...updates };
+            localStorage.setItem('checkoutFormData', JSON.stringify(next));
+            return next;
+        });
+    };
     return (
         <div className="grid grid-cols-12 gap-6">
             <div className="col-span-9">
@@ -134,10 +142,13 @@ export default function CheckoutClient() {
                         <label className="block text-sm font-medium">Chọn vị trí trên bản đồ *</label>
                         <MapAddressPicker
                             address={formData.address}
-                            onAddressChange={(addr) => setFormData({ ...formData, address: addr })}
-                            onCoordinatesChange={(lat, lng) =>
-                                setFormData((prev) => ({ ...prev, lat, lng }))
-                            }
+                            onAddressChange={(addr) => {
+                                updateFormData({ address: addr });
+                            }}
+
+                            onCoordinatesChange={(lat, lng) => {
+                                updateFormData({ lat: Number(lat), lng: Number(lng) });
+                            }}
                         />
 
                     </div>

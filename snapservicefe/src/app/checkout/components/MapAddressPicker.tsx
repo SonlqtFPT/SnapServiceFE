@@ -45,7 +45,8 @@ export default function MapAddressPicker({
 
   useEffect(() => {
     onCoordinatesChange(position[0], position[1]);
-  }, [position]);
+    }, [position]);
+    
 
   const reverseGeocode = async (lat: number, lng: number) => {
     try {

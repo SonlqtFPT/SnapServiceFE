@@ -46,7 +46,6 @@ export default function CartSumary({ cartItems = [] }: Props) {
                 const res = await paypalPayment(subtotal.toString());
                 if (res.statusCode === 200) {
                     toast.success('Redirecting to payment gateway...');
-                    localStorage.removeItem('checkout');
                     setTimeout(() => {
                         router.push(res.data.url);
                     }, 2000);

@@ -1,9 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { CheckCircle } from 'lucide-react'
 import Link from 'next/link'
+import { CartItem } from '@/app/cart/typeOfCart'
+import axios from 'axios'
+import { Order } from '@/services/payment/paymentService'
 
 const confettiVariants = {
   hidden: { opacity: 0, y: -50 },
@@ -13,11 +16,94 @@ const confettiVariants = {
     transition: { delay: i * 0.1, duration: 0.4 }
   })
 }
+export type userData = {
+  address: string
+  districtCode: string
+  lat: number
+  lng: number
+  name: string
+  phone: string
+  provinceCode: string
+  wardCode: string
+}
 
 export default function PaymentSuccessPage() {
+  const key = '5b3ce3597851110001cf624802b2bf2ae3e948e99c137c69ace1a778'
+  const [userData, setUserData] = useState<userData | null>()
+  const [productsData, setProductsData] = useState<Record<number, CartItem[]>>()
+  const [total, setTotal] = useState<number>(0)
+  const [token, setToken] = useState<string>('')
+
+  const groupProductsBySupplier = (products: CartItem[]) => {
+    return products.reduce((acc: { [key: number]: CartItem[] }, product) => {
+      if (!acc[product.supplier.id]) {
+        acc[product.supplier.id] = [];
+      }
+      acc[product.supplier.id].push(product);
+      return acc;
+    }, {});
+  }
+
+
+  useEffect(() => {
+    {
+      const userLocal = localStorage.getItem('checkoutFormData');
+      const productsLocal = localStorage.getItem('checkout');
+      const tokenLocal = localStorage.getItem("token")
+      if (tokenLocal) {
+        setToken(tokenLocal)
+      }
+      if (userLocal && productsLocal) {
+        const products = JSON.parse(productsLocal)
+        const groupProducts = groupProductsBySupplier(products);
+        console.log(groupProducts)
+        const user = JSON.parse(userLocal)
+        setTotal(products.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0))
+        setUserData(user)
+        setProductsData(groupProducts)
+      }
+    }
+  }, [])
+
+
+  const getDistance = async (): Promise<number> => {
+    if (userData == null) {
+      return 0
+    }
+    const from: [number, number] = [106.682032, 10.776388];
+    const to: [number, number] = [userData?.lng, userData?.lat]
+    try {
+      const res = await axios.get(`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${key}&start=${from}&end=${to}`)
+      const distance = res.data.features?.[0].properties.summary.distance
+      return distance / 1000;
+    } catch (error) {
+      console.log(error)
+      return 0;
+    }
+  }
+
+  const createOrder = async () => {
+    try {
+      console.log(token)
+      if (userData && productsData) {
+        const distance = await getDistance();
+        const res = await Order(userData, productsData, distance, total, token)
+        localStorage.removeItem("checkout")
+        console.log(res)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    if (userData && productsData) {
+      getDistance()
+      createOrder();
+    }
+  }, [userData, productsData])
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-green-100 to-white flex flex-col items-center justify-center px-4 overflow-hidden">
-      {/* Decorative Confetti */}
       <div className="absolute inset-0 z-0">
         {Array.from({ length: 12 }).map((_, i) => (
           <motion.div
