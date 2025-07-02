@@ -24,7 +24,7 @@ export default function LoginForm() {
         localStorage.setItem('token', res.token)
         const decodeData = jwtDecode(res.token)
         const userRole = (decodeData as UserPayload).Role;
-        document.cookie = `token=${res.token}; path=/; max-age=3600`;
+        document.cookie = `token=${res.token}; path=/; max-age=3600; Secure; HttpsOnly; SameSite=Strict`;
         window.dispatchEvent(new Event('login'));
         if (userRole === 'ADMIN') {
           toast.success("Chào mừng bạn đến với trang quản trị")
