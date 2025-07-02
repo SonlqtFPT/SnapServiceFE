@@ -40,7 +40,6 @@ export function middleware(request: NextRequest) {
         ) {
             return NextResponse.redirect(new URL('/unauthorized', request.url));
         }
-
         return NextResponse.next();
     } catch (err) {
         console.log(err)
@@ -55,6 +54,5 @@ export const config = {
         '/checkout/:path*',
         '/cart/:path*',
         '/orders/:path*',
-
     ],
 };  
