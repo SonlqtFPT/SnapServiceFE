@@ -29,12 +29,14 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem('token')
+    document.cookie = "token=; path=/; max-age=0";
     window.dispatchEvent(new Event('logout'))
     setShowDropdown(false)
+    router.push('/home')
   }
 
   return (
-    <header className="bg-white text-[#6B7280] py-4 px-8 border-b border-[#E5E7EB] relative z-50">
+    <header className="bg-gray-200 text-[#6B7280] py-4 px-8 border-b border-[#E5E7EB] relative z-50">
       <nav className="grid grid-cols-3 items-center gap-4">
         <div>
           <Link href="/" className="text-xl font-bold whitespace-nowrap">
@@ -83,6 +85,14 @@ export default function Header() {
                       >
                         Profile
                       </Link>
+                      {user.Role === 'ADMIN' && (
+                        <Link
+                          href="/admin"
+                          className="px-4 py-2 hover:bg-gray-100 text-sm"
+                        >
+                          Admin
+                        </Link>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="cursor-pointer px-4 py-2 hover:bg-gray-100 text-left text-sm"
