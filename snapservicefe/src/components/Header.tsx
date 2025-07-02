@@ -107,15 +107,18 @@ export default function Header() {
           ) : (
             <Link href="/auth/login">Login/Register</Link>
           )}
-
-          <Link href="/cart" className="flex items-center gap-1">
-            <ShoppingCart className="w-5 h-5" />
-            Cart
-          </Link>
-          <Link href="/orders" className="flex items-center gap-1">
-            <Package className="w-5 h-5" />
-            Orders
-          </Link>
+          {user.UserId && (
+            <>
+              <Link href="/cart" className="flex items-center gap-1">
+                <ShoppingCart className="w-5 h-5" />
+                Cart
+              </Link>
+              <Link href="/orders" className="flex items-center gap-1">
+                <Package className="w-5 h-5" />
+                Orders
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </header>
