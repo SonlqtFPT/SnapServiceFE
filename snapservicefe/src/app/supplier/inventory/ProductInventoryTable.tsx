@@ -25,17 +25,31 @@ import { Badge } from '@/components/ui/badge'
 import { Pencil, Trash2 } from 'lucide-react'
 import LoadingOverlay from '@/components/ui/LoadingOverlay'
 import { Input } from '@/components/ui/input'
+import { getPageNumbers } from '@/lib/helper'
 
 type Props = {
   products: SupplierItemResponse[]
   onDelete: (productId: number) => Promise<void>
+  page: number
+  pageSize: number
+  totalItems: number
+  onPageChange: (newPage: number) => void
 }
 
-export default function ProductInventoryTable({ products, onDelete }: Props) {
+export default function ProductInventoryTable({
+  products,
+  onDelete,
+  page,
+  pageSize,
+  totalItems,
+  onPageChange,
+}: Props) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [selectedId, setSelectedId] = useState<number | null>(null)
+
+  const totalPages = Math.ceil(totalItems / pageSize)
 
   const confirmDelete = async () => {
     if (selectedId === null) return
@@ -149,7 +163,7 @@ export default function ProductInventoryTable({ products, onDelete }: Props) {
   return (
     <div className="relative overflow-x-auto rounded-lg border bg-white shadow-sm p-4">
       {deletingId !== null && <LoadingOverlay text="Deleting product..." />}
-      
+
       <Input
         placeholder="Search product name or category..."
         value={globalFilter}
@@ -194,6 +208,55 @@ export default function ProductInventoryTable({ products, onDelete }: Props) {
           )}
         </TableBody>
       </Table>
+
+        {/* Smart Pagination Controls with Ellipsis */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mt-6">
+          <div className="flex flex-col">
+            <span className="text-sm text-gray-600">
+              Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalItems)} of {totalItems} products
+            </span>
+            <span className="text-sm text-gray-600">
+              Page {page} of {totalPages}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1}
+              onClick={() => onPageChange(page - 1)}
+            >
+              Prev
+            </Button>
+
+            {getPageNumbers(page, totalPages).map((p, idx) =>
+              p === '...' ? (
+                <span key={`ellipsis-${idx}`} className="px-2 text-gray-500">…</span>
+              ) : (
+                <Button
+                  key={p}
+                  size="sm"
+                  variant={p === page ? 'default' : 'outline'}
+                  className="w-9 h-9 p-0"
+                  onClick={() => onPageChange(p)}
+                >
+                  {p}
+                </Button>
+              )
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === totalPages}
+              onClick={() => onPageChange(page + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+
 
       {/* Confirmation Dialog */}
       <Dialog open={selectedId !== null} onOpenChange={() => setSelectedId(null)}>
