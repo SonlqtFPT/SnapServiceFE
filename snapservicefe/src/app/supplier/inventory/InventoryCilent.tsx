@@ -13,19 +13,30 @@ import LoadingOverlay from "@/components/ui/LoadingOverlay"
 export default function InventoryClient() {
   const [products, setProducts] = useState<SupplierItemResponse[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pageSize] = useState(10)
+  const [totalItems, setTotalItems] = useState(0)
+
   const router = useRouter()
 
-  useEffect(() => {
-    const request: productListRequest = {
-      page: 1,
-      pageSize: 10,
-    }
+  const loadData = async () => {
+    setLoading(true)
+    const request: productListRequest = { page, pageSize }
 
-    fetchSupplierProducts(request)
-      .then((res) => setProducts(res.items))
-      .catch((err) => console.error("Failed to fetch products:", err))
-      .finally(() => setLoading(false))
-  }, [])
+    try {
+      const res = await fetchSupplierProducts(request)
+      setProducts(res.items)
+      setTotalItems(res.totalItems)
+    } catch (err) {
+      console.error("Failed to fetch products:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [page])
 
   const handleAddProduct = () => {
     router.push("/supplier/inventory/add")
@@ -34,36 +45,12 @@ export default function InventoryClient() {
   const handleDeleteProduct = async (productId: number) => {
     try {
       await deleteProductById(productId)
-      setProducts((prev) => prev.filter(p => p.id !== productId))
+      setProducts(prev => prev.filter(p => p.id !== productId))
+      setTotalItems(prev => prev - 1)
     } catch (err) {
       console.error("Delete failed:", err)
       alert("Failed to delete product.")
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="relative min-h-[300px]">
-        <LoadingOverlay text="Loading inventory..." />
-      </div>
-    )
-  }
-
-  if (products.length === 0) {
-    return (
-      <div className="p-6 text-gray-600">
-        <p>No items in inventory.</p>
-        <div className="mt-4">
-          <button
-            onClick={handleAddProduct}
-            className="inline-flex items-center gap-2 bg-green-500 text-white font-medium px-4 py-2 rounded-md hover:bg-green-600 transition-shadow shadow-md hover:shadow-lg"
-          >
-            <PlusCircle className="w-5 h-5" />
-            Add Product
-          </button>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -78,10 +65,21 @@ export default function InventoryClient() {
           Add Product
         </button>
       </div>
-      <ProductInventoryTable
-        products={products}
-        onDelete={handleDeleteProduct}
-      />
+
+      {loading ? (
+        <div className="relative min-h-[300px]">
+          <LoadingOverlay text="Loading inventory..." />
+        </div>
+      ) : (
+        <ProductInventoryTable
+          products={products}
+          onDelete={handleDeleteProduct}
+          page={page}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          onPageChange={setPage}
+        />
+      )}
     </div>
   )
 }
