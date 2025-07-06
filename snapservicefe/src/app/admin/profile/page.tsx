@@ -19,7 +19,6 @@ import { AvatarImage } from "@/components/ui/avatar-image"
 import { Badge } from "@/components/ui/badge"
 import { Bell, Camera, Eye, EyeOff, Lock, Mail, Phone, Save, Shield } from "lucide-react"
 
-// Import useSidebarContext từ context của bạn
 import { useSidebarContext } from "@/components/Layouts/sidebar/sidebar-context";
 
 export default function ProfilePage() {
@@ -30,14 +29,11 @@ export default function ProfilePage() {
     sms: true,
   })
 
-  // Sử dụng context của sidebar
   const { toggleSidebar } = useSidebarContext();
 
 
   return (
-    // Thay thế <SidebarInset> và <SidebarTrigger>
-    // Bạn có thể dùng một div đơn giản thay cho SidebarInset nếu nó chỉ là wrapper
-    // và một button đơn giản để kích hoạt toggleSidebar
+
     <div>
 
       <div className="flex flex-1 flex-col gap-4 p-4">
@@ -57,7 +53,7 @@ export default function ProfilePage() {
               <CardContent className="space-y-6">
                 {/* Avatar Section */}
                 <div className="flex items-center gap-6">
-                  <div className="relative">
+                  {/* <div className="relative">
                     <Avatar className="h-24 w-24">
                       <AvatarImage src="/placeholder.svg?height=96&width=96" />
                       <AvatarFallback className="text-lg">AD</AvatarFallback>
@@ -65,7 +61,7 @@ export default function ProfilePage() {
                     <Button size="icon" variant="outline" className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full">
                       <Camera className="h-4 w-4" />
                     </Button>
-                  </div>
+                  </div> */}
                   <div>
                     <h3 className="text-lg font-medium">Admin User</h3>
                     <p className="text-sm text-muted-foreground">admin@ecommerce.com</p>
@@ -262,6 +258,6 @@ export default function ProfilePage() {
 
         </Tabs>
       </div>
-    </div> // Thay thế </SidebarInset>
+    </div> 
   )
 }
