@@ -37,3 +37,4 @@ export interface UpdateProductRequest {
   sku: string;
   categoriesId: number;
 }
+

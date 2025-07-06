@@ -67,3 +67,29 @@ export interface AddProductResponse {
     createdAt: string;
     isActive: boolean;
 }
+
+export interface SupplierProductListResponse {
+  totalItems: number;
+  totalPage: number;
+  page: number;
+  pageSize: number;
+  items: SupplierItemResponse[];
+}
+
+export interface SupplierItemResponse {
+  id: number;
+  name: string;
+  slug: string;
+  imageUrl: string;
+  price: number;
+  discountPrice: number;
+  discountPercent: number;
+  ratingAverage: number;
+  isSale: boolean;
+  stockInQuantity: number;
+  soldQuantity: number;
+  categoryName: string; 
+  supplierId: number;
+  createdAt: string;
+  isActive: boolean;
+}

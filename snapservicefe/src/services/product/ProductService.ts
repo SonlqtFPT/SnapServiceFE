@@ -1,6 +1,6 @@
 import { getAPI } from "@/lib/axios";
-import { ProductDetailSlugRequest, productListRequest, searchProductRequest } from "@/model/request/productRequest";
-import { ProductDetailResponse, ProductListResponse } from "@/model/response/productRespone";
+import { AddProductRequest, ProductDetailSlugRequest, productListRequest, searchProductRequest } from "@/model/request/productRequest";
+import { AddProductResponse, ProductDetailResponse, ProductListResponse, SupplierProductListResponse } from "@/model/response/productRespone";
 import { CategoryResponse } from '@/model/response/categoryResponse';
 
 const api = getAPI();
@@ -59,3 +59,62 @@ export const fetchProductDetailBySlug = async(request: ProductDetailSlugRequest)
         throw error; 
     }
 }
+
+export const fetchSupplierProducts = async (
+  request: productListRequest
+): Promise<SupplierProductListResponse> => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found in localStorage.")
+
+    const response = await api.get("/api/Supplier/products", {
+      params: {
+        pageNumber: request.page,
+        pageSize: request.pageSize,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "text/plain",
+      },
+    })
+    console.log("Supplier products:", response.data.data)
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to fetch supplier products:", error)
+    throw error
+  }
+}
+
+export const addSupplierProduct = async (
+  data: AddProductRequest
+): Promise<AddProductResponse> => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found")
+
+  const response = await api.post("/api/Product/add", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "text/plain",
+    },
+  })
+
+  return response.data.data
+}
+
+export const deleteProductById = async (productId: number): Promise<void> => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found");
+
+  try {
+    await api.delete(`/api/Product/${productId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "text/plain",
+      },
+    });
+    console.log(`Product ${productId} deleted successfully.`);
+  } catch (error) {
+    console.error(`Failed to delete product ${productId}:`, error);
+    throw error;
+  }
+};
