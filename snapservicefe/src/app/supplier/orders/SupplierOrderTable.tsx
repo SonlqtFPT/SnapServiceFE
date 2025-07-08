@@ -142,8 +142,8 @@ export default function SupplierOrderTable({
     const loading = loadingMap[key] || false
     const badgeMap: Record<UpdateOrderStatusRequest['status'], 'success' | 'warning' | 'destructive' | 'default'> = {
       Pending: 'warning',
-      Preparing: 'default',
-      Delivery: 'default',
+      Preparing: 'warning',
+      Delivery: 'warning',
       Delivered: 'success',
       Returned: 'destructive',
       Cancelled: 'destructive',
@@ -180,7 +180,9 @@ export default function SupplierOrderTable({
 
 
         const variant = badgeMap[status as UpdateOrderStatusRequest['status']] || 'default'
-        return <Badge variant={variant}>{status}</Badge>
+        return <Badge variant={variant} className={variant === 'destructive' ? 'text-white' : ''}>
+                {status}
+              </Badge>
     },
     },
 
