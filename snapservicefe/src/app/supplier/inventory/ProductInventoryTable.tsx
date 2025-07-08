@@ -26,6 +26,8 @@ import { Pencil, Trash2 } from 'lucide-react'
 import LoadingOverlay from '@/components/ui/LoadingOverlay'
 import { Input } from '@/components/ui/input'
 import { getPageNumbers } from '@/lib/helper'
+import { useRouter } from 'next/navigation'
+
 
 type Props = {
   products: SupplierItemResponse[]
@@ -50,6 +52,8 @@ export default function ProductInventoryTable({
   const [selectedId, setSelectedId] = useState<number | null>(null)
 
   const totalPages = Math.ceil(totalItems / pageSize)
+
+  const router = useRouter()
 
   const confirmDelete = async () => {
     if (selectedId === null) return
@@ -126,6 +130,7 @@ export default function ProductInventoryTable({
         return (
           <div className="flex justify-center gap-2">
             <button
+              onClick={() => router.push(`/supplier/inventory/edit/${id}`)}
               className="p-1 rounded hover:bg-blue-100 text-blue-600 transition"
               title="Edit"
             >
