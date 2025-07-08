@@ -16,10 +16,12 @@ export default function CartClient() {
     // nhóm sản phẩm theo supplier
     const suppliers: SupplierGroupedItems = {};
     cartItems.forEach((item) => {
-        if (!suppliers[item.supplier.id]) {
-            suppliers[item.supplier.id] = [];
-        }
-        suppliers[item.supplier.id].push(item);
+    if (!item.supplier || !item.supplier.id) return; // <-- skip if invalid
+    const key = item.supplier.id;
+    if (!suppliers[key]) {
+        suppliers[key] = [];
+    }
+    suppliers[key].push(item);
     });
 
     // ccheckbox
