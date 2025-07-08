@@ -1,9 +1,5 @@
-import React from 'react'
+import OrderClient from './OrderClient'
 
-const page = () => {
-  return (
-    <div>orders</div>
-  )
+export default function SupplierOrdersPage() {
+  return <OrderClient />
 }
-
-export default page
