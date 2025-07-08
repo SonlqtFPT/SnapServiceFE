@@ -34,7 +34,9 @@ type Props = {
   pageSize: number
   totalItems: number
   onPageChange: (newPage: number) => void
+  onRefresh: () => void 
 }
+
 
 export default function SupplierOrderTable({
   orders,
@@ -42,6 +44,7 @@ export default function SupplierOrderTable({
   pageSize,
   totalItems,
   onPageChange,
+  onRefresh,
 }: Props) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
@@ -59,13 +62,14 @@ export default function SupplierOrderTable({
     try {
       await updateOrderItemStatus({ orderId, productId, status })
       toast.success(`Order ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
-      // Optional: Trigger refetch or update UI
+      onRefresh?.() 
     } catch (err) {
       toast.error('Failed to update order status.')
     } finally {
       setLoadingMap(prev => ({ ...prev, [key]: false }))
     }
   }
+
 
   const columns = useMemo<ColumnDef<SupplierOrderItem>[]>(() => [
     {
@@ -151,34 +155,34 @@ export default function SupplierOrderTable({
       Refunded: 'destructive',
     }
 
-    if (status === 'Pending') {
-    return (
-        <div className="flex flex-col gap-1">
-        {(!loading || loadingMap[key]) && (
-            <Button
-            size="sm"
-            className="bg-green-600 hover:bg-green-700 text-white"
-            disabled={loading}
-            onClick={() => handleUpdateStatus(orderId, productId, 'Preparing')}
-            >
-            {loading ? 'Accepting...' : 'Accept Order'}
-            </Button>
-        )}
-        {(!loading || loadingMap[key]) && (
-            <Button
-            size="sm"
-            variant="destructive"
-            disabled={loading}
-            onClick={() => handleUpdateStatus(orderId, productId, 'Cancelled')}
-            >
-            {loading ? 'Rejecting...' : 'Reject Order'}
-            </Button>
-        )}
-        </div>
-    )
-    }
-
-
+        if (status === 'Pending') {
+          return (
+            <div className="flex flex-col gap-1">
+              {loading ? (
+                <Button size="sm" disabled className="bg-gray-300 text-gray-500">
+                  Processing...
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => handleUpdateStatus(orderId, productId, 'Preparing')}
+                  >
+                    Accept Order
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                    onClick={() => handleUpdateStatus(orderId, productId, 'Cancelled')}
+                  >
+                    Reject Order
+                  </Button>
+                </>
+              )}
+            </div>
+          )
+        }
         const variant = badgeMap[status as UpdateOrderStatusRequest['status']] || 'default'
         return <Badge variant={variant} className={variant === 'destructive' ? 'text-white' : ''}>
                 {status}

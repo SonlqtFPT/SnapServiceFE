@@ -50,6 +50,7 @@ export default function OrderClient() {
           pageSize={pageSize}
           totalItems={totalItems}
           onPageChange={setPage}
+          onRefresh={loadData}
         />
       )}
     </div>

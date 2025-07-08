@@ -1,5 +1,5 @@
 import { getAPI } from "@/lib/axios";
-import { AddProductRequest, ProductDetailSlugRequest, productListRequest, searchProductRequest } from "@/model/request/productRequest";
+import { AddProductRequest, ProductDetailSlugRequest, productListRequest, searchProductRequest, UpdateProductRequest } from "@/model/request/productRequest";
 import { AddProductResponse, ProductDetailResponse, ProductListResponse, SupplierProductListResponse } from "@/model/response/productRespone";
 import { CategoryResponse } from '@/model/response/categoryResponse';
 
@@ -118,3 +118,18 @@ export const deleteProductById = async (productId: number): Promise<void> => {
     throw error;
   }
 };
+
+export const updateProductById = async (
+  productId: number,
+  data: UpdateProductRequest
+): Promise<void> => {
+  const token = localStorage.getItem("token")
+  if (!token) throw new Error("No token found")
+
+  await api.post(`/api/Product/update/${productId}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "text/plain"
+    }
+  })
+}
