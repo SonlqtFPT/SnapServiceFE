@@ -79,7 +79,8 @@ export default function EditProductClient() {
           sku: res.sku,
           categoriesId: res.categories.id
         })
-        setExistingImages(res.images || [])
+        const sortedImages = (res.images || []).sort((a, b) => (b.isMain ? 1 : 0) - (a.isMain ? 1 : 0))
+        setExistingImages(sortedImages)
       } catch (err) {
         toast.error("Failed to load product")
         router.push('/supplier/inventory')
