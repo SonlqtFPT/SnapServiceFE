@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProductImageType, ProductType } from '@/types/product/ProductType';
 import { toast, ToastContainer } from 'react-toastify';
 import { CartItem } from '@/app/cart/typeOfCart';
@@ -18,6 +18,15 @@ export default function ProductDetails({ product }: Props) {
   const localCart = localStorage.getItem('cart');
   const cartItems: CartItem[] = localCart ? JSON.parse(localCart) : [];
   const [_, forceUpdate] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getCookie = (name: string): string | null => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : null;
+    };
+    setToken(getCookie('token') || null);
+  }, []);
 
   const handleQuantityChange = (delta: number) => {
     setQuantity(prev => Math.max(1, prev + delta));
@@ -36,11 +45,15 @@ export default function ProductDetails({ product }: Props) {
   };
 
   const handleBuyNow = () => {
-    localStorage.removeItem('checkout');
-    const newCheckout = [{ ...product, quantity }];
-    localStorage.setItem('checkout', JSON.stringify(newCheckout));
-    localStorage.setItem('checkoutMode', 'buyNow');
-    router.push('/checkout');
+    if (token === null) {
+      toast.error('Please login before buying');
+    } else {
+      localStorage.removeItem('checkout');
+      const newCheckout = [{ ...product, quantity }];
+      localStorage.setItem('checkout', JSON.stringify(newCheckout));
+      localStorage.setItem('checkoutMode', 'buyNow');
+      router.push('/checkout');
+    }
   }
   const renderStars = (rating: number, size: "sm" | "md" | "lg" = "sm") => {
     const sizeClasses = {
@@ -103,7 +116,7 @@ export default function ProductDetails({ product }: Props) {
 
             <button onClick={handleAddCart} className="bg-green-600 flex-1 justify-center hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2">
               {/* Cart icon from header */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                 className="lucide lucide-shopping-cart w-5 h-5" aria-hidden="true"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
               Add to Cart
             </button>

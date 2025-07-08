@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { CartItem, SupplierGroupedItems } from './typeOfCart';
 import { useRouter } from 'next/navigation';
-import CartSumary from '@/components/CartSumary';
+import CartSumary from './components/CartSumary';
 // import { Checkbox } from '@radix-ui/react-checkbox';
 //  import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -16,10 +16,12 @@ export default function CartClient() {
     // nhóm sản phẩm theo supplier
     const suppliers: SupplierGroupedItems = {};
     cartItems.forEach((item) => {
-        if (!suppliers[item.supplier.id]) {
-            suppliers[item.supplier.id] = [];
-        }
-        suppliers[item.supplier.id].push(item);
+    if (!item.supplier || !item.supplier.id) return; // <-- skip if invalid
+    const key = item.supplier.id;
+    if (!suppliers[key]) {
+        suppliers[key] = [];
+    }
+    suppliers[key].push(item);
     });
 
     // ccheckbox
@@ -71,8 +73,6 @@ export default function CartClient() {
         if (!isInitialized) return;
 
         localStorage.setItem('cart', JSON.stringify(cartItems));
-        const selected = cartItems.filter(i => i.isChecked);
-        localStorage.setItem('checkout', JSON.stringify(selected));
     }, [cartItems, isInitialized]);
 
     if (cartItems.length === 0) {
@@ -121,13 +121,15 @@ export default function CartClient() {
                                             className="w-5 h-5"
                                         />
                                         <Image
-                                            src={item?.images[2]?.productImageUrl || '/fallback.jpg'}
+                                            src={item.images.find((image) => image.isMain)!.productImageUrl}
                                             alt={item.name}
                                             width={80}
                                             height={80}
-                                            className="rounded object-cover"
+                                            className="object-cover rounded-md"
                                         />
-                                        <h3 className="text-md font-semibold">{item.name}</h3>
+
+
+                                        <h3 className="text-md font-semibold w-full">{item.name}</h3>
                                     </div>
 
                                     <div className="col-span-2 text-center text-sm">

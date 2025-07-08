@@ -4,6 +4,11 @@ import { loginUser } from '@/services/users/userService'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
+import { jwtDecode } from 'jwt-decode'
+
+type UserPayload = {
+  Role: string
+}
 
 export default function LoginForm() {
   const [emailOrPhone, setEmailOrPhone] = useState('')
@@ -17,10 +22,21 @@ export default function LoginForm() {
       const res = await loginUser({ emailOrPhone, password })
       if (res?.token) {
         localStorage.setItem('token', res.token)
-        toast.success("Đăng nhập thành công")
-        setTimeout(() => {
-          route.push('/home')
-        }, 4000)
+        const decodeData = jwtDecode(res.token)
+        const userRole = (decodeData as UserPayload).Role;
+        document.cookie = `token=${res.token}; path=/; max-age=3600;Secure`;
+        window.dispatchEvent(new Event('login'));
+        if (userRole === 'ADMIN') {
+          toast.success("Chào mừng bạn đến với trang quản trị")
+          setTimeout(() => {
+            route.push('/admin')
+          }, 2000)
+        } else {
+          toast.success("Đăng nhập thành công, chào mừng bạn đến với SnapService")
+          setTimeout(() => {
+            route.push('/home')
+          }, 2000)
+        }
       }
     } catch (error) {
       toast.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin đăng nhập của bạn.")
@@ -31,7 +47,7 @@ export default function LoginForm() {
 
   return (
     <div className="max-w-md mx-auto mt-20 px-6">
-      <ToastContainer position='top-center' autoClose={3000} />
+      <ToastContainer position='top-center' autoClose={2000} />
       <p className="text-center text-sm text-gray-600 mb-6">
         If you have an account, sign in with your username or email address.
       </p>

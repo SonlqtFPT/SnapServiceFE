@@ -9,7 +9,7 @@ export default function ProductsClient() {
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
     
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 px-15">
       <DynamicBreadcrumbs />
 
       <div className="flex gap-4">

@@ -11,3 +11,9 @@ export type UserType = {
     is_active: boolean;
     full_name: string; 
 }
+
+export type UserLoginType = {
+    UserId: string;
+    FullName: string;
+    Role: string;
+}

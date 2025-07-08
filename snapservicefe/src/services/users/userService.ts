@@ -31,6 +31,7 @@ const loginUser = async (data: loginRequest) => {
   }
 };
 
+
 //fetch users
 const fetchUsers = async (): Promise<UserListItem[]> => {
   try {
@@ -102,5 +103,26 @@ const deleteUser = async (id: string) => {
   }
 };
 
+const userProfile = async () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      const res = await api.get("/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Fetching user profile failed:", error.response?.data || error.message);
+        throw error;
+      }
+    }
+  }
+}
 
-export { registerUser, loginUser, fetchUsers, createUser, updateUser, deleteUser, getUserById};
+
+
+export { registerUser, loginUser, fetchUsers, createUser, updateUser, deleteUser, getUserById, userProfile};
+
