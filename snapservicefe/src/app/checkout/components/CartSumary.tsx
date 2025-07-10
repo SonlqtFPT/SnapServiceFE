@@ -35,6 +35,7 @@ export default function CartSumary({ cartItems = [] }: Props) {
     }, [cartItems]);
 
     const subtotal = cartData.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
+    const lastTotal = (subtotal/26000).toFixed(2);
 
     const handleCheckout = async () => {
         if (token === null) {
@@ -43,7 +44,7 @@ export default function CartSumary({ cartItems = [] }: Props) {
         else {
             console.log(subtotal.toString());
             try {
-                const res = await paypalPayment(subtotal.toString());
+                const res = await paypalPayment(lastTotal.toString());
                 if (res.statusCode === 200) {
                     toast.success('Redirecting to payment gateway...');
                     setTimeout(() => {
