@@ -63,7 +63,7 @@ const recentOrders = [
 // Simple Bar Chart Component (using divs for visual representation)
 const SimpleBarChart = ({ data, title, xLabel, yLabel }: { data: { label: string; value: number }[]; title: string; xLabel: string; yLabel: string }) => {
   const maxValue = Math.max(...data.map(item => item.value));
-  const scaleFactor = 100 / maxValue; // Scale to 100% height
+  const scaleFactor = 100 / maxValue;
 
   return (
     <Card className="col-span-2">
@@ -118,12 +118,12 @@ export default function AdminEcommerceDashboardPage() {
       </div>
 
       {/* Sales Overview Chart */}
-      {/* <SimpleBarChart
+      <SimpleBarChart
         title="Doanh thu 6 tháng gần nhất"
         data={salesData.map(d => ({ label: d.month, value: d.sales }))}
         xLabel="Tháng"
         yLabel="Doanh thu"
-      /> */}
+      />
 
       {/* Recent Orders */}
       <Card className="col-span-full">

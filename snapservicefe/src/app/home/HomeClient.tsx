@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import Link from 'next/link'
 import Banner from './components/Banner'
 import Category from './components/Category'
 import NewProduct from './components/NewProduct'
@@ -15,9 +16,10 @@ export default function HomeClient () {
           Top Categories 
         </div>
         <i className="fa-solid fa-user"></i>
-        <button className='text-sm text-black border font-semibold rounded-3xl p-2 hover:text-gray-800'>
+       <Link href='/products'><button className='text-sm text-black border font-semibold rounded-3xl p-2 hover:text-gray-800'>
           View All
         </button>
+        </Link >
       </div>
       <Category />
       <div className='flex justify-between my-5'>

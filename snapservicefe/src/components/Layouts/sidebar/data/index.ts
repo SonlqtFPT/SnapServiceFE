@@ -22,6 +22,8 @@ export const NAV_DATA = [
         items: [
           { title: "Customer", url: "customer" },
           { title: "Supplier", url: "supplier" },
+          { title: "Shipper", url: "shipper" },
+
         ],
       },
 

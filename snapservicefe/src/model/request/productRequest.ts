@@ -37,3 +37,9 @@ export interface UpdateProductRequest {
   sku: string;
   categoriesId: number;
 }
+
+export interface ToggleProductStatusRequest {
+  isActive: boolean;
+}
+
+
