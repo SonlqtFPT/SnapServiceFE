@@ -3,6 +3,7 @@ import { loginRequest, registerRequest, UserRequest } from "@/model/request/user
 import { UserListItem } from "@/model/response/userResponse";
 import axios from "axios";
 import { CreateUserRequest } from "@/model/request/userRequest";
+import { User } from '@/types/user/UserType';
 
 
 const api = getAPI();
@@ -44,6 +45,27 @@ const fetchUsers = async (): Promise<UserListItem[]> => {
   }
 };
 
+const userProfile = async (): Promise<User> => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("No token found in localStorage.");
+    }
+    const res = await api.get("/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
+    return res.data.data as User;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Fetch user profile failed:", error.response?.data || error.message);
+    }
+    throw new Error("Không thể lấy thông tin người dùng");
+  }
+}
+
 // Tạo mới user
 
 const createUser = async (data: CreateUserRequest) => {
@@ -52,9 +74,9 @@ const createUser = async (data: CreateUserRequest) => {
     return res.data.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-  console.error("Create user failed:", error.response?.data.errors || error.message);
-  throw error;
-}
+      console.error("Create user failed:", error.response?.data.errors || error.message);
+      throw error;
+    }
 
   }
 };
@@ -69,7 +91,7 @@ const getUserById = async (id: string): Promise<UserListItem> => {
     if (axios.isAxiosError(error)) {
       console.error("Get user failed:", error.response?.data || error.message);
     }
-    throw new Error("Không thể lấy thông tin người dùng"); 
+    throw new Error("Không thể lấy thông tin người dùng");
   }
 };
 
@@ -103,4 +125,4 @@ const deleteUser = async (id: string) => {
 };
 
 
-export { registerUser, loginUser, fetchUsers, createUser, updateUser, deleteUser, getUserById};
+export { registerUser, loginUser, fetchUsers, createUser, updateUser, deleteUser, getUserById, userProfile };

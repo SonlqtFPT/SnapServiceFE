@@ -1,20 +1,8 @@
 'use client';
 import { userProfile } from "@/services/users/userService";
+import { User } from "@/types/user/UserType";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-
-type User = {
-    fullName: string;
-    username: string;
-    email: string;
-    phone: string;
-    address: string;
-    imageUrl: string;
-    role: string;
-    isActive: boolean;
-    createdAt: string;
-};
-
 
 export default function ProfileClientSide() {
     const [user, setUser] = useState<User>({
@@ -32,7 +20,7 @@ export default function ProfileClientSide() {
 
     const fetchUserData = async () => {
         try {
-            const response = await userProfile();
+            const response = await userProfile() ;
             console.log("User data:", response);
             if (response) {
                 setUser({

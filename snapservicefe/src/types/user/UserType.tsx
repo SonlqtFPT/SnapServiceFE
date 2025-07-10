@@ -17,3 +17,15 @@ export type UserLoginType = {
     FullName: string;
     Role: string;
 }
+
+export type User = {
+    fullName: string;
+    username: string;
+    email: string;
+    phone: string;
+    address: string;
+    imageUrl: string;
+    role: string;
+    isActive: boolean;
+    createdAt: string;
+};
