@@ -56,3 +56,9 @@ export interface UpdateOrderStatusResponse {
   message: string
   statusCode: number
 }
+
+export interface GetOrderDetailResponse {
+  statusCode: number
+  message: string
+  data: SupplierOrderItem
+}

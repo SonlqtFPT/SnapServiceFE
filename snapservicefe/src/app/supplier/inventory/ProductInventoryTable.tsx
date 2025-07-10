@@ -19,53 +19,35 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Pencil, Trash2 } from 'lucide-react'
-import LoadingOverlay from '@/components/ui/LoadingOverlay'
+import { Pencil, Power } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { getPageNumbers } from '@/lib/helper'
 import { useRouter } from 'next/navigation'
 
-
 type Props = {
   products: SupplierItemResponse[]
-  onDelete: (productId: number) => Promise<void>
   page: number
   pageSize: number
   totalItems: number
   onPageChange: (newPage: number) => void
+  onToggleStatus: (productId: number, currentStatus: boolean) => Promise<void>
 }
 
 export default function ProductInventoryTable({
   products,
-  onDelete,
   page,
   pageSize,
   totalItems,
   onPageChange,
+  onToggleStatus,
 }: Props) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
-  const [deletingId, setDeletingId] = useState<number | null>(null)
-  const [selectedId, setSelectedId] = useState<number | null>(null)
 
   const totalPages = Math.ceil(totalItems / pageSize)
-
   const router = useRouter()
-
-  const confirmDelete = async () => {
-    if (selectedId === null) return
-    setDeletingId(selectedId)
-    setSelectedId(null)
-
-    try {
-      await onDelete(selectedId)
-    } finally {
-      setDeletingId(null)
-    }
-  }
 
   const columns = useMemo<ColumnDef<SupplierItemResponse>[]>(() => [
     {
@@ -92,7 +74,7 @@ export default function ProductInventoryTable({
       accessorKey: 'price',
       header: 'Price',
       cell: ({ getValue }) =>
-        `${(getValue<number>() || 0).toLocaleString()} VND`,
+        `${(getValue<number>() || 0).toLocaleString()} đ`,
     },
     {
       accessorKey: 'stockInQuantity',
@@ -126,7 +108,7 @@ export default function ProductInventoryTable({
       id: 'actions',
       header: () => <div className="text-center">Actions</div>,
       cell: ({ row }) => {
-        const id = row.original.id
+        const { id, isActive } = row.original
         return (
           <div className="flex justify-center gap-2">
             <button
@@ -136,20 +118,20 @@ export default function ProductInventoryTable({
             >
               <Pencil className="w-4 h-4" />
             </button>
+
             <button
-              className={`p-1 rounded hover:bg-red-100 text-red-600 transition ${deletingId === id ? 'opacity-50 cursor-not-allowed' : ''}`}
-              title="Delete"
-              disabled={deletingId === id}
-              onClick={() => setSelectedId(id)}
+              onClick={() => onToggleStatus(id, isActive)}
+              className={`p-1 rounded hover:bg-yellow-100 text-yellow-600 transition`}
+              title={isActive ? 'Deactivate' : 'Activate'}
             >
-              <Trash2 className="w-4 h-4" />
+              <Power className="w-4 h-4" />
             </button>
           </div>
         )
       },
       enableSorting: false,
     },
-  ], [deletingId])
+  ], [onToggleStatus])
 
   const table = useReactTable({
     data: products,
@@ -167,8 +149,6 @@ export default function ProductInventoryTable({
 
   return (
     <div className="relative overflow-x-auto rounded-lg border bg-white shadow-sm p-4">
-      {deletingId !== null && <LoadingOverlay text="Deleting product..." />}
-
       <Input
         placeholder="Search product name or category..."
         value={globalFilter}
@@ -214,78 +194,51 @@ export default function ProductInventoryTable({
         </TableBody>
       </Table>
 
-        {/* Smart Pagination Controls with Ellipsis */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mt-6">
-          <div className="flex flex-col">
-            <span className="text-sm text-gray-600">
-              Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalItems)} of {totalItems} products
-            </span>
-            <span className="text-sm text-gray-600">
-              Page {page} of {totalPages}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === 1}
-              onClick={() => onPageChange(page - 1)}
-            >
-              Prev
-            </Button>
-
-            {getPageNumbers(page, totalPages).map((p, idx) =>
-              p === '...' ? (
-                <span key={`ellipsis-${idx}`} className="px-2 text-gray-500">…</span>
-              ) : (
-                <Button
-                  key={p}
-                  size="sm"
-                  variant={p === page ? 'default' : 'outline'}
-                  className="w-9 h-9 p-0"
-                  onClick={() => onPageChange(p)}
-                >
-                  {p}
-                </Button>
-              )
-            )}
-
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === totalPages}
-              onClick={() => onPageChange(page + 1)}
-            >
-              Next
-            </Button>
-          </div>
+      {/* Pagination */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mt-6">
+        <div className="flex flex-col">
+          <span className="text-sm text-gray-600">
+            Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalItems)} of {totalItems} products
+          </span>
+          <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
         </div>
 
+        <div className="flex flex-wrap items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page === 1}
+            onClick={() => onPageChange(page - 1)}
+          >
+            Prev
+          </Button>
 
-      {/* Confirmation Dialog */}
-      <Dialog open={selectedId !== null} onOpenChange={() => setSelectedId(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
-          </DialogHeader>
-          <div className="text-sm text-gray-600">
-            Are you sure you want to delete this product? This action cannot be undone.
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedId(null)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDelete}
-              disabled={deletingId !== null}
-            >
-              Confirm Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          {getPageNumbers(page, totalPages).map((p, idx) =>
+            p === '...' ? (
+              <span key={`ellipsis-${idx}`} className="px-2 text-gray-500">…</span>
+            ) : (
+              <Button
+                key={p}
+                size="sm"
+                variant={p === page ? 'default' : 'outline'}
+                className="w-9 h-9 p-0"
+                onClick={() => onPageChange(p)}
+              >
+                {p}
+              </Button>
+            )
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page === totalPages}
+            onClick={() => onPageChange(page + 1)}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }

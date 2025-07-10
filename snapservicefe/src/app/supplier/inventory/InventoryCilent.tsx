@@ -4,11 +4,15 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { PlusCircle } from "lucide-react"
 
-import { fetchSupplierProducts, deleteProductById } from "@/services/product/ProductService"
+import {
+  fetchSupplierProducts,
+  toggleProductStatus
+} from "@/services/product/ProductService"
 import { SupplierItemResponse } from "@/model/response/productRespone"
 import { productListRequest } from "@/model/request/productRequest"
 import ProductInventoryTable from "./ProductInventoryTable"
 import LoadingOverlay from "@/components/ui/LoadingOverlay"
+import { toast, ToastContainer } from 'react-toastify'
 
 export default function InventoryClient() {
   const [products, setProducts] = useState<SupplierItemResponse[]>([])
@@ -42,19 +46,27 @@ export default function InventoryClient() {
     router.push("/supplier/inventory/add")
   }
 
-  const handleDeleteProduct = async (productId: number) => {
+  const handleToggleProductStatus = async (productId: number, currentStatus: boolean) => {
     try {
-      await deleteProductById(productId)
-      setProducts(prev => prev.filter(p => p.id !== productId))
-      setTotalItems(prev => prev - 1)
+      const product = products.find(p => p.id === productId)
+      if (!product) return
+
+      await toggleProductStatus(productId, { isActive: !currentStatus })
+      await loadData()
+
+      toast.success(
+        `${product.name} has been ${currentStatus ? 'deactivated' : 'activated'} successfully.`
+      )
     } catch (err) {
-      console.error("Delete failed:", err)
-      alert("Failed to delete product.")
+      console.error("Toggle status failed:", err)
+      toast.error("Failed to update product status.")
     }
   }
 
+
   return (
     <div className="p-6">
+      <ToastContainer position='top-center' autoClose={2000} />
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Supplier's Inventory</h1>
         <button
@@ -73,7 +85,7 @@ export default function InventoryClient() {
       ) : (
         <ProductInventoryTable
           products={products}
-          onDelete={handleDeleteProduct}
+          onToggleStatus={handleToggleProductStatus}
           page={page}
           pageSize={pageSize}
           totalItems={totalItems}

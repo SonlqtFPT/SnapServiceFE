@@ -27,6 +27,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { toast, ToastContainer } from 'react-toastify'
 import { updateOrderItemStatus } from '@/services/product/OrderService'
 import type { UpdateOrderStatusRequest } from '@/model/request/orderRequest'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useRouter } from 'next/navigation' 
 
 type Props = {
   orders: SupplierOrderItem[]
@@ -46,11 +48,20 @@ export default function SupplierOrderTable({
   onPageChange,
   onRefresh,
 }: Props) {
+  const router = useRouter() 
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
 
   const totalPages = Math.ceil(totalItems / pageSize)
+
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [selectedAction, setSelectedAction] = useState<{
+    orderId: string
+    productId: number
+    status: UpdateOrderStatusRequest['status']
+  } | null>(null)
+
 
   const handleUpdateStatus = async (
     orderId: string,
@@ -123,13 +134,13 @@ export default function SupplierOrderTable({
       accessorKey: 'total',
       header: 'Total Price',
       cell: ({ getValue }) =>
-        `${(getValue<number>() || 0).toLocaleString()} VND`,
+        `${(getValue<number>() || 0).toLocaleString()} đ`,
     },
     {
       accessorKey: 'shippingPrice',
       header: 'Shipping',
       cell: ({ getValue }) =>
-        `${(getValue<number>() || 0).toLocaleString()} VND`,
+        `${(getValue<number>() || 0).toLocaleString()} đ`,
     },
 {
   id: 'status',
@@ -167,14 +178,20 @@ export default function SupplierOrderTable({
                   <Button
                     size="sm"
                     className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => handleUpdateStatus(orderId, productId, 'Preparing')}
+                    onClick={() => {
+                      setSelectedAction({ orderId, productId, status: 'Preparing' })
+                      setConfirmOpen(true)
+                    }}
                   >
                     Accept Order
                   </Button>
                   <Button
                     size="sm"
                     className="bg-red-600 hover:bg-red-700 text-white"
-                    onClick={() => handleUpdateStatus(orderId, productId, 'Cancelled')}
+                    onClick={() => {
+                      setSelectedAction({ orderId, productId, status: 'Cancelled' })
+                      setConfirmOpen(true)
+                    }}
                   >
                     Reject Order
                   </Button>
@@ -235,7 +252,14 @@ export default function SupplierOrderTable({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.map(row => (
-            <TableRow key={row.id}>
+            <TableRow
+              key={row.id}
+              className="cursor-pointer hover:bg-gray-100 transition-colors"
+              onClick={() => {
+                const orderId = row.original.id
+                router.push(`/supplier/orders/${orderId}`)
+              }}
+            >
               {row.getVisibleCells().map(cell => (
                 <TableCell key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -293,6 +317,28 @@ export default function SupplierOrderTable({
       </div>
 
       <ToastContainer position="top-right" autoClose={3000} />
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => {
+          setConfirmOpen(false)
+          setSelectedAction(null)
+        }}
+        onConfirm={async () => {
+          if (!selectedAction) return
+          const { orderId, productId, status } = selectedAction
+          await handleUpdateStatus(orderId, productId, status)
+          setConfirmOpen(false)
+          setSelectedAction(null)
+        }}
+        title={`Confirm ${selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}?`}
+        description={`Are you sure you want to ${selectedAction?.status === 'Preparing' ? 'accept' : 'reject'} this order?`}
+        confirmText={selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}
+        loading={
+          selectedAction
+            ? loadingMap[`${selectedAction.orderId}-${selectedAction.productId}`]
+            : false
+        }
+      />
     </div>
   )
 }

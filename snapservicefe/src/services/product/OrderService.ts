@@ -1,6 +1,6 @@
 import { getAPI } from "@/lib/axios";
-import { SupplierOrderListRequest, UpdateOrderStatusRequest } from "@/model/request/orderRequest";
-import { SupplierOrderListResponse, UpdateOrderStatusResponse } from "@/model/response/order";
+import { GetOrderDetailRequest, SupplierOrderListRequest, UpdateOrderStatusRequest } from "@/model/request/orderRequest";
+import { SupplierOrderItem, SupplierOrderListResponse, UpdateOrderStatusResponse } from "@/model/response/order";
 
 const api = getAPI();
 
@@ -53,5 +53,26 @@ export const updateOrderItemStatus = async (
   } catch (err) {
     console.error('Failed to update order status:', err)
     throw err
+  }
+}
+
+export const fetchSupplierOrderDetail = async (
+  request: GetOrderDetailRequest
+): Promise<SupplierOrderItem> => {
+  try {
+    const token = localStorage.getItem("token")
+    if (!token) throw new Error("No token found in localStorage.")
+
+    const response = await api.get(`/api/Supplier/order/${request.orderId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'text/plain',
+      }
+    })
+
+    return response.data.data
+  } catch (error) {
+    console.error("Failed to fetch order detail:", error)
+    throw error
   }
 }

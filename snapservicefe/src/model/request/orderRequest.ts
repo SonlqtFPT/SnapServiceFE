@@ -16,3 +16,7 @@ export interface UpdateOrderStatusRequest {
     | 'Refunding'
     | 'Refunded'
 }
+
+export interface GetOrderDetailRequest {
+  orderId: string
+}
