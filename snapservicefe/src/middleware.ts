@@ -40,6 +40,17 @@ export function middleware(request: NextRequest) {
         ) {
             return NextResponse.redirect(new URL('/unauthorized', request.url));
         }
+
+        if (
+            userRole === 'SUPPLIER' &&
+            (
+                pathname.startsWith('/checkout') ||
+                pathname.startsWith('/cart')
+            )
+        ) {
+            return NextResponse.redirect(new URL('/unauthorized', request.url));
+        }
+
         return NextResponse.next();
     } catch (err) {
         console.log(err)

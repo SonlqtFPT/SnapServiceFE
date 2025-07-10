@@ -12,16 +12,17 @@ export default function CartClient() {
     const router = useRouter();
     const [isInitialized, setIsInitialized] = useState(false);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [isAllSelected, setIsAllSelected] = useState(false);
 
     // nhóm sản phẩm theo supplier
     const suppliers: SupplierGroupedItems = {};
     cartItems.forEach((item) => {
-    if (!item.supplier || !item.supplier.id) return; // <-- skip if invalid
-    const key = item.supplier.id;
-    if (!suppliers[key]) {
-        suppliers[key] = [];
-    }
-    suppliers[key].push(item);
+        if (!item.supplier || !item.supplier.id) return; // <-- skip if invalid
+        const key = item.supplier.id;
+        if (!suppliers[key]) {
+            suppliers[key] = [];
+        }
+        suppliers[key].push(item);
     });
 
     // ccheckbox
@@ -75,6 +76,22 @@ export default function CartClient() {
         localStorage.setItem('cart', JSON.stringify(cartItems));
     }, [cartItems, isInitialized]);
 
+    const handleSelectAllChange = () => {
+        const newCheckedState = !isAllSelected;
+        setIsAllSelected(newCheckedState);
+        const updatedItems = cartItems.map(item => ({
+            ...item,
+            isChecked: newCheckedState
+        }));
+        setCartItems(updatedItems);
+    };
+
+    useEffect(() => {
+        const allSelected = cartItems.length > 0 && cartItems.every(item => item.isChecked);
+        setIsAllSelected(allSelected);
+    }, [cartItems]);
+
+
     if (cartItems.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-screen">
@@ -94,7 +111,15 @@ export default function CartClient() {
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
             <div className="text-4xl font-bold mb-6">Shopping Bag</div>
-
+            <div className="flex items-center mb-4">
+                <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={handleSelectAllChange}
+                    className="w-5 h-5 mr-2"
+                />
+                <label className="text-md font-medium text-gray-700">Select All</label>
+            </div>
             <div className="grid grid-cols-12 gap-6">
                 <div className="col-span-9">
                     <div className=" bg-gray-200 grid grid-cols-12 items-center rounded-t-md p-2">
@@ -149,6 +174,7 @@ export default function CartClient() {
                                             <button
                                                 className="px-2 font-bold cursor-pointer"
                                                 onClick={() => handleIncrease(item.id)}
+                                                disabled={item.quantity >= item.stockInQuantity}
                                                 aria-label="Increase quantity"
                                             >+</button>
                                         </div>
