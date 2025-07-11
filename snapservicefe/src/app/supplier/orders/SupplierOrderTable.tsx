@@ -178,7 +178,8 @@ export default function SupplierOrderTable({
                   <Button
                     size="sm"
                     className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent row click
                       setSelectedAction({ orderId, productId, status: 'Preparing' })
                       setConfirmOpen(true)
                     }}
@@ -188,7 +189,8 @@ export default function SupplierOrderTable({
                   <Button
                     size="sm"
                     className="bg-red-600 hover:bg-red-700 text-white"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent row click
                       setSelectedAction({ orderId, productId, status: 'Cancelled' })
                       setConfirmOpen(true)
                     }}
