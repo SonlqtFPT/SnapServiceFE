@@ -8,7 +8,6 @@ import ProductDetails from './ProductDetails';
 import { useParams } from "next/navigation";
 import NewArrivals from '../../home/components/NewArrivals';
 import ProductTabs from './ProductTab';
-import { mockReviews } from '../data/mock-reviews';
 
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs';
 
@@ -44,10 +43,11 @@ export default function ProductDetailClient() {
         <ProductDetails product={product} imageUrl={product.images} />
       </div>
       <div className="mt-8">
-        <ProductTabs
-          description={product.description || 'No description available.'}
-          reviews={mockReviews} //chưa gọi api reviews này là mock data
-        />
+       <ProductTabs
+  productId={product.id} // ✅ Truyền productId để gọi API
+  description={product.description || 'No description available.'}
+/>
+
       </div>
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">New Arrivals</h2>
