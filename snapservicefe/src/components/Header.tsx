@@ -39,10 +39,12 @@ export default function Header() {
     <header className="bg-gray-200 text-[#6B7280] py-4 px-8 border-b border-[#E5E7EB] relative z-50">
       <nav className="grid grid-cols-3 items-center gap-4">
         <div>
-          <Link href="/" className="text-xl font-bold whitespace-nowrap">
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold whitespace-nowrap">
+            <img src="/snapservice.svg" alt="Logo" className="w-6 h-6" />
             SnapService
           </Link>
         </div>
+
 
         <div className="relative w-full max-w-3xl mx-auto">
           <Search
