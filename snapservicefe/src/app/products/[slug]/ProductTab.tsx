@@ -1,56 +1,64 @@
 'use client';
 
-import { useState } from 'react';
-import type { ReviewType } from '@/types/product/ProductType';
+import { useEffect, useState } from 'react';
+import { ReviewType } from '@/model/response/review';
+import { fetchReviewsByProduct } from '@/services/review/ReviewService'; // import service
 import { Card, CardContent } from "@/components/ui/card"
 import { Star } from 'lucide-react';
+
 type Props = {
+    productId: number;
     description: string;
-    reviews: ReviewType[];
 };
 
-export default function ProductTabs({ description, reviews }: Props) {
+export default function ProductTabs({ productId, description }: Props) {
     const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
+    const [reviews, setReviews] = useState<ReviewType[]>([]);
+    const [totalReviews, setTotalReviews] = useState(0);
+    const REVIEWS_PER_PAGE = 3; //mỗi trang 3 review
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        })
-    }
+useEffect(() => {
+  if (activeTab === 'reviews' && productId) {
+    const load = async () => {
+      try {
+        const res = await fetchReviewsByProduct(productId, currentPage, REVIEWS_PER_PAGE);
+        setReviews(res.items);
+        setTotalReviews(res.totalItems);
+      } catch (err) {
+        console.error("🚨 Error loading reviews:", err);
+      }
+    };
 
-    const renderStars = (rating: number, size: "sm" | "md" | "lg" = "sm") => {
-        const sizeClasses = {
-            sm: "w-4 h-4",
-            md: "w-5 h-5",
-            lg: "w-6 h-6",
-        }
+    load();
+  }
+}, [activeTab, productId, currentPage]);
 
+useEffect(() => {
+  if (productId) {
+    const preload = async () => {
+      try {
+        const res = await fetchReviewsByProduct(productId, 1, 1); // lấy page 1, chỉ 1 item vì chỉ xem totalItems khi render detail
+        setTotalReviews(res.totalItems); 
+      } catch (err) {
+        console.error("🚨 Error preloading total reviews:", err);
+      }
+    };
+    preload();
+  }
+}, [productId]);
+
+
+
+    const totalPages = Math.ceil(totalReviews / REVIEWS_PER_PAGE); //lấy total/3 ra số trang
+
+    const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, i) => (
             <Star
                 key={i}
-                className={`${sizeClasses[size]} ${i < rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
-                    }`}
+                className={`w-4 h-4 ${i < rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`}
             />
-        ))
-    }
-
-    const REVIEWS_PER_PAGE = 3;
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const totalPages = Math.ceil(reviews.length / REVIEWS_PER_PAGE);
-    const currentReviews = reviews.slice(
-        (currentPage - 1) * REVIEWS_PER_PAGE,
-        currentPage * REVIEWS_PER_PAGE
-    );
-
-    const goToPrevPage = () => {
-        setCurrentPage((prev) => Math.max(prev - 1, 1));
-    };
-
-    const goToNextPage = () => {
-        setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+        ));
     };
 
     return (
@@ -64,15 +72,18 @@ export default function ProductTabs({ description, reviews }: Props) {
                 </button>
                 <button
                     className={`px-4 py-2 ${activeTab === 'reviews' ? 'border-b-2 border-black font-semibold' : ''}`}
-                    onClick={() => setActiveTab('reviews')}
+                    onClick={() => {
+                        setCurrentPage(1); // reset page
+                        setActiveTab('reviews');
+                    }}
                 >
-                    Reviews ({reviews.length})
+                    Reviews ({totalReviews})
                 </button>
             </div>
 
             <div className="mt-4">
                 {activeTab === 'description' && (
-                    <p className="text-gray-700 ">{description} Trải nghiệm âm thanh crystal-clear với tai nghe không dây cao cấp của chúng tôi. Được trang bị công nghệ chống ồn chủ động, thời lượng pin 30 giờ và đệm tai êm ái cao cấp. Hoàn hảo cho những người yêu âm nhạc, chuyên gia và bất kỳ ai đòi hỏi trải nghiệm âm thanh tốt nhất. Thiết kế hiện đại, chất lượng âm thanh vượt trội và sự thoải mái tối đa trong mọi hoàn cảnh sử dụng.</p>
+                    <p className="text-gray-700">{description}</p>
                 )}
 
                 {activeTab === 'reviews' && (
@@ -80,67 +91,38 @@ export default function ProductTabs({ description, reviews }: Props) {
                         {reviews.length === 0 ? (
                             <p>No reviews yet.</p>
                         ) : (
-                            currentReviews.map((review) => (
+                            reviews.map((review) => (
                                 <Card key={review.id}>
-                                    <CardContent >
+                                    <CardContent>
                                         <div className="flex gap-4">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
-                                                    {review.user.username.charAt(0).toUpperCase()}
-                                                </div>
+                                            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                                                {review.user.username.charAt(0).toUpperCase()}
                                             </div>
-
-                                            <div className="flex-1 space-y-3">
-                                                <div className="flex items-start justify-between">
-                                                    <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="font-medium">{review.user.username}</span>
-                                                           
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="flex">{renderStars(review.rating)}</div>
-                                                            <span className="text-sm text-muted-foreground">{formatDate(review.createdAt)}</span>
-                                                        </div>
-                                                    </div>
+                                            <div>
+                                                <div className="font-medium">{review.user.username}</div>
+                                                <div className="flex items-center gap-2">
+                                                    {renderStars(review.rating)}
+                                                    <span className="text-sm text-muted-foreground">{new Date(review.createdAt).toLocaleDateString()}</span>
                                                 </div>
-                                                <div>
-                                                    <p className="text-muted-foreground leading-relaxed">{review.content}</p>
-                                                </div>
+                                                <p className="text-muted-foreground">{review.content}</p>
                                             </div>
-
                                         </div>
                                     </CardContent>
                                 </Card>
                             ))
                         )}
-                        <div className="flex items-center justify-between mt-6">
-                            <button
-                                onClick={goToPrevPage}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 border rounded disabled:opacity-50"
-                            >
-                                ← Trước
+                        <div className="flex justify-between mt-4">
+                            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
+                                ← Prev
                             </button>
-
-                            <div className="text-sm text-muted-foreground">
-                                Trang {currentPage} / {totalPages} • {reviews.length} đánh giá
-                            </div>
-
-                            <button
-                                onClick={goToNextPage}
-                                disabled={currentPage === totalPages}
-                                className="px-4 py-2 border rounded disabled:opacity-50"
-                            >
-                                Sau →
+                            <div>Page {currentPage} / {totalPages}</div>
+                            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+                                Next →
                             </button>
                         </div>
                     </div>
-
                 )}
-
             </div>
-
-
         </div>
     );
 }

@@ -1,6 +1,5 @@
 'use client'
 import { Progress } from "@/components/ui/progress"
-import { AdvType } from "../type/AdvType"
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
@@ -14,7 +13,7 @@ import Link from 'next/link';
 
 
 
-const ads: AdvType[] = [
+const ads = [
     {
         id: 1,
         image: "https://i.pinimg.com/736x/cd/b6/af/cdb6afd935e8020c6955c970bbe2d9a3.jpg",
@@ -137,14 +136,31 @@ export default function FeatureProduct() {
                                     {product.name}
                                 </div>
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-red-500 font-semibold">
-                                        {/* {product.discount_price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
-                                        {product.discountPrice} 
-                                    </span>
-                                    <span className="text-xs text-gray-400 line-through">
-                                        {/* {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} */}
-                                    </span>
+                                    {product.discountPercent > 0 ? (
+                                        <>
+                                            <span className="text-red-500 font-semibold">
+                                                {product.discountPrice.toLocaleString('en-US', {
+                                                    style: 'currency',
+                                                    currency: 'USD',
+                                                })}
+                                            </span>
+                                            <span className="text-xs text-gray-400 line-through">
+                                                {product.price.toLocaleString('en-US', {
+                                                    style: 'currency',
+                                                    currency: 'USD',
+                                                })}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <span className="text-black font-semibold">
+                                            {product.price.toLocaleString('en-US', {
+                                                style: 'currency',
+                                                currency: 'USD',
+                                            })}
+                                        </span>
+                                    )}
                                 </div>
+
                                 <hr className="my-2 border-gray-200" />
                                 <div className="flex justify-between w-full text-xs text-gray-500">
                                     <Progress

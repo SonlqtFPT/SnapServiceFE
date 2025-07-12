@@ -1,4 +1,4 @@
-export interface Review {
+export interface ReviewType {
   id: number;
   productId: number;
   content: string;
@@ -8,4 +8,12 @@ export interface Review {
     id: number;
     username: string;
   };
+}
+
+export interface ReviewListResponse {
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPage: number;
+  items: ReviewType[];
 }

@@ -1,7 +1,6 @@
 'use client'
 import React from 'react'
 import { Progress } from "@/components/ui/progress"
-import { AdvType } from '../type/AdvType'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
@@ -15,7 +14,7 @@ import Link from 'next/link'
 
 
 
-const ads: AdvType[] = [
+const ads = [
     {
         id: 1,
         image: "https://i.pinimg.com/736x/71/62/81/716281de45193a8ed4846269be62127d.jpg",
@@ -62,8 +61,8 @@ const ads: AdvType[] = [
 
 
 export default function NewArrivals() {
-     const [products, setProducts] = useState<ItemResponse[]>([]);
-   
+    const [products, setProducts] = useState<ItemResponse[]>([]);
+
     useEffect(() => {
         const fetchData = async () => {
             const request: productListRequest = {
@@ -115,51 +114,67 @@ export default function NewArrivals() {
                     .map((product, index) => (
                         <Link key={product.id} href={`/products/${product.slug}`}>
 
-                        <div
-                            key={index}
-                            className="flex flex-col border w-[200px] p-3 hover:shadow rounded cursor-pointer"
-                        >
-                            <div className="relative mb-2">
-                                <img
-                                    src={product.imageUrl}
-                                    alt={product.name}
-                                    className="h-[200px] w-full object-cover rounded"
-                                />
-                                {product.discountPercent > 0 && (
-                                    <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
-                                        {product.discountPercent}%
+                            <div
+                                key={index}
+                                className="flex flex-col border w-[200px] p-3 hover:shadow rounded cursor-pointer"
+                            >
+                                <div className="relative mb-2">
+                                    <img
+                                        src={product.imageUrl}
+                                        alt={product.name}
+                                        className="h-[200px] w-full object-cover rounded"
+                                    />
+                                    {product.discountPercent > 0 && (
+                                        <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
+                                            {product.discountPercent}%
+                                        </span>
+                                    )}
+                                </div>
+                                <div className='max-w-60 min-h-10  line-clamp-2 font-semibold text-sm  text-ellipsis hover:text-blue-600 transition-colors mb-2'>
+                                    {product.name}
+                                </div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    {product.discountPercent > 0 ? (
+                                        <>
+                                            <span className="text-red-500 font-semibold">
+                                                {product.discountPrice.toLocaleString('en-US', {
+                                                    style: 'currency',
+                                                    currency: 'USD',
+                                                })}
+                                            </span>
+                                            <span className="text-xs text-gray-400 line-through">
+                                                {product.price.toLocaleString('en-US', {
+                                                    style: 'currency',
+                                                    currency: 'USD',
+                                                })}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <span className="text-black font-semibold">
+                                            {product.price.toLocaleString('en-US', {
+                                                style: 'currency',
+                                                currency: 'USD',
+                                            })}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <hr className="my-2 border-gray-200" />
+                                <div className="flex justify-between w-full text-xs text-gray-500">
+                                    <Progress
+                                        value={(product.soldQuantity / product.stockInQuantity) * 100}
+                                        className="w-full h-2 mt-1 mb-2"
+                                    />
+                                </div>
+                                <div className='flex justify-between'>
+                                    <span className="text-gray-500 text-xs">Available only:
+                                        <span className="text-black font-bold italic text-xs" > {product.stockInQuantity}</span>
                                     </span>
-                                )}
+                                    <span className='text-gray-500 text-xs'>rating:
+                                        <span className='text-black font-bold italic text-xs'> {product.ratingAverage}</span>
+                                    </span>
+                                </div>
                             </div>
-                            <div className='max-w-60 min-h-10  line-clamp-2 font-semibold text-sm  text-ellipsis hover:text-blue-600 transition-colors mb-2'>
-                                {product.name}
-                            </div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="text-red-500 font-semibold">
-                                    {product.discountPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-
-                                </span>
-                                <span className="text-xs text-gray-400 line-through">
-                                    {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-
-                                </span>
-                            </div>
-                            <hr className="my-2 border-gray-200" />
-                            <div className="flex justify-between w-full text-xs text-gray-500">
-                                <Progress
-                                    value={(product.soldQuantity / product.stockInQuantity) * 100}
-                                    className="w-full h-2 mt-1 mb-2"
-                                />
-                            </div>
-                            <div className='flex justify-between'>
-                                <span className="text-gray-500 text-xs">Available only:
-                                    <span className="text-black font-bold italic text-xs" > {product.stockInQuantity}</span>
-                                </span>
-                                <span className='text-gray-500 text-xs'>rating:
-                                    <span className='text-black font-bold italic text-xs'> {product.ratingAverage}</span>
-                                </span>
-                            </div>
-                        </div>
                         </Link>
                     ))}
             </div>
