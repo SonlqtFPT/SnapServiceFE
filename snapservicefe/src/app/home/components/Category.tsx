@@ -1,6 +1,5 @@
 'use client'
 import React from 'react'
- import { CategoryType } from '../../../types/product/CategoryType'
 import { fetchCategories } from '@/services/product/ProductService'
 import { useEffect, useState } from "react"
 import { CategoryResponse } from '@/model/response/categoryResponse'
