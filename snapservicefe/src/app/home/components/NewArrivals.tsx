@@ -11,6 +11,7 @@ import { ItemResponse, ProductListResponse } from "@/model/response/productRespo
 import { fetchProducts } from "../../../services/product/ProductService"
 import { useEffect, useState } from "react"
 import Link from 'next/link'
+import Image from 'next/image';
 
 
 
@@ -90,7 +91,6 @@ export default function NewArrivals() {
                     modules={[Navigation, Pagination, Autoplay]}
                     spaceBetween={16}
                     slidesPerView={1}
-
                     pagination={{ clickable: true }}
                     autoplay={{ delay: 3500, disableOnInteraction: false }}
                     className="w-[500px] rounded-md"
@@ -98,12 +98,13 @@ export default function NewArrivals() {
                     {ads.filter(ads => ads.status === "carousel").map((ad) => (
                         <SwiperSlide key={ad.id}>
                             <div className="flex gap-2  w-[500px] items-center rounded">
-                                <img
+                                <Image
                                     src={ad.image}
                                     alt={ad.title}
-                                    className="w-full h-[365px] object-cover rounded "
+                                    width={1200}
+                                    height={365}
+                                    className="w-full h-[365px] object-cover rounded"
                                 />
-
                             </div>
                         </SwiperSlide>
                     ))}
@@ -119,11 +120,14 @@ export default function NewArrivals() {
                                 className="flex flex-col border w-[200px] p-3 hover:shadow rounded cursor-pointer"
                             >
                                 <div className="relative mb-2">
-                                    <img
+                                    <Image
                                         src={product.imageUrl}
                                         alt={product.name}
+                                        width={400} // thay bằng width thực tế bạn mong muốn
+                                        height={200}
                                         className="h-[200px] w-full object-cover rounded"
                                     />
+
                                     {product.discountPercent > 0 && (
                                         <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
                                             {product.discountPercent}%
@@ -181,11 +185,14 @@ export default function NewArrivals() {
             <div className="adv mt-5 flex justify-between">
                 {ads.slice(3, 5).map((ad) => (
                     <div key={ad.id} className="flex items-center">
-                        <img
+                        <Image
                             src={ad.image}
                             alt={ad.title}
-                            className=" w-[600px] h-60  object-cover rounded "
+                            width={600}
+                            height={240} // tương đương h-60
+                            className="w-[600px] h-60 object-cover rounded"
                         />
+
                     </div>
                 ))}
             </div>

@@ -21,7 +21,7 @@ export default function UsersTable({ users }: { users: UserListItem[] }) {
               <td className="p-2">{u.Username}</td>
               <td className="p-2">{u.Email}</td>
               <td className="p-2">{u.Phone}</td>
-              <td className="p-2">{(u as any).CreatedAt?.slice(0, 10) || "-"}</td>
+              <td className="p-2">{u.CreatedAt?.slice(0, 10) || "-"}</td>
               <td className="p-2">
                 <span className={`px-2 py-0.5 text-xs rounded-full ${u.IsActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                   {u.IsActive ? "Hoạt động" : "Không hoạt động"}

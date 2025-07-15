@@ -6,6 +6,7 @@ import { ItemResponse, ProductListResponse } from "@/model/response/productRespo
 import { fetchProducts } from "../../../services/product/ProductService"
 import { useEffect, useState } from "react"
 import Link from 'next/link'
+import Image from 'next/image';
 
 
 const ads = [
@@ -58,11 +59,14 @@ export default function NewProduct() {
               className="flex flex-col border p-3 hover:shadow rounded"
             >
               <div className="relative mb-2">
-                <img
+                <Image
                   src={product.imageUrl}
                   alt={product.name}
+                  width={400}
+                  height={200}
                   className="h-[200px] w-full object-cover rounded"
                 />
+
                 {product.discountPercent > 0 && (
                   <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
                     {product.discountPercent}%
@@ -115,11 +119,14 @@ export default function NewProduct() {
       <div className="adv mt-5 flex justify-between">
         {ads.slice(0, 3).map((ad) => (
           <div key={ad.id} className="flex items-center">
-            <img
+            <Image
               src={ad.image}
               alt={ad.title}
-              className=" w-[400px] h-52  object-cover rounded gap-[5px]"
+              width={400}
+              height={208} // h-52 ~ 208px
+              className="w-[400px] h-52 object-cover rounded gap-[5px]"
             />
+
           </div>
         ))}
       </div>

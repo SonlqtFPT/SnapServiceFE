@@ -1,4 +1,14 @@
-export default function OrdersTable({ orders }: { orders: any[] }) {
+type Order = {
+  id: string;
+  customer: string;
+  email: string;
+  total: number;
+  status: "Hoàn thành" | "Đang xử lý" | "Đã hủy" | string;
+  date: string;
+  items: number;
+};
+
+export default function OrdersTable({ orders }: { orders: Order[] }) {
   const statusClass = (s: string) => {
     const colors: Record<string, string> = {
       "Hoàn thành": "bg-green-100 text-green-800",
