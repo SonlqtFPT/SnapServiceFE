@@ -17,7 +17,7 @@ export default function ProductDetails({ product }: Props) {
   const [quantity, setQuantity] = useState(1);
   const localCart = localStorage.getItem('cart');
   const cartItems: CartItem[] = localCart ? JSON.parse(localCart) : [];
-  const [_, forceUpdate] = useState(false);
+  const [, forceUpdate] = useState(false);
 
   const handleQuantityChange = (delta: number) => {
     setQuantity(prev => Math.max(1, prev + delta));

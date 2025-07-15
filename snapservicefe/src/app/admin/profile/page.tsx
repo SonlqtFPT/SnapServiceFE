@@ -13,13 +13,9 @@ import { Tabs } from "@/components/ui/tabs"
 import { TabsContent } from "@/components/ui/tabs-content"
 import { TabsList } from "@/components/ui/tabs-list"
 import { TabsTrigger } from "@/components/ui/tabs-trigger"
-import { Avatar } from "@/components/ui/avatar"
-import { AvatarFallback } from "@/components/ui/avatar-fallback"
-import { AvatarImage } from "@/components/ui/avatar-image"
 import { Badge } from "@/components/ui/badge"
-import { Bell, Camera, Eye, EyeOff, Lock, Mail, Phone, Save, Shield } from "lucide-react"
+import { Bell,  Eye, EyeOff, Lock, Mail, Phone, Save, Shield } from "lucide-react"
 
-import { useSidebarContext } from "@/components/Layouts/sidebar/sidebar-context";
 
 export default function ProfilePage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -29,7 +25,6 @@ export default function ProfilePage() {
     sms: true,
   })
 
-  const { toggleSidebar } = useSidebarContext();
 
 
   return (
