@@ -4,7 +4,7 @@ export default function StatCard({
   value,
   subtitle,
 }: {
-  icon: any;
+  icon: React.ElementType;
   title: string;
   value: number | string;
   subtitle: string;
