@@ -33,15 +33,22 @@ export default function ProductDetails({ product }: Props) {
   };
 
   const handleAddCart = () => {
+    if (token === null) {
+      toast.error('Please login before adding to cart');
+      return;
+    }
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingItemIndex = cartItems.findIndex((item: ProductType) => item.id === product.id);
 
     if (existingItemIndex === -1) {
       cartItems.push({ ...product, quantity });
-      localStorage.setItem('cart', JSON.stringify(cartItems));
-      toast.success('Product added to cart successfully');
-      forceUpdate(prev => !prev);
+    } else {
+      const existingItem = cartItems[existingItemIndex];
+      existingItem.quantity += quantity;
     }
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+    toast.success('Product quantity updated in cart');
+    forceUpdate(prev => !prev);
   };
 
   const handleBuyNow = () => {
@@ -108,21 +115,12 @@ export default function ProductDetails({ product }: Props) {
             <span className="px-4">{quantity}</span>
             <button onClick={() => handleQuantityChange(1)} className="px-3 py-1 text-lg font-bold">+</button>
           </div>
-          {cartItems.some(item => item.id === product.id) ? (
-            <button disabled className="bg-gray-400 text-white px-4 py-2 rounded-xl cursor-not-allowed">
-              Already in Cart
-            </button>
-          ) : (
-
-            <button onClick={handleAddCart} className="bg-green-600 flex-1 justify-center hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2">
-              {/* Cart icon from header */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                className="lucide lucide-shopping-cart w-5 h-5" aria-hidden="true"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
-              Add to Cart
-            </button>
-          )
-          }
-
+          <button onClick={handleAddCart} className="bg-green-600 flex-1 justify-center hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2">
+            {/* Cart icon from header */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              className="lucide lucide-shopping-cart w-5 h-5" aria-hidden="true"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+            Add to Cart
+          </button>
           <button onClick={handleBuyNow} className="bg-gray-800 hover:bg-gray-700 flex-1 justify-center text-white px-4 py-2 rounded flex items-center gap-2">
             {/* Buy Now icon */}
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
