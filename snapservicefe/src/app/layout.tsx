@@ -7,6 +7,9 @@ import Footer from '@/components/Footer'
 export const metadata = {
   title: 'SnapService',
   description: 'SnapService ne',
+  icons: {
+    icon: '/favicon.ico', 
+  },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

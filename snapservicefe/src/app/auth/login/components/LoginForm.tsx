@@ -31,6 +31,11 @@ export default function LoginForm() {
           setTimeout(() => {
             route.push('/admin')
           }, 2000)
+        } else if (userRole === 'SUPPLIER') {
+          toast.success("Chào mừng bạn đến với trang quản trị")
+          setTimeout(() => {
+            route.push('/supplier')
+          }, 2000)
         } else {
           toast.success("Đăng nhập thành công, chào mừng bạn đến với SnapService")
           setTimeout(() => {

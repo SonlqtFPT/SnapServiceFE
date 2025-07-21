@@ -48,7 +48,7 @@ export default function SupplierHomePage() {
   return (
     <div className="p-6 md:p-10">
       <h1 className="text-3xl font-bold mb-8">
-        Welcome back{user.FullName ? `, ${user.FullName}` : ""} 👋
+        Welcome back{user.FullName ? `, ${user.FullName}` : ""} 
       </h1>
 
       {/* Top row: 3-column grid */}
