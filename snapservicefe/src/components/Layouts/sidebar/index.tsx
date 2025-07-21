@@ -11,7 +11,7 @@ import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
 
 interface SidebarProps {
-  role: "admin" | "supplier";
+  role: "admin" | "supplier" | "shipper";
 }
 
 function getPrefixedUrl(url: string, role: string) {
