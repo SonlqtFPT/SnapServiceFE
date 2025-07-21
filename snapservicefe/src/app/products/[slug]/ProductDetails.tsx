@@ -20,8 +20,13 @@ export default function ProductDetails({ product }: Props) {
   const [, forceUpdate] = useState(false);
 
   const handleQuantityChange = (delta: number) => {
-    setQuantity(prev => Math.max(1, prev + delta));
-  };
+    setQuantity(prev => {
+      const newQuantity = prev + delta;
+      if (newQuantity < 1) return 1;
+      if (newQuantity > product.stockInQuantity) return product.stockInQuantity;
+      return newQuantity;
+    });
+  }
 
   const handleAddCart = () => {
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -91,9 +96,17 @@ export default function ProductDetails({ product }: Props) {
         </div>
         <div className="flex items-center gap-4 m-4">
           <div className="flex items-center border rounded">
-            <button onClick={() => handleQuantityChange(-1)} className="px-3 py-1 text-lg font-bold">-</button>
+            <button
+              onClick={() => handleQuantityChange(-1)}
+              className={`px-3 py-1 text-lg font-bold${quantity <= 1 ? ' opacity-50 cursor-not-allowed' : ''}`}
+              disabled={quantity <= 1}
+            >-</button>
             <span className="px-4">{quantity}</span>
-            <button onClick={() => handleQuantityChange(1)} className="px-3 py-1 text-lg font-bold">+</button>
+            <button
+              onClick={() => handleQuantityChange(1)}
+              className={`px-3 py-1 text-lg font-bold${quantity >= product.stockInQuantity ? ' opacity-50 cursor-not-allowed' : ''}`}
+              disabled={quantity >= product.stockInQuantity}
+            >+</button>
           </div>
           {cartItems.some(item => item.id === product.id) ? (
             <button disabled className="bg-gray-400 text-white px-4 py-2 rounded-xl cursor-not-allowed">
