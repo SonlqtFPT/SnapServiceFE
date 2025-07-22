@@ -5,7 +5,6 @@ export interface SupplierOrderListRequest {
 
 export interface UpdateOrderStatusRequest {
   orderId: string
-  productId: number
   status:
     | 'Pending'
     | 'Preparing'

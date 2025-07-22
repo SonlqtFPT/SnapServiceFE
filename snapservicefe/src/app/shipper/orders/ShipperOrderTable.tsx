@@ -47,25 +47,23 @@ export default function ShipperOrderTable({
 
   const totalPages = Math.ceil(totalItems / pageSize)
 
-  const handleBatchUpdate = async (
-    orderId: string,
-    productIds: number[],
-    status: 'Delivery' | 'Delivered'
-  ) => {
-    const key = `${orderId}-batch-${status}`
-    setLoadingMap(prev => ({ ...prev, [key]: true }))
-    try {
-      for (const productId of productIds) {
-        await updateOrderItemStatus({ orderId, productId, status })
-      }
-      toast.success(`Marked as ${status} successfully.`)
-      onRefresh()
-    } catch {
-      toast.error(`Failed to update status.`)
-    } finally {
-      setLoadingMap(prev => ({ ...prev, [key]: false }))
-    }
+const handleUpdateStatus = async (
+  orderId: string,
+  status: 'Delivery' | 'Delivered'
+) => {
+  const key = `${orderId}-${status}`
+  setLoadingMap(prev => ({ ...prev, [key]: true }))
+  try {
+    await updateOrderItemStatus({ orderId, status }) 
+    toast.success(`Marked order as ${status}.`)
+    onRefresh()
+  } catch {
+    toast.error(`Failed to update order.`)
+  } finally {
+    setLoadingMap(prev => ({ ...prev, [key]: false }))
   }
+}
+
 
   const columns = useMemo<ColumnDef<ShipperOrder>[]>(() => [
     {
@@ -156,45 +154,44 @@ export default function ShipperOrderTable({
         )
       },
     },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => {
-        const order = row.original
-        const productIds = order.orders_details.map(d => d.productId)
-        const statuses = order.orders_details.map(d => d.status)
-        const allPreparing = statuses.every(s => s === 'Preparing')
-        const allDelivery = statuses.every(s => s === 'Delivery')
-        const loadingKey = `${order.id}-batch-${allPreparing ? 'Delivery' : 'Delivered'}`
+{
+  id: 'actions',
+  header: 'Actions',
+  cell: ({ row }) => {
+    const order = row.original
+    const statuses = order.orders_details.map(d => d.status)
+    const allPreparing = statuses.every(s => s === 'Preparing')
+    const allDelivery = statuses.every(s => s === 'Delivery')
+    const nextStatus: 'Delivery' | 'Delivered' | null = allPreparing
+      ? 'Delivery'
+      : allDelivery
+      ? 'Delivered'
+      : null
 
-        const nextStatus: 'Delivery' | 'Delivered' | null = allPreparing
-          ? 'Delivery'
-          : allDelivery
-          ? 'Delivered'
-          : null
+    const loadingKey = `${order.id}-${nextStatus}`
 
-        return (
-          <div className="flex flex-col gap-1">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => router.push(`/shipper/orders/${order.id}`)}
-            >
-              View
-            </Button>
-            {nextStatus && (
-              <Button
-                size="sm"
-                onClick={() => handleBatchUpdate(order.id, productIds, nextStatus)}
-                disabled={loadingMap[loadingKey]}
-              >
-                {loadingMap[loadingKey] ? 'Processing...' : `Mark All as ${nextStatus}`}
-              </Button>
-            )}
-          </div>
-        )
-      },
-    },
+    return (
+      <div className="flex flex-col gap-1">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => router.push(`/shipper/orders/${order.id}`)}
+        >
+          View
+        </Button>
+        {nextStatus && (
+          <Button
+            size="sm"
+            onClick={() => handleUpdateStatus(order.id, nextStatus)}
+            disabled={loadingMap[loadingKey]}
+          >
+            {loadingMap[loadingKey] ? 'Processing...' : `Mark All as ${nextStatus}`}
+          </Button>
+        )}
+      </div>
+    )
+  },
+}
   ], [loadingMap])
 
   const table = useReactTable({

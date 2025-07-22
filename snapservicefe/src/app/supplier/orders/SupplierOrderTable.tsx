@@ -58,29 +58,27 @@ export default function SupplierOrderTable({
   const [confirmOpen, setConfirmOpen] = useState(false)
 const [selectedAction, setSelectedAction] = useState<{
   orderId: string
-  productIds: number[]
   status: UpdateOrderStatusRequest['status']
 } | null>(null)
 
 
 
-  const handleUpdateStatus = async (
-    orderId: string,
-    productId: number,
-    status: UpdateOrderStatusRequest['status']
-  ) => {
-    const key = `${orderId}-${productId}`
-    setLoadingMap(prev => ({ ...prev, [key]: true }))
-    try {
-      await updateOrderItemStatus({ orderId, productId, status })
-      toast.success(`Order ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
-      onRefresh?.() 
-    } catch (err) {
-      toast.error('Failed to update order status.')
-    } finally {
-      setLoadingMap(prev => ({ ...prev, [key]: false }))
-    }
+const handleUpdateStatus = async (
+  orderId: string,
+  status: UpdateOrderStatusRequest['status']
+) => {
+  setLoadingMap(prev => ({ ...prev, [orderId]: true }))
+  try {
+    await updateOrderItemStatus({ orderId, status }) 
+    toast.success(`Order ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
+    onRefresh?.()
+  } catch (err) {
+    toast.error('Failed to update order status.')
+  } finally {
+    setLoadingMap(prev => ({ ...prev, [orderId]: false }))
   }
+}
+
 
 
   const columns = useMemo<ColumnDef<SupplierOrderItem>[]>(() => [
@@ -169,7 +167,7 @@ const [selectedAction, setSelectedAction] = useState<{
     const productIds = details.map(d => d.productId)
     const key = productIds.map(pid => `${orderId}-${pid}`).join(',')
 
-    const loading = productIds.some(pid => loadingMap[`${orderId}-${pid}`])
+    const loading = loadingMap[orderId]
 
     const badgeMap: Record<UpdateOrderStatusRequest['status'], 'success' | 'warning' | 'destructive' | 'default'> = {
       Pending: 'warning',
@@ -196,7 +194,7 @@ const [selectedAction, setSelectedAction] = useState<{
                 className="bg-green-600 hover:bg-green-700 text-white"
                 onClick={(e) => {
                   e.stopPropagation()
-                  setSelectedAction({ orderId, productIds, status: 'Preparing' })
+                  setSelectedAction({ orderId, status: 'Preparing' })
                   setConfirmOpen(true)
                 }}
               >
@@ -207,7 +205,7 @@ const [selectedAction, setSelectedAction] = useState<{
                 className="bg-red-600 hover:bg-red-700 text-white"
                 onClick={(e) => {
                   e.stopPropagation()
-                  setSelectedAction({ orderId, productIds, status: 'Cancelled' })
+                  setSelectedAction({ orderId, status: 'Cancelled' })
                   setConfirmOpen(true)
                 }}
               >
@@ -348,28 +346,19 @@ const [selectedAction, setSelectedAction] = useState<{
           setConfirmOpen(false)
           setSelectedAction(null)
         }}
-onConfirm={async () => {
-  if (!selectedAction) return
-  const { orderId, productIds, status } = selectedAction
+        onConfirm={async () => {
+          if (!selectedAction) return
+          await handleUpdateStatus(selectedAction.orderId, selectedAction.status)
+          setConfirmOpen(false)
+          setSelectedAction(null)
+        }}
 
-  for (const productId of productIds) {
-    await handleUpdateStatus(orderId, productId, status)
-  }
-
-  setConfirmOpen(false)
-  setSelectedAction(null)
-}}
 
         title={`Confirm ${selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}?`}
         description={`Are you sure you want to ${selectedAction?.status === 'Preparing' ? 'accept' : 'reject'} this order?`}
         confirmText={selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}
-        loading={
-          selectedAction
-    ? selectedAction.productIds.some(pid =>
-        loadingMap[`${selectedAction.orderId}-${pid}`]
-      )
-            : false
-        }
+        loading={selectedAction ? loadingMap[selectedAction.orderId] : false}
+
       />
     </div>
   )
