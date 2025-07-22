@@ -10,8 +10,6 @@ export const fetchUsersByMonth = async (
     params: {
       year,
       month,
-      page: 1,
-      pageSize: 60,
     },
   });
   return response.data.data;
