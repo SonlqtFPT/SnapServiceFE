@@ -35,3 +35,8 @@ export interface UserListItem {
   CreatedAt?: string;
    RegisteredDate?: string;
 }
+
+export interface AssignAreaResponse {
+  statusCode: number
+  message: string
+}
