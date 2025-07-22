@@ -2,7 +2,6 @@
 "use client";
 
 import * as React from "react";
-import { useTabsContext } from "./tabs"; // Import từ file tabs.tsx bạn vừa tạo
 
 const TabsList = React.forwardRef<
   HTMLDivElement,

@@ -1,5 +1,5 @@
 import { Order } from "./order";
-import { Review } from "./review";
+import { ReviewType } from "./review";
 import { Supplier } from "./supplier";
 import { Shipper } from "./shipper";
 
@@ -18,7 +18,7 @@ export interface UserDetail {
   FullName: string;
 
   orders: Order[];
-  product_reviews: Review[];
+  product_reviews: ReviewType[];
   suppliers: Supplier[];
   shipper: Shipper | null;
 }
@@ -32,6 +32,8 @@ export interface UserListItem {
   Role: string;
   IsActive: boolean;
   ImageUrl: string;
+  CreatedAt?: string;
+   RegisteredDate?: string;
 }
 
 export interface AssignAreaResponse {

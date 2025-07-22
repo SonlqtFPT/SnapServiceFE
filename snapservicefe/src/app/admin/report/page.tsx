@@ -53,7 +53,7 @@ export default function AdminReportPage() {
 
   const ordersInRange = mockOrders.filter((o) => isInRange(o.date));
   const usersInRange = users.filter((u) =>
-    isInRange((u as any).CreatedAt || (u as any).RegisteredDate)
+    isInRange(u.CreatedAt || u.RegisteredDate)
   );
 
   return (

@@ -1,4 +1,3 @@
-// src/services/review/ReviewService.ts
 import { getAPI } from '@/lib/axios';
 import { ReviewListResponse } from '@/model/response/review';
 

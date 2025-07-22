@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import { productListRequest } from "@/model/request/productRequest"
 import { ProductListResponse } from "@/model/response/productRespone"
 import Link from 'next/link';
+import Image from 'next/image'
 
 
 
@@ -101,10 +102,12 @@ export default function FeatureProduct() {
                     {ads.filter(ads => ads.status === "carousel").map((ad) => (
                         <SwiperSlide key={ad.id}>
                             <div className="flex gap-2  w-[500px] items-center rounded">
-                                <img
+                                <Image
                                     src={ad.image}
                                     alt={ad.title}
-                                    className="w-full h-[365px] object-cover rounded "
+                                    width={500} // hoặc kích thước đúng của ảnh
+                                    height={365}
+                                    className="w-full h-[365px] object-cover rounded"
                                 />
 
                             </div>
@@ -114,17 +117,18 @@ export default function FeatureProduct() {
                 {products?.items
                     // .filter(product => product.available > 0)
                     .slice(5, 9)
-                    .map((product, index) => (
+                    .map((product) => (
                         <Link key={product.id} href={`/products/${product.slug}`}>
                             <div
-                                key={index}
                                 className="flex flex-col border w-[200px] p-3 hover:shadow rounded cursor-pointer"
                             >
                                 <div className="relative mb-2">
-                                    <img
+                                    <Image
                                         src={product.imageUrl}
                                         alt={product.name}
-                                        className="h-[200px] w-full object-cover rounded"
+                                        width={300} // chỉnh tùy ý
+                                        height={200}
+                                        className="w-full h-[200px] object-cover rounded"
                                     />
                                     {product.discountPercent > 0 && (
                                         <span className="absolute top-1 left-1 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-md">
@@ -183,10 +187,13 @@ export default function FeatureProduct() {
             <div className="adv mt-5 flex justify-between">
                 {ads.filter(ads => ads.status === "banner").map((ad) => (
                     <div key={ad.id} className="flex items-center">
-                        <img
+                        <Image
                             src={ad.image}
                             alt={ad.title}
-                            className=" w-[400px] h-52  object-cover rounded-md gap-[5px]"
+                            width={400}
+                            height={208} // tương đương h-52 = 52 * 4 = 208px
+                            className="object-cover rounded-md"
+                            style={{ width: '400px', height: '208px' }} // đảm bảo kích thước nếu Tailwind không áp được
                         />
                     </div>
                 ))}
