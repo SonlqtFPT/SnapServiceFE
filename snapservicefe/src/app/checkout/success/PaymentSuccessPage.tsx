@@ -97,9 +97,13 @@ export default function PaymentSuccessPage() {
       localStorage.setItem('cart', JSON.stringify(updatedProducts));
     }
   };
+useEffect(() => {
+  if (productsData) {
+    const checkoutProducts = Object.values(productsData).flat();
+    removeProductsFromCart(checkoutProducts);
+  }
+}, [productsData]);
 
-  const checkoutProducts = productsData ? Object.values(productsData).flat() : [];
-  removeProductsFromCart(checkoutProducts);
 
 
   const createOrder = async () => {
