@@ -15,7 +15,6 @@ export default function OrderChart() {
 
       const response = await fetchOrdersByMonth(currentYear, currentMonth);
 
-      // Tạo mảng 12 tháng với giá trị mặc định 0, chỉ tháng hiện tại có totalOrders
       const formatted = Array.from({ length: 12 }, (_, i) => ({
         label: `T${i + 1}`,
         value: i + 1 === response.month ? response.totalOrders : 0,
@@ -28,10 +27,10 @@ export default function OrderChart() {
 
   return (
     <SalesChart
-      title="Đơn hàng theo tháng"
+      title="New Orders by Month"
       data={data}
-      xLabel="Tháng"
-      yLabel="Đơn hàng"
+      xLabel="Month"
+      yLabel="Order"
       barColor="bg-blue-500"
       unit=" đơn"
     />

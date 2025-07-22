@@ -9,9 +9,7 @@ export const fetchUsersByMonth = async (
   const response = await api.get('/api/User/usersbymonth', {
     params: {
       year,
-      month,
-      page: 1,
-      pageSize: 60,
+      month
     },
   });
   return response.data.data;

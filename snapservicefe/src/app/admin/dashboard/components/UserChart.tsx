@@ -12,29 +12,19 @@ export default function UserChart() {
       const now = new Date();
       const year = now.getFullYear();
 
-      const results = await Promise.all(
-        Array.from({ length: 12 }, async (_, i) => {
-          const month = i + 1;
-          try {
-            const res = await fetchUsersByMonth(year, month);
-            return {
-              label: `T${month}`,
-              value: res.total || 0, // nếu không có thì trả về 0
-            };
-          } catch {
-            // Nếu API trả lỗi (ví dụ: tháng chưa có dữ liệu), vẫn trả về 0
-            return {
-              label: `T${month}`,
-              value: 0,
-            };
-          }
-        })
-      );
+      const results: { label: string; value: number }[] = [];
 
-      // Nếu bạn muốn ẩn các tháng có value === 0
-      const filtered = results.filter((item) => item.value > 0);
+for (let i = 0; i < 12; i++) {
+  const month = i + 1;
+  try {
+    const res = await fetchUsersByMonth(year, month);
+    results.push({ label: `T${month}`, value: res.total || 0 });
+  } catch {
+    results.push({ label: `T${month}`, value: 0 });
+  }
+}
+setData(results);
 
-      setData(filtered);
     };
 
     load();
@@ -42,10 +32,10 @@ export default function UserChart() {
 
   return (
     <SalesChart
-      title="Tài khoản mới theo tháng"
+      title="New Users by Month"
       data={data}
-      xLabel="Tháng"
-      yLabel="Người dùng"
+      xLabel="Month"
+      yLabel="User"
       barColor="bg-green-500"
       unit=" người"
     />
