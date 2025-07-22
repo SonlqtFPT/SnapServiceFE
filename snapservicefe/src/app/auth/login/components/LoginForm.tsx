@@ -27,24 +27,29 @@ export default function LoginForm() {
         document.cookie = `token=${res.token}; path=/; max-age=3600;Secure`;
         window.dispatchEvent(new Event('login'));
         if (userRole === 'ADMIN') {
-          toast.success("Chào mừng bạn đến với trang quản trị")
+          toast.success("Welcome to the admin page")
           setTimeout(() => {
             route.push('/admin')
           }, 2000)
         } else if (userRole === 'SUPPLIER') {
-          toast.success("Chào mừng bạn đến với trang quản trị")
+          toast.success("Welcome to the supplier page")
           setTimeout(() => {
             route.push('/supplier')
           }, 2000)
+        } else if (userRole === 'SHIPPER') {
+          toast.success("Welcome to the shipper page")
+          setTimeout(() => {
+            route.push('/shipper')
+          }, 2000)
         } else {
-          toast.success("Đăng nhập thành công, chào mừng bạn đến với SnapService")
+          toast.success("Login successful, welcome to SnapService")
           setTimeout(() => {
             route.push('/home')
           }, 2000)
         }
       }
     } catch (error) {
-      toast.error("Đăng nhập thất bại, vui lòng kiểm tra lại thông tin đăng nhập của bạn.")
+      toast.error("Login failed, please check your login information again.")
       console.log(error);
     }
 

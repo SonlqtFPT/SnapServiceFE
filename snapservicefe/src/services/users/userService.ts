@@ -1,5 +1,5 @@
 import { getAPI } from "@/lib/axios";
-import { loginRequest, registerRequest, UserRequest } from "@/model/request/userRequest";
+import { loginRequest, registerRequest, registerSupplierRequest, UserRequest } from "@/model/request/userRequest";
 import { UserListItem } from "@/model/response/userResponse";
 import axios from "axios";
 import { CreateUserRequest } from "@/model/request/userRequest";
@@ -20,9 +20,9 @@ const registerUser = async (data: registerRequest) => {
   }
 };
 
-const registerSupplier = async (data: registerRequest) => {
+const registerSupplier = async (data: registerSupplierRequest) => {
   try{
-    const res = await api.post("/api/Auth/registerSupplier", data);
+    const res = await api.post("/api/Supplier/register", data);
     return res.data.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
