@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { ProductImageType, ProductType } from '@/types/product/ProductType';
 import { toast, ToastContainer } from 'react-toastify';
-import { CartItem } from '@/app/cart/typeOfCart';
 import { useRouter } from 'next/navigation';
 import { Star } from 'lucide-react';
 
@@ -15,8 +14,6 @@ type Props = {
 export default function ProductDetails({ product }: Props) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
-  const localCart = localStorage.getItem('cart');
-  const cartItems: CartItem[] = localCart ? JSON.parse(localCart) : [];
   const [_, forceUpdate] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 

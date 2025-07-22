@@ -107,6 +107,7 @@ export default function MapAddressPicker({
         value={address}
         onChange={(e) => onAddressChange(e.target.value)}
         onKeyDown={handleKeyPress}
+        required
       />
 
       <MapContainer

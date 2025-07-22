@@ -20,6 +20,17 @@ const registerUser = async (data: registerRequest) => {
   }
 };
 
+const registerSupplier = async (data: registerRequest) => {
+  try{
+    const res = await api.post("/api/Auth/registerSupplier", data);
+    return res.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Supplier registration failed:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+}
 const loginUser = async (data: loginRequest) => {
   try {
     const res = await api.post("/api/Auth/login", data);
@@ -125,4 +136,4 @@ const deleteUser = async (id: string) => {
 };
 
 
-export { registerUser, loginUser, fetchUsers, createUser, updateUser, deleteUser, getUserById, userProfile };
+export { registerUser, loginUser, fetchUsers, createUser, updateUser, deleteUser, getUserById, userProfile, registerSupplier };
