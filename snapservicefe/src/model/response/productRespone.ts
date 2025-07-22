@@ -1,6 +1,6 @@
 import { CategoryType } from "@/types/product/CategoryType";
 import { ProductImageType } from "@/types/product/ProductType";
-import { SupplierType } from "@/types/product/SupplierType";
+import { Supplier } from "@/types/product/SupplierType";
 
 export interface ItemResponse {
   id: number;
@@ -47,7 +47,7 @@ export interface ProductDetailResponse {
     slug: string;
     images?: ProductImageType[];
     categories: CategoryType;
-    supplier: SupplierType;
+    supplier: Supplier;
 }
 
 export interface AddProductResponse {
