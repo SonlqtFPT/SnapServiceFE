@@ -58,7 +58,7 @@ export const NAV_DATA = [
       {
         title: "Profile",
         icon: Icons.User,
-        roles: ["admin", "supplier", "shipper"],
+        roles: ["shipper"],
         url: "profile",
         items: [],
       },
