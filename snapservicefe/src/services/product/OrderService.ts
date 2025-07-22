@@ -1,6 +1,6 @@
 import { getAPI } from "@/lib/axios";
 import { GetOrderDetailRequest, ShipperOrderListRequest, SupplierOrderListRequest, UpdateOrderStatusRequest } from "@/model/request/orderRequest";
-import { OrderStatusResponse, ShipperOrderListResponse, SupplierOrderItem, SupplierOrderListResponse, UpdateOrderStatusResponse } from "@/model/response/order";
+import { GetShipperOrderDetailResponse, OrderStatusResponse, ShipperOrderListResponse, SupplierOrderItem, SupplierOrderListResponse, UpdateOrderStatusResponse } from "@/model/response/order";
 
 const api = getAPI();
 
@@ -128,5 +128,26 @@ export const fetchOrderStatuses = async (): Promise<string[]> => {
   } catch (error) {
     console.error("Failed to fetch order statuses:", error)
     throw new Error("Could not fetch order statuses.")
+  }
+}
+
+export const fetchShipperOrderDetail = async (
+  orderId: string
+): Promise<GetShipperOrderDetailResponse> => {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) throw new Error('No token found in localStorage.')
+
+    const response = await api.get(`/api/Shipper/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    })
+
+    return response.data as GetShipperOrderDetailResponse
+  } catch (error) {
+    console.error(`Failed to fetch shipper order with ID ${orderId}:`, error)
+    throw error
   }
 }

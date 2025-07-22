@@ -93,3 +93,10 @@ export type OrderStatusResponse = {
   data: string[] 
   dateTime: string
 }
+
+export interface GetShipperOrderDetailResponse {
+  statusCode: number
+  message: string
+  data: ShipperOrder
+  dateTime: string
+}

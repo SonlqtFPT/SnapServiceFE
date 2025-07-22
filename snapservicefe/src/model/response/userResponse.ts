@@ -33,3 +33,8 @@ export interface UserListItem {
   IsActive: boolean;
   ImageUrl: string;
 }
+
+export interface AssignAreaResponse {
+  statusCode: number
+  message: string
+}
