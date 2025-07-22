@@ -27,6 +27,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { toast, ToastContainer } from 'react-toastify'
 import { updateOrderItemStatus } from '@/services/product/OrderService'
 import type { UpdateOrderStatusRequest } from '@/model/request/orderRequest'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useRouter } from 'next/navigation' 
 
 type Props = {
   orders: SupplierOrderItem[]
@@ -46,38 +48,61 @@ export default function SupplierOrderTable({
   onPageChange,
   onRefresh,
 }: Props) {
+  const router = useRouter() 
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
 
   const totalPages = Math.ceil(totalItems / pageSize)
 
-  const handleUpdateStatus = async (
-    orderId: string,
-    productId: number,
-    status: UpdateOrderStatusRequest['status']
-  ) => {
-    const key = `${orderId}-${productId}`
-    setLoadingMap(prev => ({ ...prev, [key]: true }))
-    try {
-      await updateOrderItemStatus({ orderId, productId, status })
-      toast.success(`Order ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
-      onRefresh?.() 
-    } catch (err) {
-      toast.error('Failed to update order status.')
-    } finally {
-      setLoadingMap(prev => ({ ...prev, [key]: false }))
-    }
+  const [confirmOpen, setConfirmOpen] = useState(false)
+const [selectedAction, setSelectedAction] = useState<{
+  orderId: string
+  status: UpdateOrderStatusRequest['status']
+} | null>(null)
+
+
+
+const handleUpdateStatus = async (
+  orderId: string,
+  status: UpdateOrderStatusRequest['status']
+) => {
+  setLoadingMap(prev => ({ ...prev, [orderId]: true }))
+  try {
+    await updateOrderItemStatus({ orderId, status }) 
+    toast.success(`Order ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
+    onRefresh?.()
+  } catch (err) {
+    toast.error('Failed to update order status.')
+  } finally {
+    setLoadingMap(prev => ({ ...prev, [orderId]: false }))
   }
+}
+
 
 
   const columns = useMemo<ColumnDef<SupplierOrderItem>[]>(() => [
     {
       accessorKey: 'id',
       header: 'Order ID',
-      cell: ({ getValue }) => (
-        <span className="text-xs text-gray-700 break-all">{getValue<string>().slice(0, 8)}...</span>
-      ),
+      cell: ({ getValue }) => {
+        const id = getValue<string>()
+        const shortId = `${id.slice(0, 8)}...`
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-xs text-gray-700 cursor-help">
+                  {shortId}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-sm">{id}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
+      },
     },
     {
       accessorKey: 'createdAt',
@@ -123,27 +148,27 @@ export default function SupplierOrderTable({
       accessorKey: 'total',
       header: 'Total Price',
       cell: ({ getValue }) =>
-        `${(getValue<number>() || 0).toLocaleString()} VND`,
+        `${(getValue<number>() || 0).toLocaleString()} đ`,
     },
     {
       accessorKey: 'shippingPrice',
       header: 'Shipping',
       cell: ({ getValue }) =>
-        `${(getValue<number>() || 0).toLocaleString()} VND`,
+        `${(getValue<number>() || 0).toLocaleString()} đ`,
     },
 {
   id: 'status',
   header: 'Status',
   cell: ({ row }) => {
-    const detail = row.original.orders_details?.[0]
-    const status = detail?.status || 'Unknown'
     const orderId = row.original.id
-    const productId = detail?.productId
+    const details = row.original.orders_details || []
+    const allStatuses = details.map(d => d.status)
+    const isPending = allStatuses.every(status => status === 'Pending')
+    const productIds = details.map(d => d.productId)
+    const key = productIds.map(pid => `${orderId}-${pid}`).join(',')
 
-    if (!productId) return <Badge variant="default">Invalid</Badge>
+    const loading = loadingMap[orderId]
 
-    const key = `${orderId}-${productId}`
-    const loading = loadingMap[key] || false
     const badgeMap: Record<UpdateOrderStatusRequest['status'], 'success' | 'warning' | 'destructive' | 'default'> = {
       Pending: 'warning',
       Preparing: 'warning',
@@ -155,40 +180,55 @@ export default function SupplierOrderTable({
       Refunded: 'destructive',
     }
 
-        if (status === 'Pending') {
-          return (
-            <div className="flex flex-col gap-1">
-              {loading ? (
-                <Button size="sm" disabled className="bg-gray-300 text-gray-500">
-                  Processing...
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => handleUpdateStatus(orderId, productId, 'Preparing')}
-                  >
-                    Accept Order
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                    onClick={() => handleUpdateStatus(orderId, productId, 'Cancelled')}
-                  >
-                    Reject Order
-                  </Button>
-                </>
-              )}
-            </div>
-          )
-        }
-        const variant = badgeMap[status as UpdateOrderStatusRequest['status']] || 'default'
-        return <Badge variant={variant} className={variant === 'destructive' ? 'text-white' : ''}>
-                {status}
-              </Badge>
-    },
-    },
+    if (isPending) {
+      return (
+        <div className="flex flex-col gap-1">
+          {loading ? (
+            <Button size="sm" disabled className="bg-gray-300 text-gray-500">
+              Processing...
+            </Button>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedAction({ orderId, status: 'Preparing' })
+                  setConfirmOpen(true)
+                }}
+              >
+                Accept Order
+              </Button>
+              <Button
+                size="sm"
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedAction({ orderId, status: 'Cancelled' })
+                  setConfirmOpen(true)
+                }}
+              >
+                Reject Order
+              </Button>
+            </>
+          )}
+        </div>
+      )
+    }
+
+    // If not all pending, show badge of first (or aggregate logic)
+    return (
+      <Badge
+        variant={badgeMap[allStatuses[0] as UpdateOrderStatusRequest['status']] || 'default'}
+        className={allStatuses[0] === 'Cancelled' ? 'text-white' : ''}
+      >
+        {allStatuses[0]}
+      </Badge>
+    )
+  },
+},
+
 
   ], [loadingMap])
 
@@ -235,7 +275,14 @@ export default function SupplierOrderTable({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.map(row => (
-            <TableRow key={row.id}>
+            <TableRow
+              key={row.id}
+              className="cursor-pointer hover:bg-gray-100 transition-colors"
+              onClick={() => {
+                const orderId = row.original.id
+                router.push(`/supplier/orders/${orderId}`)
+              }}
+            >
               {row.getVisibleCells().map(cell => (
                 <TableCell key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -292,7 +339,27 @@ export default function SupplierOrderTable({
         </div>
       </div>
 
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="bottom-right" autoClose={3000} />
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => {
+          setConfirmOpen(false)
+          setSelectedAction(null)
+        }}
+        onConfirm={async () => {
+          if (!selectedAction) return
+          await handleUpdateStatus(selectedAction.orderId, selectedAction.status)
+          setConfirmOpen(false)
+          setSelectedAction(null)
+        }}
+
+
+        title={`Confirm ${selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}?`}
+        description={`Are you sure you want to ${selectedAction?.status === 'Preparing' ? 'accept' : 'reject'} this order?`}
+        confirmText={selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}
+        loading={selectedAction ? loadingMap[selectedAction.orderId] : false}
+
+      />
     </div>
   )
 }

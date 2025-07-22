@@ -167,7 +167,7 @@ export default function FeatureProduct() {
                                     <span className="text-gray-500 text-xs">Available only:
                                         <span className="text-black font-bold italic text-xs" > {product.stockInQuantity}</span>
                                     </span>
-                                    <span className='text-gray-500 text-xs'>rating:
+                                    <span className='text-gray-500 text-xs'>Rating:
                                         <span className='text-black font-bold italic text-xs'> {product.ratingAverage}</span>
                                     </span>
                                 </div>

@@ -1,8 +1,9 @@
 import { getAPI } from "@/lib/axios";
-import { loginRequest, registerRequest} from "@/model/request/userRequest";
-import { UserListItem, UserDetail } from "@/model/response/userResponse";
+import { AssignAreaRequest, loginRequest, registerRequest, registerSupplierRequest } from "@/model/request/userRequest";
+import { AssignAreaResponse, UserListItem, UserDetail } from "@/model/response/userResponse";
 import axios from "axios";
 import { CreateUserRequest } from "@/model/request/userRequest";
+import { User } from '@/types/user/UserType';
 
 
 const api = getAPI();
@@ -19,6 +20,17 @@ const registerUser = async (data: registerRequest) => {
   }
 };
 
+const registerSupplier = async (data: registerSupplierRequest) => {
+  try {
+    const res = await api.post("/api/Supplier/register", data);
+    return res.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Supplier registration failed:", error.response?.data || error.message);
+      throw error;
+    }
+  }
+}
 const loginUser = async (data: loginRequest) => {
   try {
     const res = await api.post("/api/Auth/login", data);
@@ -57,6 +69,26 @@ const fetchUsers = async (
   }
 };
 
+const userProfile = async (): Promise<User> => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("No token found in localStorage.");
+    }
+    const res = await api.get("/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
+    return res.data.data as User;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Fetch user profile failed:", error.response?.data || error.message);
+    }
+    throw new Error("Không thể lấy thông tin người dùng");
+  }
+}
 
 // Tạo mới user
 
@@ -66,9 +98,9 @@ const createUser = async (data: CreateUserRequest) => {
     return res.data.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-  console.error("Create user failed:", error.response?.data.errors || error.message);
-  throw error;
-}
+      console.error("Create user failed:", error.response?.data.errors || error.message);
+      throw error;
+    }
 
   }
 };
@@ -83,19 +115,41 @@ const getUserById = async (id: string): Promise<UserDetail> => {
     if (axios.isAxiosError(error)) {
       console.error("Get user failed:", error.response?.data || error.message);
     }
-    throw new Error("Không thể lấy thông tin người dùng"); 
+    throw new Error("Không thể lấy thông tin người dùng");
   }
 };
 
 
 
 
- const toggleUserStatus = async (userId: number) => {
+const toggleUserStatus = async (userId: number) => {
   const api = getAPI();
   const response = await api.put(`/api/User/UpdateUserStatus/${userId}`);
   return response.data;
 };
 
+export const assignShipperArea = async (
+  payload: AssignAreaRequest
+): Promise<AssignAreaResponse> => {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) throw new Error('No token found')
+
+    const response = await api.post('/api/Shipper/assign_area', payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Failed to assign area:', error)
+    throw error
+  }
+}
 
 
-export { registerUser, loginUser, fetchUsers, createUser, toggleUserStatus, getUserById};
+
+export { registerUser, loginUser, fetchUsers, createUser, getUserById, userProfile, registerSupplier, toggleUserStatus };

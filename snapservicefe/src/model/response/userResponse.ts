@@ -36,6 +36,10 @@ export interface UserListItem {
    registeredDate?: string;
 }
 
+export interface AssignAreaResponse {
+  statusCode: number
+  message: string
+}
 export interface UsersByMonthResponse {
     month: number;
     year: number;

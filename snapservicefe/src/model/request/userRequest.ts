@@ -5,6 +5,15 @@ export interface registerRequest {
     password: string;
 }
 
+export interface registerSupplierRequest {
+    fullname: string;
+    email: string;
+    phone: string;
+    password: string;
+    back_image: string;
+    front_image: string;
+}
+
 export interface loginRequest {
     emailOrPhone: string;
     password: string;
@@ -32,4 +41,10 @@ export interface CreateUserRequest {
   phone: string;
   address: string;
   fullname: string;
+}
+
+export interface AssignAreaRequest {
+  provinceCode: number
+  districtCode: number
+  wardCode: number
 }

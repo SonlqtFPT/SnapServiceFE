@@ -25,6 +25,7 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import LoadingOverlay from '@/components/ui/LoadingOverlay'
+import { NumericFormat } from 'react-number-format'
 
 export default function AddProductClient() {
   const router = useRouter()
@@ -109,10 +110,10 @@ export default function AddProductClient() {
     if (!formData.name.trim()) newErrors.name = 'Product name is required.'
     if (!formData.sku.trim()) newErrors.sku = 'SKU is required.'
     if (!formData.description.trim()) newErrors.description = 'Description is required.'
-    if (formData.price < 1000) newErrors.price = 'Price must be at least 1000.'
+    if (formData.price < 1000) newErrors.price = 'Price must be at least 1.000 đ.'
     if (formData.stockInQuantity < 1) newErrors.stockInQuantity = 'Stock quantity must be at least 1.'
     if (formData.isSale && (formData.discountPercent < 1 || formData.discountPercent > 100)) {
-      newErrors.discountPercent = 'Discount must be between 1 and 100.'
+      newErrors.discountPercent = 'Discount must be between 1 and 100 (%).'
     }
     if (!formData.categoriesId || formData.categoriesId === 0) newErrors.categoriesId = 'Please select a category.'
     if (files.length === 0) newErrors.images = 'At least one image is required.'
@@ -127,8 +128,13 @@ export default function AddProductClient() {
     setLoading(true)
     let newProductId: number | null = null
 
+    const sanitizedFormData: AddProductRequest = {
+      ...formData,
+      discountPercent: formData.isSale ? formData.discountPercent : 0
+    }
+
     try {
-      const product = await addSupplierProduct(formData)
+      const product = await addSupplierProduct(sanitizedFormData)
       newProductId = product.id
 
       const contentTypes = files.map((f) => f.type)
@@ -227,8 +233,23 @@ export default function AddProductClient() {
               <CardContent className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
                   <Label htmlFor='price'>Price</Label>
-                  <Input id='price' name='price' type='number' min={1000} value={formData.price}
-                    onChange={handleChange} className={errors.price ? 'border-red-500' : ''} required />
+                  <NumericFormat
+                    id="price"
+                    name="price"
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    suffix=" ₫"
+                    allowNegative={false}
+                    value={formData.price}
+                    onValueChange={(values) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        price: values.floatValue || 0,
+                      }))
+                    }}
+                    className={`w-full border rounded px-3 py-2 ${errors.price ? 'border-red-500' : ''}`}
+                    required
+                  />
                   {errors.price && <p className='text-sm text-red-600'>{errors.price}</p>}
                 </div>
                 <div>
@@ -246,8 +267,17 @@ export default function AddProductClient() {
                   {errors.stockInQuantity && <p className='text-sm text-red-600'>{errors.stockInQuantity}</p>}
                 </div>
                 <div className='flex items-center gap-2 mt-6'>
-                  <Switch id='isSale' checked={formData.isSale}
-                    onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isSale: checked }))} />
+                  <Switch
+                    id='isSale'
+                    checked={formData.isSale}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        isSale: checked,
+                        discountPercent: checked ? (prev.discountPercent || 1) : 0
+                      }))
+                    }
+                  />
                   <Label htmlFor='isSale'>Enable Sale</Label>
                 </div>
               </CardContent>

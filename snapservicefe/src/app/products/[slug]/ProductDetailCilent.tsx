@@ -10,6 +10,7 @@ import NewArrivals from '../../home/components/NewArrivals';
 import ProductTabs from './ProductTab';
 
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs';
+import Loading from '@/components/Loading';
 
 export default function ProductDetailClient() {
   const [product, setProduct] = useState<ProductType | null>(null);
@@ -32,7 +33,7 @@ export default function ProductDetailClient() {
   console.log("product", product);
 
   if (error) return <div className="text-red-500">Product not found or an error occurred.</div>;
-  if (!product) return <div>Loading...</div>;
+  if (!product) return <div className='flex justify-center min-h-screen items-center'><Loading/></div>;
 
   return (
     <div>

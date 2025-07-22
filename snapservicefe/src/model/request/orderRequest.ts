@@ -5,7 +5,6 @@ export interface SupplierOrderListRequest {
 
 export interface UpdateOrderStatusRequest {
   orderId: string
-  productId: number
   status:
     | 'Pending'
     | 'Preparing'
@@ -16,3 +15,14 @@ export interface UpdateOrderStatusRequest {
     | 'Refunding'
     | 'Refunded'
 }
+
+export interface GetOrderDetailRequest {
+  orderId: string
+}
+
+export interface ShipperOrderListRequest {
+  page: number;
+  pageSize: number;
+}
+
+

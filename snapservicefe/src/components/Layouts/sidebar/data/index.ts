@@ -8,10 +8,8 @@ export const NAV_DATA = [
         title: "Dashboard",
         icon: Icons.HomeIcon,
         url: "dashboard",
-        roles: ["admin", "supplier"],
-        items: [
-
-        ],
+        roles: ["admin"],
+        items: [],
       },
 
       {
@@ -23,7 +21,6 @@ export const NAV_DATA = [
           { title: "Customer", url: "customer" },
           { title: "Supplier", url: "supplier" },
           { title: "Shipper", url: "shipper" },
-
         ],
       },
       {
@@ -44,7 +41,7 @@ export const NAV_DATA = [
 
       {
         title: "Inventory",
-        icon: Icons.BoxIcon, // ✅ Updated: more intuitive than Table
+        icon: Icons.BoxIcon,
         roles: ["supplier"],
         url: "inventory",
         items: [],
@@ -52,24 +49,16 @@ export const NAV_DATA = [
 
       {
         title: "Orders",
-        icon: Icons.PackageIcon, // ✅ Updated: replaces 'Alphabet'
-        roles: ["supplier"],
+        icon: Icons.PackageIcon,
+        roles: ["supplier", "shipper"],
         url: "orders",
-        items: [],
-      },
-
-      {
-        title: "Report",
-        icon: Icons.PieChart,
-        roles: ["supplier"],
-        url: "report",
         items: [],
       },
 
       {
         title: "Profile",
         icon: Icons.User,
-        roles: ["admin", "supplier"],
+        roles: ["admin", "supplier", "shipper"],
         url: "profile",
         items: [],
       },

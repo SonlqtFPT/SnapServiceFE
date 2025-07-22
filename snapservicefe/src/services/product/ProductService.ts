@@ -1,5 +1,5 @@
 import { getAPI } from "@/lib/axios";
-import { AddProductRequest, ProductDetailSlugRequest, productListRequest, searchProductRequest, UpdateProductRequest } from "@/model/request/productRequest";
+import { AddProductRequest, ProductDetailSlugRequest, productListRequest, searchProductRequest, ToggleProductStatusRequest, UpdateProductRequest } from "@/model/request/productRequest";
 import { AddProductResponse, ProductDetailResponse, ProductListResponse, SupplierProductListResponse } from "@/model/response/productRespone";
 import { CategoryResponse } from '@/model/response/categoryResponse';
 
@@ -133,3 +133,21 @@ export const updateProductById = async (
     }
   })
 }
+
+export const toggleProductStatus = async (
+  productId: number,
+  data: ToggleProductStatusRequest
+): Promise<void> => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found");
+
+  await api.patch(`/api/Product/${productId}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+    },
+  });
+
+  console.log(`Toggled product ${productId} to ${data.isActive ? 'active' : 'inactive'}`);
+};
+

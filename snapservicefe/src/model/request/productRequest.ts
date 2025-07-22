@@ -38,3 +38,8 @@ export interface UpdateProductRequest {
   categoriesId: number;
 }
 
+export interface ToggleProductStatusRequest {
+  isActive: boolean;
+}
+
+

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { CartItem, SupplierGroupedItems } from './typeOfCart';
 import { useRouter } from 'next/navigation';
-import CartSumary from '@/components/CartSumary';
+import CartSumary from './components/CartSumary';
 // import { Checkbox } from '@radix-ui/react-checkbox';
 //  import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -12,14 +12,17 @@ export default function CartClient() {
     const router = useRouter();
     const [isInitialized, setIsInitialized] = useState(false);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [isAllSelected, setIsAllSelected] = useState(false);
 
     // nhóm sản phẩm theo supplier
     const suppliers: SupplierGroupedItems = {};
     cartItems.forEach((item) => {
-        if (!suppliers[item.supplier.id]) {
-            suppliers[item.supplier.id] = [];
+        if (!item.supplier || !item.supplier.id) return; // <-- skip if invalid
+        const key = item.supplier.id;
+        if (!suppliers[key]) {
+            suppliers[key] = [];
         }
-        suppliers[item.supplier.id].push(item);
+        suppliers[key].push(item);
     });
 
     // ccheckbox
@@ -71,9 +74,23 @@ export default function CartClient() {
         if (!isInitialized) return;
 
         localStorage.setItem('cart', JSON.stringify(cartItems));
-        const selected = cartItems.filter(i => i.isChecked);
-        localStorage.setItem('checkout', JSON.stringify(selected));
     }, [cartItems, isInitialized]);
+
+    const handleSelectAllChange = () => {
+        const newCheckedState = !isAllSelected;
+        setIsAllSelected(newCheckedState);
+        const updatedItems = cartItems.map(item => ({
+            ...item,
+            isChecked: newCheckedState
+        }));
+        setCartItems(updatedItems);
+    };
+
+    useEffect(() => {
+        const allSelected = cartItems.length > 0 && cartItems.every(item => item.isChecked);
+        setIsAllSelected(allSelected);
+    }, [cartItems]);
+
 
     if (cartItems.length === 0) {
         return (
@@ -94,15 +111,23 @@ export default function CartClient() {
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
             <div className="text-4xl font-bold mb-6">Shopping Bag</div>
-
+            <div className="flex items-center mb-4">
+                <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={handleSelectAllChange}
+                    className="w-5 h-5 mr-2"
+                />
+                <label className="text-md font-medium text-gray-700">Select All</label>
+            </div>
             <div className="grid grid-cols-12 gap-6">
                 <div className="col-span-9">
-                    <div className=" bg-gray-200 grid grid-cols-12 items-center rounded-t-md p-2">
-                        <div className="col-span-5 text-gray-600 font-semibold text-md ml-2">Product</div>
-                        <div className="col-span-2 text-center text-gray-600 font-semibold text-md">Price</div>
-                        <div className="col-span-2 text-center text-gray-600 font-semibold text-md">Quantity</div>
-                        <div className="col-span-2 text-center text-gray-600 font-semibold text-md">Amount</div>
-                        <div className="col-span-1 text-center text-gray-600 font-semibold text-md">Delete</div>
+                    <div className=" bg-[#634C9F] grid grid-cols-12 items-center rounded-t-md p-2">
+                        <div className="col-span-5 text-white font-semibold text-md ml-2">Product</div>
+                        <div className="col-span-2 text-center text-white font-semibold text-md">Price</div>
+                        <div className="col-span-2 text-center text-white font-semibold text-md">Quantity</div>
+                        <div className="col-span-2 text-center text-white font-semibold text-md">Amount</div>
+                        <div className="col-span-1 text-center text-white font-semibold text-md">Delete</div>
                     </div>
 
                     {Object.entries(suppliers).map(([supplierId, items]) => (
@@ -121,13 +146,15 @@ export default function CartClient() {
                                             className="w-5 h-5"
                                         />
                                         <Image
-                                            src={item?.images[2]?.productImageUrl || '/fallback.jpg'}
+                                            src={item.images.find((image) => image.isMain)!.productImageUrl}
                                             alt={item.name}
                                             width={80}
                                             height={80}
-                                            className="rounded object-cover"
+                                            className="object-cover rounded-md"
                                         />
-                                        <h3 className="text-md font-semibold">{item.name}</h3>
+
+
+                                        <h3 className="text-md font-semibold w-full">{item.name}</h3>
                                     </div>
 
                                     <div className="col-span-2 text-center text-sm">
@@ -147,6 +174,7 @@ export default function CartClient() {
                                             <button
                                                 className="px-2 font-bold cursor-pointer"
                                                 onClick={() => handleIncrease(item.id)}
+                                                disabled={item.quantity >= item.stockInQuantity}
                                                 aria-label="Increase quantity"
                                             >+</button>
                                         </div>

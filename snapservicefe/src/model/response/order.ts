@@ -56,3 +56,47 @@ export interface UpdateOrderStatusResponse {
   message: string
   statusCode: number
 }
+
+export interface GetOrderDetailResponse {
+  statusCode: number
+  message: string
+  data: SupplierOrderItem
+}
+
+export interface ShipperOrder {
+  id: string
+  total: number
+  userId: number
+  userFullName: string
+  createdAt: string
+  address: string
+  shippingPrice: number
+  supplierId: number
+  supplierName: string
+  paidAt: string | null
+  deliveriedAt: string | null
+  orders_details: OrderDetail[]
+}
+
+
+export interface ShipperOrderListResponse {
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPage: number;
+  items: ShipperOrder[];
+}
+
+export type OrderStatusResponse = {
+  statusCode: number
+  message: string
+  data: string[] 
+  dateTime: string
+}
+
+export interface GetShipperOrderDetailResponse {
+  statusCode: number
+  message: string
+  data: ShipperOrder
+  dateTime: string
+}

@@ -22,6 +22,7 @@ import {
   Card, CardContent, CardDescription, CardHeader, CardTitle
 } from '@/components/ui/card'
 import LoadingOverlay from '@/components/ui/LoadingOverlay'
+import { NumericFormat } from 'react-number-format'
 
 export default function EditProductClient() {
   const router = useRouter()
@@ -79,7 +80,8 @@ export default function EditProductClient() {
           sku: res.sku,
           categoriesId: res.categories.id
         })
-        setExistingImages(res.images || [])
+        const sortedImages = (res.images || []).sort((a, b) => (b.isMain ? 1 : 0) - (a.isMain ? 1 : 0))
+        setExistingImages(sortedImages)
       } catch (err) {
         toast.error("Failed to load product")
         router.push('/supplier/inventory')
@@ -140,7 +142,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!formData.name.trim()) newErrors.name = 'Product name is required.'
     if (!formData.sku.trim()) newErrors.sku = 'SKU is required.'
     if (!formData.description.trim()) newErrors.description = 'Description is required.'
-    if (formData.price < 1000) newErrors.price = 'Price must be at least 1000.'
+    if (formData.price < 1000) newErrors.price = 'Price must be at least 1.000 đ.'
     if (formData.stockInQuantity < 1) newErrors.stockInQuantity = 'Stock must be at least 1.'
     if (formData.isSale && (formData.discountPercent < 1 || formData.discountPercent > 100)) {
       newErrors.discountPercent = 'Discount must be between 1 and 100.'
@@ -167,8 +169,12 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         toast.error("Product ID is not available.")
         return
       }
-        
-      await updateProductById(productId, formData)
+      const sanitizedFormData: UpdateProductRequest = {
+        ...formData,
+        discountPercent: formData.isSale ? formData.discountPercent : 0
+      }
+
+      await updateProductById(productId, sanitizedFormData)
 
       const oldUrls = existingImages.map(img => img.productImageUrl)
       let newUploadedUrls: string[] = []
@@ -261,8 +267,23 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <CardContent className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
                   <Label htmlFor='price'>Price</Label>
-                  <Input id='price' name='price' type='number' min={1000} value={formData.price}
-                    onChange={handleChange} className={errors.price ? 'border-red-500' : ''} />
+                  <NumericFormat
+                    id="price"
+                    name="price"
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    suffix=" ₫"
+                    allowNegative={false}
+                    value={formData.price}
+                    onValueChange={(values) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        price: values.floatValue || 0,
+                      }))
+                    }}
+                    className={`w-full border rounded px-3 py-2 ${errors.price ? 'border-red-500' : ''}`}
+                    required
+                  />
                   {errors.price && <p className='text-sm text-red-600'>{errors.price}</p>}
                 </div>
                 <div>
