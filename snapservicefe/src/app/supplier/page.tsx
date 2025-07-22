@@ -20,11 +20,6 @@ const navItems = [
     icon: <ShoppingCart className="h-8 w-8 text-primary" />,
     href: "/supplier/orders",
   },
-  {
-    title: "Profile",
-    icon: <User className="h-8 w-8 text-primary" />,
-    href: "/supplier/profile",
-  },
 ]
 
 export default function SupplierHomePage() {

@@ -125,7 +125,7 @@ export default function ShipperProfileClient() {
 
       {/* Profile Header */}
       <div className="flex items-center gap-4">
-        <Image
+        <img
           src={user.imageUrl || 'https://file.hstatic.net/200000472237/article/shipper-giao-hang-nhanh_2a47c6ffebd84a0486ebdfade644640a.jpg'}
           alt={user.fullName || 'User Avatar'}
           width={100}
