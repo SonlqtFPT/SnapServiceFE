@@ -4,13 +4,15 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchUsers } from "@/services/users/userService";
 import { UserListItem } from "@/model/response/userResponse";
+import { toggleUserStatus } from "@/services/users/userService";
+
 import {
   Card,
   CardContent,
   CardHeader,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Plus } from "lucide-react";
+import {  Trash2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 interface Props {
@@ -24,7 +26,7 @@ export default function UserManagement({ role }: Props) {
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   const filteredUsers = users.filter((user) =>
-    (user.Username + user.Email + user.Phone)
+    ((user.username || "") + (user.email || "") + (user.phone || ""))
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -32,8 +34,16 @@ export default function UserManagement({ role }: Props) {
   const loadUsers = async () => {
     try {
       const data: UserListItem[] = await fetchUsers();
+      if (!Array.isArray(data)) {
+        console.error("API trả về không phải mảng:", data);
+        setUsers([]);
+        return;
+      }
       const filtered = data.filter(
-        (u) => u.Role.toLowerCase() === role.toLowerCase()
+        (u) =>
+          u &&
+          typeof u.role === "string" &&
+          u.role.trim().toUpperCase() === role.trim().toUpperCase()
       );
       setUsers(filtered);
     } catch (err) {
@@ -45,9 +55,13 @@ export default function UserManagement({ role }: Props) {
     loadUsers();
   }, [role]);
 
+  const isShipper = role.trim().toUpperCase() === "SHIPPER";
+
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">Manage {role} ({users.length})</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Manage {role} ({users.length})
+      </h1>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <form
@@ -65,9 +79,13 @@ export default function UserManagement({ role }: Props) {
             />
             <Button type="submit">Search</Button>
           </form>
-          <Button onClick={() => router.push(`/admin/users/${role}/add`)}>
-            <Plus className="mr-2 h-4 w-4" /> Add new {role}
-          </Button>
+
+          {/* Only SHIPPER can add new */}
+          {isShipper && (
+            <Button onClick={() => router.push(`/admin/users/${role}/add`)}>
+              <Plus className="mr-2 h-4 w-4" /> Add new {role}
+            </Button>
+          )}
         </CardHeader>
 
         <CardContent>
@@ -87,28 +105,46 @@ export default function UserManagement({ role }: Props) {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
                   <tr
-                    key={user.Id}
-                    onClick={() => router.push(`/admin/users/detail/${user.Id}`)}
-                    className="cursor-pointer hover:bg-gray-50"
+                    key={user.id}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => router.push(`/admin/users/detail/${user.id}`)}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.Id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.Username}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.Email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.Phone}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.IsActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {user.IsActive ? 'Hoạt động' : 'Không hoạt động'}
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{user.username}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{user.email}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{user.phone}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                          }`}
+                      >
+                        {user.isActive ? "Hoạt động" : "Không hoạt động"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                      <Button variant="ghost" size="icon" className="mr-2" disabled>
-                        <Edit className="h-4 w-4 text-gray-400" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button variant="ghost" size="icon" disabled>
+                    <td
+                      className="px-6 py-4 text-center text-sm font-medium flex justify-center gap-2"
+                      onClick={(e) => e.stopPropagation()} // Ngăn click vào icon bị redirect
+                    >
+                     
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={async () => {
+                          try {
+                            await toggleUserStatus(user.id);
+                            loadUsers(); // reload danh sách user
+                          } catch (error) {
+                            console.error("Lỗi cập nhật trạng thái:", error);
+                          }
+                        }}
+                      >
                         <Trash2 className="h-4 w-4 text-gray-400" />
                         <span className="sr-only">Delete</span>
                       </Button>
+
                     </td>
                   </tr>
                 ))}

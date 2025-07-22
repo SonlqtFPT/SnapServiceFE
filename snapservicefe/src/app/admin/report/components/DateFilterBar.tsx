@@ -39,10 +39,10 @@ export default function DateFilterBar({
 
   return (
     <div className="flex flex-wrap gap-3 items-end">
-      {/* Ngày bắt đầu */}
+      {/* Start date */}
       <div>
         <label className="block text-xs font-medium text-muted-foreground mb-1">
-          Chọn ngày bắt đầu
+          Select start date
         </label>
         <input
           ref={inputRef}
@@ -51,22 +51,22 @@ export default function DateFilterBar({
         />
       </div>
 
-      {/* Khoảng thời gian */}
+      {/* Range */}
       <div>
         <label className="block text-xs font-medium text-muted-foreground mb-1">
-          Khoảng thời gian
+          Range
         </label>
         <select
           value={rangeDays}
           onChange={(e) => setRangeDays(Number(e.target.value) as 1 | 30)}
           className="border rounded px-2 py-1 text-sm bg-background shadow-sm"
         >
-          <option value={1}>1 ngày</option>
-          <option value={30}>30 ngày</option>
+          <option value={1}>1 day</option>
+          <option value={30}>30 days</option>
         </select>
       </div>
 
-      {/* Tab chọn */}
+      {/* Tab select */}
       <div className="ml-auto flex gap-2">
         <button
           onClick={() => setTab("orders")}
@@ -76,7 +76,7 @@ export default function DateFilterBar({
               : "bg-muted text-muted-foreground"
           }`}
         >
-          Đơn hàng
+          Orders
         </button>
         <button
           onClick={() => setTab("users")}
@@ -86,7 +86,7 @@ export default function DateFilterBar({
               : "bg-muted text-muted-foreground"
           }`}
         >
-          Người dùng
+          Users
         </button>
       </div>
     </div>

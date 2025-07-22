@@ -98,13 +98,13 @@ export default function ProductDetails({ product }: Props) {
           <div className="flex items-center border rounded">
             <button
               onClick={() => handleQuantityChange(-1)}
-              className={`px-3 py-1 text-lg font-bold${quantity <= 1 ? ' opacity-50 cursor-not-allowed' : ''}`}
+              className={`px-3 py-1 text-lg font-bold${quantity <= 1 ? ' opacity-50 cursor-not-allowed' : ' cursor-pointer'}`}
               disabled={quantity <= 1}
             >-</button>
             <span className="px-4">{quantity}</span>
             <button
               onClick={() => handleQuantityChange(1)}
-              className={`px-3 py-1 text-lg font-bold${quantity >= product.stockInQuantity ? ' opacity-50 cursor-not-allowed' : ''}`}
+              className={`px-3 py-1 text-lg font-bold${quantity >= product.stockInQuantity ? ' opacity-50 cursor-not-allowed' : ' cursor-pointer'}`}
               disabled={quantity >= product.stockInQuantity}
             >+</button>
           </div>
@@ -114,7 +114,7 @@ export default function ProductDetails({ product }: Props) {
             </button>
           ) : (
 
-            <button onClick={handleAddCart} className="bg-green-600 flex-1 justify-center hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2">
+            <button onClick={handleAddCart} className="bg-green-600 flex-1 justify-center hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2 cursor-pointer">
               {/* Cart icon from header */}
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                 className="lucide lucide-shopping-cart w-5 h-5" aria-hidden="true"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
@@ -123,7 +123,7 @@ export default function ProductDetails({ product }: Props) {
           )
           }
 
-          <button onClick={handleBuyNow} className="bg-gray-800 hover:bg-gray-700 flex-1 justify-center text-white px-4 py-2 rounded flex items-center gap-2">
+          <button onClick={handleBuyNow} className="bg-gray-800 hover:bg-gray-700 flex-1 justify-center text-white px-4 py-2 rounded flex items-center gap-2 cursor-pointer">
             {/* Buy Now icon */}
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
               <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />

@@ -65,13 +65,13 @@ useEffect(() => {
         <div className="mt-8">
             <div className="flex border-b">
                 <button
-                    className={`px-4 py-2 ${activeTab === 'description' ? 'border-b-2 border-black font-semibold' : ''}`}
+                    className={`px-4 py-2 cursor-pointer ${activeTab === 'description' ? 'border-b-2 border-black font-semibold' : ''}`}
                     onClick={() => setActiveTab('description')}
                 >
                     Description
                 </button>
                 <button
-                    className={`px-4 py-2 ${activeTab === 'reviews' ? 'border-b-2 border-black font-semibold' : ''}`}
+                    className={`px-4 py-2 cursor-pointer ${activeTab === 'reviews' ? 'border-b-2 border-black font-semibold' : ''}`}
                     onClick={() => {
                         setCurrentPage(1); // reset page
                         setActiveTab('reviews');
@@ -112,11 +112,11 @@ useEffect(() => {
                             ))
                         )}
                         <div className="flex justify-between mt-4">
-                            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
+                            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="cursor-pointer disabled:cursor-not-allowed">
                                 ← Prev
                             </button>
                             <div>Page {currentPage} / {totalPages}</div>
-                            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+                            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="cursor-pointer disabled:cursor-not-allowed">
                                 Next →
                             </button>
                         </div>

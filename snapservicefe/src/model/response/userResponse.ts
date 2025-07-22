@@ -8,7 +8,7 @@ export interface UserDetail {
   Username: string;
   Email: string;
   Password: string;
-  role: string;
+  Role: string;
   CreatedAt: string;
   Phone: string;
   Address: string;
@@ -24,14 +24,20 @@ export interface UserDetail {
 }
 
 export interface UserListItem {
-  Id: number;
-  FullName: string;
-  Username: string;
-  Email: string;
-  Phone: string;
-  Role: string;
-  IsActive: boolean;
-  ImageUrl: string;
-  CreatedAt?: string;
-   RegisteredDate?: string;
+  id: number;
+  fullName: string;
+  username: string;
+  email: string;
+  phone: string;
+  role: string;
+  isActive: boolean;
+  imageUrl: string;
+  createdAt?: string;
+   registeredDate?: string;
+}
+
+export interface UsersByMonthResponse {
+    month: number;
+    year: number;
+    total: number;
 }

@@ -10,7 +10,7 @@ export const NAV_DATA = [
         url: "dashboard",
         roles: ["admin", "supplier"],
         items: [
-         
+
         ],
       },
 
@@ -25,6 +25,13 @@ export const NAV_DATA = [
           { title: "Shipper", url: "shipper" },
 
         ],
+      },
+      {
+        title: "Moderate Suppliers",
+        icon: Icons.User,
+        roles: ["admin"],
+        url: "moderate-suppliers",
+        items: [],
       },
 
       {
