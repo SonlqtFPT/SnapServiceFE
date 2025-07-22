@@ -143,24 +143,15 @@ export default function FeatureProduct() {
                                     {product.discountPercent > 0 ? (
                                         <>
                                             <span className="text-red-500 font-semibold">
-                                                {product.discountPrice.toLocaleString('en-US', {
-                                                    style: 'currency',
-                                                    currency: 'USD',
-                                                })}
+                                                {product.discountPrice.toLocaleString()} đ
                                             </span>
                                             <span className="text-xs text-gray-400 line-through">
-                                                {product.price.toLocaleString('en-US', {
-                                                    style: 'currency',
-                                                    currency: 'USD',
-                                                })}
+                                                {product.price.toLocaleString()} đ
                                             </span>
                                         </>
                                     ) : (
                                         <span className="text-black font-semibold">
-                                            {product.price.toLocaleString('en-US', {
-                                                style: 'currency',
-                                                currency: 'USD',
-                                            })}
+                                            {product.price.toLocaleString()} đ
                                         </span>
                                     )}
                                 </div>

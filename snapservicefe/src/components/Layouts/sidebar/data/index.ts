@@ -8,7 +8,7 @@ export const NAV_DATA = [
         title: "Dashboard",
         icon: Icons.HomeIcon,
         url: "dashboard",
-        roles: ["admin", "supplier", "shipper"],
+        roles: ["admin", "supplier"],
         items: [],
       },
 
@@ -22,6 +22,13 @@ export const NAV_DATA = [
           { title: "Supplier", url: "supplier" },
           { title: "Shipper", url: "shipper" },
         ],
+      },
+      {
+        title: "Moderate Suppliers",
+        icon: Icons.User,
+        roles: ["admin"],
+        url: "moderate-suppliers",
+        items: [],
       },
 
       {

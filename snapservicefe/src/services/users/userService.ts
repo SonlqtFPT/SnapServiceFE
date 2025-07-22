@@ -1,6 +1,6 @@
 import { getAPI } from "@/lib/axios";
-import { AssignAreaRequest, loginRequest, registerRequest, registerSupplierRequest, UserRequest } from "@/model/request/userRequest";
-import { AssignAreaResponse, UserListItem } from "@/model/response/userResponse";
+import { AssignAreaRequest, loginRequest, registerRequest, registerSupplierRequest } from "@/model/request/userRequest";
+import { AssignAreaResponse, UserListItem, UserDetail } from "@/model/response/userResponse";
 import axios from "axios";
 import { CreateUserRequest } from "@/model/request/userRequest";
 import { User } from '@/types/user/UserType';
@@ -21,7 +21,7 @@ const registerUser = async (data: registerRequest) => {
 };
 
 const registerSupplier = async (data: registerSupplierRequest) => {
-  try{
+  try {
     const res = await api.post("/api/Supplier/register", data);
     return res.data.data;
   } catch (error) {
@@ -44,10 +44,23 @@ const loginUser = async (data: loginRequest) => {
 };
 
 //fetch users
-const fetchUsers = async (): Promise<UserListItem[]> => {
+const fetchUsers = async (
+  forceRefresh: boolean = true,
+  page: number = 1,
+  pageSize: number = 200
+): Promise<UserListItem[]> => {
   try {
-    const res = await api.get("/api/User/GetAllUser");
-    return res.data.data as UserListItem[];
+    const res = await api.get("/api/User/GetAllUser", {
+      params: { forceRefresh, page, pageSize },
+    });
+    const result = res.data.data;
+
+    if (Array.isArray(result.items)) {
+      return result.items as UserListItem[];
+    } else {
+      console.error("Dữ liệu trả về không hợp lệ:", result);
+      return [];
+    }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Fetch users failed:", error.response?.data || error.message);
@@ -94,7 +107,7 @@ const createUser = async (data: CreateUserRequest) => {
 
 
 // Lấy user theo ID (cho trang Edit)
-const getUserById = async (id: string): Promise<UserListItem> => {
+const getUserById = async (id: string): Promise<UserDetail> => {
   try {
     const res = await api.get(`/api/User/GetUserById/${id}`);
     return res.data.data;
@@ -109,30 +122,10 @@ const getUserById = async (id: string): Promise<UserListItem> => {
 
 
 
-// Cập nhật user
-const updateUser = async (id: string, data: UserRequest) => {
-  try {
-    const res = await api.put(`/api/User/UpdateUser/${id}`, data);
-    return res.data.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Update user failed:", error.response?.data || error.message);
-      throw error;
-    }
-  }
-};
-
-// Xoá user
-const deleteUser = async (id: string) => {
-  try {
-    const res = await api.delete(`/api/User/DeleteUser/${id}`);
-    return res.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Delete user failed:", error.response?.data || error.message);
-      throw error;
-    }
-  }
+const toggleUserStatus = async (userId: number) => {
+  const api = getAPI();
+  const response = await api.put(`/api/User/UpdateUserStatus/${userId}`);
+  return response.data;
 };
 
 export const assignShipperArea = async (
@@ -159,4 +152,4 @@ export const assignShipperArea = async (
 
 
 
-export { registerUser, loginUser, fetchUsers, createUser, updateUser, deleteUser, getUserById, userProfile, registerSupplier };
+export { registerUser, loginUser, fetchUsers, createUser, getUserById, userProfile, registerSupplier, toggleUserStatus };

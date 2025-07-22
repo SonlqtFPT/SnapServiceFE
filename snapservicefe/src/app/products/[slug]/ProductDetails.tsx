@@ -27,8 +27,13 @@ export default function ProductDetails({ product }: Props) {
   }, []);
 
   const handleQuantityChange = (delta: number) => {
-    setQuantity(prev => Math.max(1, prev + delta));
-  };
+    setQuantity(prev => {
+      const newQuantity = prev + delta;
+      if (newQuantity < 1) return 1;
+      if (newQuantity > product.stockInQuantity) return product.stockInQuantity;
+      return newQuantity;
+    });
+  }
 
   const handleAddCart = () => {
     if (token === null) {
@@ -114,9 +119,17 @@ export default function ProductDetails({ product }: Props) {
         </div>
         <div className="flex items-center gap-4 m-4">
           <div className="flex items-center border rounded">
-            <button onClick={() => handleQuantityChange(-1)} className="px-3 py-1 text-lg font-bold">-</button>
+            <button
+              onClick={() => handleQuantityChange(-1)}
+              className={`px-3 py-1 text-lg font-bold${quantity <= 1 ? ' opacity-50 cursor-not-allowed' : ' cursor-pointer'}`}
+              disabled={quantity <= 1}
+            >-</button>
             <span className="px-4">{quantity}</span>
-            <button onClick={() => handleQuantityChange(1)} className="px-3 py-1 text-lg font-bold">+</button>
+            <button
+              onClick={() => handleQuantityChange(1)}
+              className={`px-3 py-1 text-lg font-bold${quantity >= product.stockInQuantity ? ' opacity-50 cursor-not-allowed' : ' cursor-pointer'}`}
+              disabled={quantity >= product.stockInQuantity}
+            >+</button>
           </div>
           <button onClick={handleAddCart} className="bg-green-600 flex-1 justify-center hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2">
             {/* Cart icon from header */}

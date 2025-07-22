@@ -37,17 +37,17 @@ export default function ProductDetailClient() {
 
   return (
     <div>
-    <DynamicBreadcrumbs/>
+      <DynamicBreadcrumbs />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ProductImageGallery images={product.images} productName={product.name} />
+        <ProductImageGallery images={product.images} productName={product.name} discountPercent={product.discountPercent} />
         <ProductDetails product={product} imageUrl={product.images} />
       </div>
       <div className="mt-8">
-       <ProductTabs
-  productId={product.id} // ✅ Truyền productId để gọi API
-  description={product.description || 'No description available.'}
-/>
+        <ProductTabs
+          productId={product.id}
+          description={product.description || 'No description available.'}
+        />
 
       </div>
       <div className="mt-8">
