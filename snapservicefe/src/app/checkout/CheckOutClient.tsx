@@ -4,9 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { CartItem } from '../cart/typeOfCart';
 import CartSumary from './components/CartSumary';
-import dynamic from 'next/dynamic';
 
-const MapAddressPicker = dynamic(() => import('./components/MapAddressPicker'), { ssr: false });
 
 interface District {
     code: number;
@@ -28,6 +26,13 @@ export default function CheckoutClient() {
         wardCode: '',
         lat: 10.762622,
         lng: 106.660172,
+    });
+    const [errors, setErrors] = useState({
+        name: '',
+        phone: '',
+        districtCode: '',
+        wardCode: '',
+        address: '',
     });
 
     const [districts, setDistricts] = useState<District[]>([]);
@@ -75,7 +80,43 @@ export default function CheckoutClient() {
     const selectedItems = cartItems.filter(item => item.isChecked);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        updateFormData({ [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        updateFormData({ [name]: value });
+
+        switch (name) {
+            case 'name':
+                setErrors(prev => ({
+                    ...prev,
+                    name: value.trim().length < 5 ? 'Họ và tên phải có ít nhất 5 ký tự.' : '',
+                }));
+                break;
+            case 'phone':
+                setErrors(prev => ({
+                    ...prev,
+                    phone: !/^(0\d{9,10})$/.test(value) ? 'Số điện thoại không hợp lệ.' : '',
+                }));
+                break;
+            case 'address':
+                setErrors(prev => ({
+                    ...prev,
+                    address: value.trim() === '' ? 'Vui lòng nhập địa chỉ.' : '',
+                }));
+                break;
+            case 'districtCode':
+                setErrors(prev => ({
+                    ...prev,
+                    districtCode: value === '' ? 'Vui lòng chọn Quận / Huyện.' : '',
+                }));
+                break;
+            case 'wardCode':
+                setErrors(prev => ({
+                    ...prev,
+                    wardCode: value === '' ? 'Vui lòng chọn Phường / Xã.' : '',
+                }));
+                break;
+            default:
+                break;
+        }
     };
 
 

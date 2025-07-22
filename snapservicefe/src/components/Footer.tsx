@@ -48,7 +48,7 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-gray-900 mb-4">Do You Need Help ?</h3>
             <p className="text-gray-600 text-sm mb-4">
-              Autoseligen syr. Nek diarask fröbomba. Nör antipol kynoda mynat. Pressa fåmoska.
+              At Snap Service, we are committed to delivering innovative solutions that make your life easier. Our team is dedicated to providing high-quality services tailored to meet your unique needs.
             </p>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
@@ -72,14 +72,13 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-gray-900 mb-4">Make Money with Us</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Sell on Grogin</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Sell Your Services on Grogin</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Sell on Grogin Business</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Sell Your Apps on Grogin</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Sell on SnapService</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Sell Your Services on SnapService</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Sell on SnapService Business</a></li>
+              <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Sell Your Apps on SnapService</a></li>
               <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Become an Affiliate</a></li>
               <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Advertise Your Products</a></li>
               <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Sell-Publish with Us</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-purple-600 text-sm">Become an Blowwe Vendor</a></li>
             </ul>
           </div>
 
@@ -135,7 +134,7 @@ const Footer = () => {
                   </div>
                 </div>
               </a>
-              
+
               {/* App Store */}
               <a href="#" className="block">
                 <div className="flex items-center bg-black text-white rounded-lg p-3 hover:bg-gray-800 transition-colors">
@@ -183,14 +182,14 @@ const Footer = () => {
             <div className="flex flex-col sm:flex-row items-center gap-4 text-sm text-gray-600">
               <p>Copyright 2025© Jinstore WooCommerce WordPress Theme. All right reserved. Powered by BlackRise Themes.</p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3 text-sm">
                 <a href="#" className="text-gray-600 hover:text-purple-600">Terms and Conditions</a>
                 <a href="#" className="text-gray-600 hover:text-purple-600">Privacy Policy</a>
                 <a href="#" className="text-gray-600 hover:text-purple-600">Order Tracking</a>
               </div>
-              
+
               {/* Payment Methods */}
               <div className="flex items-center gap-2 ml-6">
                 <div className="w-8 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">VISA</div>
