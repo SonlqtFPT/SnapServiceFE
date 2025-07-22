@@ -32,15 +32,26 @@ export default function ShipperProfileClient() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [loadingSubmit, setLoadingSubmit] = useState(false)
 
-  useEffect(() => {
-    userProfile()
-      .then((res: any) => {
-        setUser(res.userProfile)
-        setAreaCode(res.areaCode)
-      })
-      .catch(() => setError('Failed to load user profile.'))
-      .finally(() => setLoading(false))
-  }, [])
+useEffect(() => {
+  userProfile()
+    .then((res: any) => {
+      const fallbackImage = 'https://file.hstatic.net/200000472237/article/shipper-giao-hang-nhanh_2a47c6ffebd84a0486ebdfade644640a.jpg';
+
+      // Patch the user profile with default image if missing/empty
+      const patchedUser = {
+        ...res.userProfile,
+        imageUrl: res.userProfile.imageUrl?.trim()
+          ? res.userProfile.imageUrl
+          : fallbackImage,
+      };
+
+      setUser(patchedUser);
+      setAreaCode(res.areaCode);
+    })
+    .catch(() => setError('Failed to load user profile.'))
+    .finally(() => setLoading(false));
+}, []);
+
 
   useEffect(() => {
     if (!areaCode) return
