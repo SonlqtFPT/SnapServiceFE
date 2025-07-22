@@ -34,7 +34,7 @@ export const NAV_DATA = [
       {
         title: "Report",
         icon: Icons.PieChart,
-        roles: ["admin", "supplier", "shipper"],
+        roles: ["admin", "supplier"],
         url: "report",
         items: [],
       },

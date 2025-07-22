@@ -3,11 +3,17 @@
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
-import { fetchSupplierOrderDetail } from '@/services/product/OrderService'
+import {
+  fetchSupplierOrderDetail,
+  updateOrderItemStatus,
+} from '@/services/product/OrderService'
 import type { SupplierOrderItem } from '@/model/response/order'
+import type { UpdateOrderStatusRequest } from '@/model/request/orderRequest'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 export default function OrderDetailClient() {
   const { id } = useParams()
@@ -15,17 +21,49 @@ export default function OrderDetailClient() {
 
   const [order, setOrder] = useState<SupplierOrderItem | null>(null)
   const [loading, setLoading] = useState(true)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [loadingMap, setLoadingMap] = useState<Record<number, boolean>>({})
+  const [selectedBatchAction, setSelectedBatchAction] = useState<{
+    productIds: number[]
+    status: UpdateOrderStatusRequest['status']
+  } | null>(null)
+
+  const loadOrder = async () => {
+    if (typeof id !== 'string') return
+    setLoading(true)
+    try {
+      const result = await fetchSupplierOrderDetail({ orderId: id })
+      setOrder(result)
+    } catch {
+      toast.error('Failed to load order detail')
+      router.push('/supplier/orders')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    if (typeof id !== 'string') return
-    fetchSupplierOrderDetail({ orderId: id })
-      .then(setOrder)
-      .catch(() => {
-        toast.error('Failed to load order detail')
-        router.push('/supplier/orders')
-      })
-      .finally(() => setLoading(false))
+    loadOrder()
   }, [id])
+
+  const handleBatchUpdate = async () => {
+    if (!order || !selectedBatchAction) return
+    const { productIds, status } = selectedBatchAction
+    for (const pid of productIds) {
+      setLoadingMap(prev => ({ ...prev, [pid]: true }))
+      try {
+        await updateOrderItemStatus({ orderId: order.id, productId: pid, status })
+      } catch {
+        toast.error(`Failed to ${status === 'Preparing' ? 'accept' : 'reject'} item ${pid}`)
+      } finally {
+        setLoadingMap(prev => ({ ...prev, [pid]: false }))
+      }
+    }
+    toast.success(`All items ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
+    setConfirmOpen(false)
+    setSelectedBatchAction(null)
+    await loadOrder()
+  }
 
   if (loading) {
     return (
@@ -41,6 +79,10 @@ export default function OrderDetailClient() {
     return <p className="p-6 text-red-500">Order not found.</p>
   }
 
+  const pendingProductIds = order.orders_details
+    .filter((item) => item.status === 'Pending')
+    .map((item) => item.productId)
+
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <ToastContainer position="bottom-right" autoClose={3000} />
@@ -48,7 +90,7 @@ export default function OrderDetailClient() {
       {/* Order Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Order #{order.id.slice(0, 8)}...</CardTitle>
+          <CardTitle className="text-xl">Order #{order.id}</CardTitle>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
           <div>
@@ -81,10 +123,36 @@ export default function OrderDetailClient() {
         </CardContent>
       </Card>
 
-      {/* Order Items */}
+      {/* Order Items + Bulk Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Items</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>Items</CardTitle>
+            {pendingProductIds.length > 0 && (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="bg-green-600 text-white hover:bg-green-700"
+                  onClick={() => {
+                    setSelectedBatchAction({ productIds: pendingProductIds, status: 'Preparing' })
+                    setConfirmOpen(true)
+                  }}
+                >
+                  Accept All
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-red-600 text-white hover:bg-red-700"
+                  onClick={() => {
+                    setSelectedBatchAction({ productIds: pendingProductIds, status: 'Cancelled' })
+                    setConfirmOpen(true)
+                  }}
+                >
+                  Reject All
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {order.orders_details.length === 0 ? (
@@ -119,6 +187,24 @@ export default function OrderDetailClient() {
           )}
         </CardContent>
       </Card>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => {
+          setConfirmOpen(false)
+          setSelectedBatchAction(null)
+        }}
+        onConfirm={handleBatchUpdate}
+        title={`Confirm ${selectedBatchAction?.status === 'Preparing' ? 'Accept All' : 'Reject All'}?`}
+        description={`Are you sure you want to ${selectedBatchAction?.status === 'Preparing' ? 'accept' : 'reject'} all pending items in this order?`}
+        confirmText={selectedBatchAction?.status === 'Preparing' ? 'Accept All' : 'Reject All'}
+        loading={
+          selectedBatchAction
+            ? selectedBatchAction.productIds.some(pid => loadingMap[pid])
+            : false
+        }
+      />
     </div>
   )
 }

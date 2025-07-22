@@ -56,11 +56,12 @@ export default function SupplierOrderTable({
   const totalPages = Math.ceil(totalItems / pageSize)
 
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [selectedAction, setSelectedAction] = useState<{
-    orderId: string
-    productId: number
-    status: UpdateOrderStatusRequest['status']
-  } | null>(null)
+const [selectedAction, setSelectedAction] = useState<{
+  orderId: string
+  productIds: number[]
+  status: UpdateOrderStatusRequest['status']
+} | null>(null)
+
 
 
   const handleUpdateStatus = async (
@@ -86,9 +87,24 @@ export default function SupplierOrderTable({
     {
       accessorKey: 'id',
       header: 'Order ID',
-      cell: ({ getValue }) => (
-        <span className="text-xs text-gray-700 break-all">{getValue<string>().slice(0, 8)}...</span>
-      ),
+      cell: ({ getValue }) => {
+        const id = getValue<string>()
+        const shortId = `${id.slice(0, 8)}...`
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-xs text-gray-700 cursor-help">
+                  {shortId}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-sm">{id}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
+      },
     },
     {
       accessorKey: 'createdAt',
@@ -146,15 +162,15 @@ export default function SupplierOrderTable({
   id: 'status',
   header: 'Status',
   cell: ({ row }) => {
-    const detail = row.original.orders_details?.[0]
-    const status = detail?.status || 'Unknown'
     const orderId = row.original.id
-    const productId = detail?.productId
+    const details = row.original.orders_details || []
+    const allStatuses = details.map(d => d.status)
+    const isPending = allStatuses.every(status => status === 'Pending')
+    const productIds = details.map(d => d.productId)
+    const key = productIds.map(pid => `${orderId}-${pid}`).join(',')
 
-    if (!productId) return <Badge variant="default">Invalid</Badge>
+    const loading = productIds.some(pid => loadingMap[`${orderId}-${pid}`])
 
-    const key = `${orderId}-${productId}`
-    const loading = loadingMap[key] || false
     const badgeMap: Record<UpdateOrderStatusRequest['status'], 'success' | 'warning' | 'destructive' | 'default'> = {
       Pending: 'warning',
       Preparing: 'warning',
@@ -166,48 +182,55 @@ export default function SupplierOrderTable({
       Refunded: 'destructive',
     }
 
-        if (status === 'Pending') {
-          return (
-            <div className="flex flex-col gap-1">
-              {loading ? (
-                <Button size="sm" disabled className="bg-gray-300 text-gray-500">
-                  Processing...
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={(e) => {
-                      e.stopPropagation(); // prevent row click
-                      setSelectedAction({ orderId, productId, status: 'Preparing' })
-                      setConfirmOpen(true)
-                    }}
-                  >
-                    Accept Order
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                    onClick={(e) => {
-                      e.stopPropagation(); // prevent row click
-                      setSelectedAction({ orderId, productId, status: 'Cancelled' })
-                      setConfirmOpen(true)
-                    }}
-                  >
-                    Reject Order
-                  </Button>
-                </>
-              )}
-            </div>
-          )
-        }
-        const variant = badgeMap[status as UpdateOrderStatusRequest['status']] || 'default'
-        return <Badge variant={variant} className={variant === 'destructive' ? 'text-white' : ''}>
-                {status}
-              </Badge>
-    },
-    },
+    if (isPending) {
+      return (
+        <div className="flex flex-col gap-1">
+          {loading ? (
+            <Button size="sm" disabled className="bg-gray-300 text-gray-500">
+              Processing...
+            </Button>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedAction({ orderId, productIds, status: 'Preparing' })
+                  setConfirmOpen(true)
+                }}
+              >
+                Accept Order
+              </Button>
+              <Button
+                size="sm"
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedAction({ orderId, productIds, status: 'Cancelled' })
+                  setConfirmOpen(true)
+                }}
+              >
+                Reject Order
+              </Button>
+            </>
+          )}
+        </div>
+      )
+    }
+
+    // If not all pending, show badge of first (or aggregate logic)
+    return (
+      <Badge
+        variant={badgeMap[allStatuses[0] as UpdateOrderStatusRequest['status']] || 'default'}
+        className={allStatuses[0] === 'Cancelled' ? 'text-white' : ''}
+      >
+        {allStatuses[0]}
+      </Badge>
+    )
+  },
+},
+
 
   ], [loadingMap])
 
@@ -325,19 +348,26 @@ export default function SupplierOrderTable({
           setConfirmOpen(false)
           setSelectedAction(null)
         }}
-        onConfirm={async () => {
-          if (!selectedAction) return
-          const { orderId, productId, status } = selectedAction
-          await handleUpdateStatus(orderId, productId, status)
-          setConfirmOpen(false)
-          setSelectedAction(null)
-        }}
+onConfirm={async () => {
+  if (!selectedAction) return
+  const { orderId, productIds, status } = selectedAction
+
+  for (const productId of productIds) {
+    await handleUpdateStatus(orderId, productId, status)
+  }
+
+  setConfirmOpen(false)
+  setSelectedAction(null)
+}}
+
         title={`Confirm ${selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}?`}
         description={`Are you sure you want to ${selectedAction?.status === 'Preparing' ? 'accept' : 'reject'} this order?`}
         confirmText={selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}
         loading={
           selectedAction
-            ? loadingMap[`${selectedAction.orderId}-${selectedAction.productId}`]
+    ? selectedAction.productIds.some(pid =>
+        loadingMap[`${selectedAction.orderId}-${pid}`]
+      )
             : false
         }
       />
