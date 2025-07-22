@@ -22,11 +22,8 @@ export default function OrderDetailClient() {
   const [order, setOrder] = useState<SupplierOrderItem | null>(null)
   const [loading, setLoading] = useState(true)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [loadingMap, setLoadingMap] = useState<Record<number, boolean>>({})
-  const [selectedBatchAction, setSelectedBatchAction] = useState<{
-    productIds: number[]
-    status: UpdateOrderStatusRequest['status']
-  } | null>(null)
+  const [selectedStatus, setSelectedStatus] = useState<UpdateOrderStatusRequest['status'] | null>(null)
+  const [updating, setUpdating] = useState(false)
 
   const loadOrder = async () => {
     if (typeof id !== 'string') return
@@ -46,23 +43,20 @@ export default function OrderDetailClient() {
     loadOrder()
   }, [id])
 
-  const handleBatchUpdate = async () => {
-    if (!order || !selectedBatchAction) return
-    const { productIds, status } = selectedBatchAction
-    for (const pid of productIds) {
-      setLoadingMap(prev => ({ ...prev, [pid]: true }))
-      try {
-        await updateOrderItemStatus({ orderId: order.id, status })
-      } catch {
-        toast.error(`Failed to ${status === 'Preparing' ? 'accept' : 'reject'} item ${pid}`)
-      } finally {
-        setLoadingMap(prev => ({ ...prev, [pid]: false }))
-      }
+  const handleUpdateOrderStatus = async () => {
+    if (!order || !selectedStatus) return
+    setUpdating(true)
+    try {
+      await updateOrderItemStatus({ orderId: order.id, status: selectedStatus })
+      toast.success(`Order ${selectedStatus === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
+      await loadOrder()
+    } catch {
+      toast.error(`Failed to ${selectedStatus === 'Preparing' ? 'accept' : 'reject'} order.`)
+    } finally {
+      setUpdating(false)
+      setConfirmOpen(false)
+      setSelectedStatus(null)
     }
-    toast.success(`All items ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
-    setConfirmOpen(false)
-    setSelectedBatchAction(null)
-    await loadOrder()
   }
 
   if (loading) {
@@ -79,13 +73,25 @@ export default function OrderDetailClient() {
     return <p className="p-6 text-red-500">Order not found.</p>
   }
 
-  const pendingProductIds = order.orders_details
-    .filter((item) => item.status === 'Pending')
-    .map((item) => item.productId)
+  const hasPendingItems = order.orders_details.some(item => item.status === 'Pending')
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <ToastContainer position="bottom-right" autoClose={3000} />
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => {
+          setConfirmOpen(false)
+          setSelectedStatus(null)
+        }}
+        onConfirm={handleUpdateOrderStatus}
+        title={`Confirm ${selectedStatus === 'Preparing' ? 'Accept' : 'Reject'} Order?`}
+        description={`Are you sure you want to ${selectedStatus === 'Preparing' ? 'accept' : 'reject'} this order and all its items?`}
+        confirmText={selectedStatus === 'Preparing' ? 'Accept' : 'Reject'}
+        loading={updating}
+      />
 
       {/* Order Summary */}
       <Card>
@@ -106,7 +112,7 @@ export default function OrderDetailClient() {
         </CardContent>
       </Card>
 
-      {/* Order Status */}
+      {/* Status */}
       <Card>
         <CardHeader>
           <CardTitle>Status & Timeline</CardTitle>
@@ -123,18 +129,18 @@ export default function OrderDetailClient() {
         </CardContent>
       </Card>
 
-      {/* Order Items + Bulk Actions */}
+      {/* Items + Actions */}
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>Items</CardTitle>
-            {pendingProductIds.length > 0 && (
+            {hasPendingItems && (
               <div className="flex gap-2">
                 <Button
                   size="sm"
                   className="bg-green-600 text-white hover:bg-green-700"
                   onClick={() => {
-                    setSelectedBatchAction({ productIds: pendingProductIds, status: 'Preparing' })
+                    setSelectedStatus('Preparing')
                     setConfirmOpen(true)
                   }}
                 >
@@ -144,7 +150,7 @@ export default function OrderDetailClient() {
                   size="sm"
                   className="bg-red-600 text-white hover:bg-red-700"
                   onClick={() => {
-                    setSelectedBatchAction({ productIds: pendingProductIds, status: 'Cancelled' })
+                    setSelectedStatus('Cancelled')
                     setConfirmOpen(true)
                   }}
                 >
@@ -187,24 +193,6 @@ export default function OrderDetailClient() {
           )}
         </CardContent>
       </Card>
-
-      {/* Confirm Dialog */}
-      <ConfirmDialog
-        open={confirmOpen}
-        onClose={() => {
-          setConfirmOpen(false)
-          setSelectedBatchAction(null)
-        }}
-        onConfirm={handleBatchUpdate}
-        title={`Confirm ${selectedBatchAction?.status === 'Preparing' ? 'Accept All' : 'Reject All'}?`}
-        description={`Are you sure you want to ${selectedBatchAction?.status === 'Preparing' ? 'accept' : 'reject'} all pending items in this order?`}
-        confirmText={selectedBatchAction?.status === 'Preparing' ? 'Accept All' : 'Reject All'}
-        loading={
-          selectedBatchAction
-            ? selectedBatchAction.productIds.some(pid => loadingMap[pid])
-            : false
-        }
-      />
     </div>
   )
 }
