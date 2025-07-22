@@ -122,12 +122,12 @@ export default function CartClient() {
             </div>
             <div className="grid grid-cols-12 gap-6">
                 <div className="col-span-9">
-                    <div className=" bg-gray-200 grid grid-cols-12 items-center rounded-t-md p-2">
-                        <div className="col-span-5 text-gray-600 font-semibold text-md ml-2">Product</div>
-                        <div className="col-span-2 text-center text-gray-600 font-semibold text-md">Price</div>
-                        <div className="col-span-2 text-center text-gray-600 font-semibold text-md">Quantity</div>
-                        <div className="col-span-2 text-center text-gray-600 font-semibold text-md">Amount</div>
-                        <div className="col-span-1 text-center text-gray-600 font-semibold text-md">Delete</div>
+                    <div className=" bg-[#634C9F] grid grid-cols-12 items-center rounded-t-md p-2">
+                        <div className="col-span-5 text-white font-semibold text-md ml-2">Product</div>
+                        <div className="col-span-2 text-center text-white font-semibold text-md">Price</div>
+                        <div className="col-span-2 text-center text-white font-semibold text-md">Quantity</div>
+                        <div className="col-span-2 text-center text-white font-semibold text-md">Amount</div>
+                        <div className="col-span-1 text-center text-white font-semibold text-md">Delete</div>
                     </div>
 
                     {Object.entries(suppliers).map(([supplierId, items]) => (

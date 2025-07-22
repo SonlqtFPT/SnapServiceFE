@@ -68,7 +68,7 @@ export default function CartSumary({ cartItems = [], validateFormData }: Props) 
         <div className="col-span-3">
             <ToastContainer position='top-center' autoClose={2000} />
             <div className="sticky top-6 z-10">
-                <div className="text-xl text-center  font-bold rounded-t-md p-2 text-gray-600 bg-gray-200">Summary</div>
+                <div className="text-xl text-center  font-bold rounded-t-md p-2 text-white bg-[#634C9F]">Summary</div>
 
                 <div className='rounded-b-md shadow px-4 py-2' >
                     <div className="flex justify-between items-center mb-2">

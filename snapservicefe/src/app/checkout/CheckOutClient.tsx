@@ -99,10 +99,10 @@ export default function CheckoutClient() {
         });
     };
     return (
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-12 gap-6 px-10">
             <div className="col-span-9">
                 <form className="max-w-3xl mx-auto space-y-6">
-                    <h2 className="text-xl font-bold text-center text-gray-700 bg-gray-100 p-3 rounded">Delivery information</h2>
+                    <h2 className="text-xl font-bold text-center text-white bg-[#634C9F] p-3 rounded">Delivery information</h2>
 
                     <div>
                         <label className="block text-sm font-medium">Full name *</label>
