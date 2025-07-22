@@ -4,8 +4,10 @@ import { fetchCategories } from '@/services/product/ProductService'
 import { useEffect, useState } from "react"
 import { CategoryResponse } from '@/model/response/categoryResponse'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 export default function Category() {
+  const router = useRouter();
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const getCategories = async () => {
     try {
@@ -22,6 +24,10 @@ export default function Category() {
     getCategories();
   }, []);
 
+  const handleSearch = (categoryId: number) => {
+    router.push(`/products?categoryId=${categoryId}`);
+  }
+
   return (
     <div >
       <div className="grid grid-cols-6 mb-5">
@@ -35,10 +41,11 @@ export default function Category() {
           const isBottomRight = index === total - 1;
 
           return (
-            <div
+            <button
+              onClick={() => handleSearch(category.id)}
               key={index}
               className={`
-          flex flex-col items-center border p-3 hover:shadow transition
+          flex flex-col items-center border p-3 hover:shadow transition cursor-pointer
           ${isTopLeft ? 'rounded-tl-md' : ''}
           ${isTopRight ? 'rounded-tr-md' : ''}
           ${isBottomLeft ? 'rounded-bl-md' : ''}
@@ -53,7 +60,7 @@ export default function Category() {
                 className="w-24 h-24 object-contain mb-2"
               />
               <span className="text-sm font-medium text-center">{category.name}</span>
-            </div>
+            </button>
           );
         })}
       </div>

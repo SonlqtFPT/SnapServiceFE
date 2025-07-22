@@ -72,7 +72,7 @@ export default function OrderClientSide() {
         >
           <div className="mb-4 flex justify-between items-center">
             <h2 className="text-xl font-bold text-[#9810FA] flex items-center gap-2">
-              <FileText className="w-5 h-5" /> Order #{order.userId}-{order.supplierId}-{order.createdAt}
+              <FileText className="w-5 h-5" /> Order #{order.id.split('-')[0]}
             </h2>
             <span className="text-sm text-gray-400 flex items-center gap-1">
               <CalendarDays className="w-4 h-4" />

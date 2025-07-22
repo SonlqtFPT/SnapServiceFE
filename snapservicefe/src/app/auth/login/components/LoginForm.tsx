@@ -39,7 +39,7 @@ export default function LoginForm() {
         } else if (userRole === 'SHIPPER') {
           toast.success("Welcome to the shipper page")
           setTimeout(() => {
-            route.push('/shipper')
+            route.push('/shipper/orders')
           }, 2000)
         } else {
           toast.success("Login successful, welcome to SnapService")

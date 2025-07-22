@@ -82,11 +82,32 @@ export default function PaymentSuccessPage() {
     }
   }
 
+  const removeProductsFromCart = (productsInCheckout: CartItem[]) => {
+    // Lấy giỏ hàng hiện tại từ localStorage
+    const productsLocal = localStorage.getItem('cart');
+    if (productsLocal) {
+      const products: CartItem[] = JSON.parse(productsLocal);
+
+      // Lọc ra các sản phẩm trong giỏ hàng mà không có trong checkout
+      const updatedProducts = products.filter(product =>
+        !productsInCheckout.some(item => item.id === product.id)
+      );
+
+      // Cập nhật lại giỏ hàng trong localStorage
+      localStorage.setItem('cart', JSON.stringify(updatedProducts));
+    }
+  };
+
+  const checkoutProducts = productsData ? Object.values(productsData).flat() : [];
+  removeProductsFromCart(checkoutProducts);
+
+
   const createOrder = async () => {
     try {
       console.log(token)
       if (userData && productsData) {
         const distance = await getDistance();
+        removeProductsFromCart(Object.values(productsData).flat());
         const res = await Order(userData, productsData, distance, total, token)
         localStorage.removeItem("checkout")
         console.log(res)
@@ -143,7 +164,7 @@ export default function PaymentSuccessPage() {
           transition={{ delay: 0.4 }}
           className="text-4xl font-extrabold text-green-700 mb-3 tracking-tight"
         >
-          Woohoo! Thanh toán thành công 🎉
+          Woohoo! Payment successful 🎉
         </motion.h1>
 
         <motion.p
@@ -152,7 +173,7 @@ export default function PaymentSuccessPage() {
           transition={{ delay: 0.5 }}
           className="text-gray-600 text-lg mb-6"
         >
-          Đơn hàng của bạn đã được ghi nhận và đang chuẩn bị. Cảm ơn bạn vì đã lựa chọn chúng tôi 💚
+          Your order has been received and is being prepared. Thank you for choosing us 💚
         </motion.p>
 
         <motion.div
@@ -164,7 +185,7 @@ export default function PaymentSuccessPage() {
             href="/"
             className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-transform duration-300 hover:scale-105"
           >
-            Về trang chủ
+            Back to home page
           </Link>
         </motion.div>
       </motion.div>

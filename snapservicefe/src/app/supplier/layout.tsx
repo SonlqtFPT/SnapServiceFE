@@ -16,7 +16,7 @@ import { ToastContainer } from 'react-toastify';
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <Providers>
-      <ToastContainer position='top-center' autoClose={2000} />
+      <ToastContainer position='bottom-left' autoClose={2000} />
       <NextTopLoader color="#5750F1" showSpinner={false} />
 
       <div className="flex min-h-screen">

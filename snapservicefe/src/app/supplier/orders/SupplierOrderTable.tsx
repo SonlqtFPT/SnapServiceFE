@@ -318,7 +318,7 @@ export default function SupplierOrderTable({
         </div>
       </div>
 
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <ConfirmDialog
         open={confirmOpen}
         onClose={() => {

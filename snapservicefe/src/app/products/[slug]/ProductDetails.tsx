@@ -5,6 +5,7 @@ import { ProductImageType, ProductType } from '@/types/product/ProductType';
 import { toast, ToastContainer } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { Star } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
 
 type Props = {
   product: ProductType;
@@ -32,6 +33,11 @@ export default function ProductDetails({ product }: Props) {
   const handleAddCart = () => {
     if (token === null) {
       toast.error('Please login before adding to cart');
+      return;
+    }
+    const decodeToken = jwtDecode(token) as { Role: string };
+    if (decodeToken.Role !== 'CUSTOMER') {
+      toast.error('You are not authorized to add products to the cart');
       return;
     }
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');

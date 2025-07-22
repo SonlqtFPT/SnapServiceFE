@@ -22,6 +22,7 @@ export default function CheckoutClient() {
         name: '',
         address: '',
         phone: '',
+        provinceCode: '79',
         districtCode: '',
         wardCode: '',
         lat: 10.762622,
