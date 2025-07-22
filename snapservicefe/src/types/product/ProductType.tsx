@@ -1,5 +1,5 @@
 import type { CategoryType } from "./CategoryType";
-import type { SupplierType } from "./SupplierType";
+import type { Supplier } from "./SupplierType";
 
 export type ProductImageType = {
   id: number;
@@ -26,7 +26,7 @@ export type ProductType = {
   slug: string;
   images?: ProductImageType[];
   categories: CategoryType;
-  supplier: SupplierType;
+  supplier: Supplier;
 };
 
 export type ReviewType = {
