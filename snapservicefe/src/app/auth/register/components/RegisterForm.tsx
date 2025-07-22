@@ -68,11 +68,11 @@ export default function RegisterForm() {
                 )
             );
 
-            setMessage(`✅ Upload và confirm thành công ${files.length} ảnh!`);
+            setMessage(`✅ Upload and confirm successfully ${files.length} image!`);
             setFiles([]);
             return uploads; // Trả về mảng upload để sử dụng sau này
         } catch (error: any) {
-            setMessage("Lỗi upload: " + (error.message || "Unknown error"));
+            setMessage("Upload error: " + (error.message || "Unknown error"));
             console.error(error);
         } finally {
             setUploading(false);

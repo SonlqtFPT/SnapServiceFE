@@ -29,7 +29,7 @@ export default function LoginForm() {
         if (userRole === 'ADMIN') {
           toast.success("Welcome to the admin page")
           setTimeout(() => {
-            route.push('/admin')
+            route.push('/admin/dashboard')
           }, 2000)
         } else if (userRole === 'SUPPLIER') {
           toast.success("Welcome to the supplier page")
