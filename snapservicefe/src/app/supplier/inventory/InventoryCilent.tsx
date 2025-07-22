@@ -66,7 +66,7 @@ export default function InventoryClient() {
 
   return (
     <div className="p-6">
-      <ToastContainer position='top-center' autoClose={2000} />
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Supplier's Inventory</h1>
         <button

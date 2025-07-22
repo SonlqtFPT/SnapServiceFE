@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { ProductImageType, ProductType } from '@/types/product/ProductType';
 import { toast, ToastContainer } from 'react-toastify';
-import { CartItem } from '@/app/cart/typeOfCart';
 import { useRouter } from 'next/navigation';
 import { Star } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
 
 type Props = {
   product: ProductType;
@@ -15,8 +15,6 @@ type Props = {
 export default function ProductDetails({ product }: Props) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
-  const localCart = localStorage.getItem('cart');
-  const cartItems: CartItem[] = localCart ? JSON.parse(localCart) : [];
   const [_, forceUpdate] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
@@ -29,12 +27,22 @@ export default function ProductDetails({ product }: Props) {
   }, []);
 
   const handleQuantityChange = (delta: number) => {
-    setQuantity(prev => Math.max(1, prev + delta));
-  };
+    setQuantity(prev => {
+      const newQuantity = prev + delta;
+      if (newQuantity < 1) return 1;
+      if (newQuantity > product.stockInQuantity) return product.stockInQuantity;
+      return newQuantity;
+    });
+  }
 
   const handleAddCart = () => {
     if (token === null) {
       toast.error('Please login before adding to cart');
+      return;
+    }
+    const decodeToken = jwtDecode(token) as { Role: string };
+    if (decodeToken.Role !== 'CUSTOMER') {
+      toast.error('You are not authorized to add products to the cart');
       return;
     }
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -111,9 +119,17 @@ export default function ProductDetails({ product }: Props) {
         </div>
         <div className="flex items-center gap-4 m-4">
           <div className="flex items-center border rounded">
-            <button onClick={() => handleQuantityChange(-1)} className="px-3 py-1 text-lg font-bold">-</button>
+            <button
+              onClick={() => handleQuantityChange(-1)}
+              className={`px-3 py-1 text-lg font-bold${quantity <= 1 ? ' opacity-50 cursor-not-allowed' : ' cursor-pointer'}`}
+              disabled={quantity <= 1}
+            >-</button>
             <span className="px-4">{quantity}</span>
-            <button onClick={() => handleQuantityChange(1)} className="px-3 py-1 text-lg font-bold">+</button>
+            <button
+              onClick={() => handleQuantityChange(1)}
+              className={`px-3 py-1 text-lg font-bold${quantity >= product.stockInQuantity ? ' opacity-50 cursor-not-allowed' : ' cursor-pointer'}`}
+              disabled={quantity >= product.stockInQuantity}
+            >+</button>
           </div>
           <button onClick={handleAddCart} className="bg-green-600 flex-1 justify-center hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2">
             {/* Cart icon from header */}

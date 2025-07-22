@@ -6,10 +6,11 @@ import { toast, ToastContainer } from 'react-toastify';
 import { paypalPayment } from '@/services/payment/paymentService';
 
 type Props = {
-    cartItems?: CartItem[]
-}
+    cartItems?: CartItem[];
+    validateFormData: () => string[];
+};
 
-export default function CartSumary({ cartItems = [] }: Props) {
+export default function CartSumary({ cartItems = [], validateFormData }: Props) {
     const router = useRouter();
     const [cartData, setCartData] = useState<CartItem[]>([]);
     const [token, setToken] = useState<string | null>(null);
@@ -35,14 +36,18 @@ export default function CartSumary({ cartItems = [] }: Props) {
     }, [cartItems]);
 
     const subtotal = cartData.reduce((acc, item) => acc + item.discountPrice * item.quantity, 0);
-    const lastTotal = (subtotal/26000).toFixed(2);
+    const lastTotal = (subtotal / 26000).toFixed(2);
 
     const handleCheckout = async () => {
+        const errors = validateFormData();
+        if (errors.length > 0) {
+            toast.error("Vui lòng điền đầy đủ thông tin");
+            return;
+        }
+
         if (token === null) {
             toast.error('Please login before proceeding to checkout');
-        }
-        else {
-            console.log(subtotal.toString());
+        } else {
             try {
                 const res = await paypalPayment(lastTotal.toString());
                 if (res.statusCode === 200) {
@@ -56,13 +61,14 @@ export default function CartSumary({ cartItems = [] }: Props) {
                 toast.error('Checkout failed. Please try again later.');
             }
         }
-    }
+    };
+
 
     return (
         <div className="col-span-3">
             <ToastContainer position='top-center' autoClose={2000} />
             <div className="sticky top-6 z-10">
-                <div className="text-xl text-center  font-bold rounded-t-md p-2 text-gray-600 bg-gray-200">Summary</div>
+                <div className="text-xl text-center  font-bold rounded-t-md p-2 text-white bg-[#634C9F]">Summary</div>
 
                 <div className='rounded-b-md shadow px-4 py-2' >
                     <div className="flex justify-between items-center mb-2">

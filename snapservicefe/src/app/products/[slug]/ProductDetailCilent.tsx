@@ -10,6 +10,7 @@ import NewArrivals from '../../home/components/NewArrivals';
 import ProductTabs from './ProductTab';
 
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs';
+import Loading from '@/components/Loading';
 
 export default function ProductDetailClient() {
   const [product, setProduct] = useState<ProductType | null>(null);
@@ -32,21 +33,21 @@ export default function ProductDetailClient() {
   console.log("product", product);
 
   if (error) return <div className="text-red-500">Product not found or an error occurred.</div>;
-  if (!product) return <div>Loading...</div>;
+  if (!product) return <div className='flex justify-center min-h-screen items-center'><Loading/></div>;
 
   return (
     <div>
-    <DynamicBreadcrumbs/>
+      <DynamicBreadcrumbs />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ProductImageGallery images={product.images} productName={product.name} />
+        <ProductImageGallery images={product.images} productName={product.name} discountPercent={product.discountPercent} />
         <ProductDetails product={product} imageUrl={product.images} />
       </div>
       <div className="mt-8">
-       <ProductTabs
-  productId={product.id} // ✅ Truyền productId để gọi API
-  description={product.description || 'No description available.'}
-/>
+        <ProductTabs
+          productId={product.id}
+          description={product.description || 'No description available.'}
+        />
 
       </div>
       <div className="mt-8">

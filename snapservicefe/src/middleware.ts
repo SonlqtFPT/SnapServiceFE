@@ -30,22 +30,16 @@ export function middleware(request: NextRequest) {
         if (pathname.startsWith('/supplier') && userRole !== 'SUPPLIER') {
             return NextResponse.redirect(new URL('/unauthorized', request.url));
         }
-        if (
-            userRole === 'ADMIN' &&
-            (
-                pathname.startsWith('/checkout') ||
-                pathname.startsWith('/cart') ||
-                pathname.startsWith('/orders')
-            )
-        ) {
+         if (pathname.startsWith('/shipper') && userRole !== 'SHIPPER') {
             return NextResponse.redirect(new URL('/unauthorized', request.url));
         }
 
         if (
-            userRole === 'SUPPLIER' &&
+            (userRole === 'ADMIN' || userRole === 'SHIPPER' || userRole === 'SUPPLIER') &&
             (
                 pathname.startsWith('/checkout') ||
-                pathname.startsWith('/cart')
+                pathname.startsWith('/cart') ||
+                pathname.startsWith('/orders')
             )
         ) {
             return NextResponse.redirect(new URL('/unauthorized', request.url));

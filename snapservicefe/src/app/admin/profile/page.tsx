@@ -33,17 +33,17 @@ export default function ProfilePage() {
 
       <div className="flex flex-1 flex-col gap-4 p-4">
         <Tabs defaultValue="profile" className="w-full">
-          {/*danh sách các tab*/}
+          {/*Tab list*/}
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="profile">Thông tin cá nhân</TabsTrigger>
-            <TabsTrigger value="security">Bảo mật</TabsTrigger>
+            <TabsTrigger value="profile">Personal Information</TabsTrigger>
+            <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
-          {/*Thông tin cá nhân*/}
+          {/*Personal Information*/}
           <TabsContent value="profile" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Thông tin cá nhân</CardTitle>
-                <CardDescription>Cập nhật thông tin cá nhân và ảnh đại diện của bạn</CardDescription>
+                <CardTitle>Personal Information</CardTitle>
+                <CardDescription>Update your personal information and profile picture</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Avatar Section */}
@@ -70,11 +70,11 @@ export default function ProfilePage() {
                 {/* Form Fields */}
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName">Họ</Label>
+                    <Label htmlFor="firstName">First Name</Label>
                     <Input id="firstName" defaultValue="Admin" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lastName">Tên</Label>
+                    <Label htmlFor="lastName">Last Name</Label>
                     <Input id="lastName" defaultValue="User" />
                   </div>
                   <div className="space-y-2">
@@ -85,7 +85,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Số điện thoại</Label>
+                    <Label htmlFor="phone">Phone Number</Label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input id="phone" defaultValue="+84 123 456 789" className="pl-10" />
@@ -94,35 +94,35 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio">Giới thiệu</Label>
+                  <Label htmlFor="bio">Bio</Label>
                   <Textarea
                     id="bio"
-                    placeholder="Viết một vài dòng giới thiệu về bản thân..."
-                    defaultValue="Quản trị viên hệ thống ecommerce với 5 năm kinh nghiệm trong lĩnh vực thương mại điện tử."
+                    placeholder="Write a few lines about yourself..."
+                    defaultValue="Ecommerce system administrator with 5 years of experience in e-commerce."
                   />
                 </div>
 
                 <div className="flex justify-end">
                   <Button>
                     <Save className="mr-2 h-4 w-4" />
-                    Lưu thay đổi
+                    Save Changes
                   </Button>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/*Bảo mật tài khoản*/}
+          {/*Account Security*/}
           <TabsContent value="security" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Bảo mật tài khoản</CardTitle>
-                <CardDescription>Quản lý mật khẩu và cài đặt bảo mật</CardDescription>
+                <CardTitle>Account Security</CardTitle>
+                <CardDescription>Manage your password and security settings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
+                    <Label htmlFor="currentPassword">Current Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input id="currentPassword" type={showPassword ? "text" : "password"} className="pl-10 pr-10" />
@@ -138,14 +138,14 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">Mật khẩu mới</Label>
+                    <Label htmlFor="newPassword">New Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input id="newPassword" type="password" className="pl-10" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
+                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input id="confirmPassword" type="password" className="pl-10" />
@@ -156,11 +156,11 @@ export default function ProfilePage() {
                 <Separator />
 
                 <div className="space-y-4">
-                  <h4 className="text-sm font-medium">Xác thực hai yếu tố (2FA)</h4>
+                  <h4 className="text-sm font-medium">Two-Factor Authentication (2FA)</h4>
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <div className="text-sm">Kích hoạt 2FA</div>
-                      <div className="text-xs text-muted-foreground">Tăng cường bảo mật với xác thực hai yếu tố</div>
+                      <div className="text-sm">Enable 2FA</div>
+                      <div className="text-xs text-muted-foreground">Enhance security with two-factor authentication</div>
                     </div>
                     <Switch />
                   </div>
@@ -169,26 +169,26 @@ export default function ProfilePage() {
                 <div className="flex justify-end">
                   <Button>
                     <Save className="mr-2 h-4 w-4" />
-                    Cập nhật bảo mật
+                    Update Security
                   </Button>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/*Thông báo*/}
+          {/*Notifications*/}
           <TabsContent value="notifications" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Cài đặt thông báo</CardTitle>
-                <CardDescription>Quản lý cách bạn nhận thông báo từ hệ thống</CardDescription>
+                <CardTitle>Notification Settings</CardTitle>
+                <CardDescription>Manage how you receive notifications from the system</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <div className="text-sm font-medium">Email thông báo</div>
-                      <div className="text-xs text-muted-foreground">Nhận thông báo qua email</div>
+                      <div className="text-sm font-medium">Email Notifications</div>
+                      <div className="text-xs text-muted-foreground">Receive notifications via email</div>
                     </div>
                     <Switch
                       checked={notifications.email}
@@ -197,8 +197,8 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <div className="text-sm font-medium">Push notification</div>
-                      <div className="text-xs text-muted-foreground">Nhận thông báo đẩy trên trình duyệt</div>
+                      <div className="text-sm font-medium">Push Notification</div>
+                      <div className="text-xs text-muted-foreground">Receive push notifications in your browser</div>
                     </div>
                     <Switch
                       checked={notifications.push}
@@ -207,8 +207,8 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <div className="text-sm font-medium">SMS thông báo</div>
-                      <div className="text-xs text-muted-foreground">Nhận thông báo qua tin nhắn SMS</div>
+                      <div className="text-sm font-medium">SMS Notifications</div>
+                      <div className="text-xs text-muted-foreground">Receive notifications via SMS</div>
                     </div>
                     <Switch
                       checked={notifications.sms}
@@ -220,22 +220,22 @@ export default function ProfilePage() {
                 <Separator />
 
                 <div className="space-y-4">
-                  <h4 className="text-sm font-medium">Loại thông báo</h4>
+                  <h4 className="text-sm font-medium">Notification Types</h4>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="text-sm">Đơn hàng mới</div>
+                      <div className="text-sm">New Order</div>
                       <Switch defaultChecked />
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-sm">Sản phẩm mới</div>
+                      <div className="text-sm">New Product</div>
                       <Switch defaultChecked />
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-sm">Báo cáo hệ thống</div>
+                      <div className="text-sm">System Report</div>
                       <Switch />
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-sm">Cập nhật bảo mật</div>
+                      <div className="text-sm">Security Update</div>
                       <Switch defaultChecked />
                     </div>
                   </div>
@@ -244,7 +244,7 @@ export default function ProfilePage() {
                 <div className="flex justify-end">
                   <Button>
                     <Bell className="mr-2 h-4 w-4" />
-                    Lưu cài đặt
+                    Save Settings
                   </Button>
                 </div>
               </CardContent>

@@ -12,8 +12,6 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { Button } from '@/components/ui/button'
 
 type UpdateAction = {
-  orderId: string
-  productId: number
   status: 'Delivery' | 'Delivered'
 }
 
@@ -26,6 +24,7 @@ export default function ShipperOrderDetailClient() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [selectedAction, setSelectedAction] = useState<UpdateAction | null>(null)
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
+
 
   const refreshOrder = async () => {
     if (typeof id !== 'string') return
@@ -40,19 +39,22 @@ export default function ShipperOrderDetailClient() {
     }).finally(() => setLoading(false))
   }, [id])
 
-  const handleUpdateStatus = async (orderId: string, productId: number, status: 'Delivery' | 'Delivered') => {
-    const key = `${orderId}-${productId}`
-    setLoadingMap(prev => ({ ...prev, [key]: true }))
-    try {
-      await updateOrderItemStatus({ orderId, productId, status })
-      toast.success(`Updated to ${status}`)
-      await refreshOrder()
-    } catch (err) {
-      toast.error('Failed to update status')
-    } finally {
-      setLoadingMap(prev => ({ ...prev, [key]: false }))
-    }
+const handleUpdateStatus = async () => {
+  if (!selectedAction || !order) return
+  const key = `${order.id}-${selectedAction.status}`
+  setLoadingMap(prev => ({ ...prev, [key]: true }))
+  try {
+    await updateOrderItemStatus({ orderId: order.id, status: selectedAction.status })
+    toast.success(`Updated order to ${selectedAction.status}`)
+    setConfirmOpen(false)
+    setSelectedAction(null)
+    await refreshOrder()
+  } catch {
+    toast.error(`Failed to update order`)
+  } finally {
+    setLoadingMap(prev => ({ ...prev, [key]: false }))
   }
+}
 
   if (loading) {
     return (
@@ -68,6 +70,13 @@ export default function ShipperOrderDetailClient() {
     return <p className="p-6 text-red-500">Order not found.</p>
   }
 
+  // Determine batchable action
+  const preparingItems = order.orders_details.filter(i => i.status === 'Preparing')
+  const deliveryItems = order.orders_details.filter(i => i.status === 'Delivery')
+
+  const canMarkAllAsDelivery = preparingItems.length > 0 && deliveryItems.length === 0
+  const canMarkAllAsDelivered = deliveryItems.length > 0
+
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <ToastContainer position="bottom-right" autoClose={3000} />
@@ -79,27 +88,17 @@ export default function ShipperOrderDetailClient() {
           setConfirmOpen(false)
           setSelectedAction(null)
         }}
-        onConfirm={async () => {
-          if (!selectedAction) return
-          const { orderId, productId, status } = selectedAction
-          await handleUpdateStatus(orderId, productId, status)
-          setConfirmOpen(false)
-          setSelectedAction(null)
-        }}
-        title={`Confirm status update?`}
-        description={`Are you sure you want to mark this item as "${selectedAction?.status}"?`}
+        onConfirm={handleUpdateStatus}
+        title={`Confirm update?`}
+        description={`Are you sure you want to mark this order as "${selectedAction?.status}"?`}
         confirmText={`Mark as ${selectedAction?.status}`}
-        loading={
-          selectedAction
-            ? loadingMap[`${selectedAction.orderId}-${selectedAction.productId}`]
-            : false
-        }
+        loading={selectedAction ? loadingMap[`${order?.id}-${selectedAction.status}`] : false}
       />
 
       {/* Order Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Order #{order.id.slice(0, 8)}...</CardTitle>
+          <CardTitle className="text-xl">Order #{order.id}</CardTitle>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
           <div>
@@ -115,7 +114,7 @@ export default function ShipperOrderDetailClient() {
         </CardContent>
       </Card>
 
-      {/* Status */}
+      {/* Timeline */}
       <Card>
         <CardHeader>
           <CardTitle>Status & Timeline</CardTitle>
@@ -132,25 +131,47 @@ export default function ShipperOrderDetailClient() {
         </CardContent>
       </Card>
 
-      {/* Items */}
+      {/* Items + Batch Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Items</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>Items</CardTitle>
+            <div className="flex gap-2">
+              {canMarkAllAsDelivery && (
+                <Button
+                  size="sm"
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={() => {
+                    setSelectedAction({ status: 'Delivery' })
+                    setConfirmOpen(true)
+                  }}
+                  disabled={loadingMap[`${order.id}-Delivery`]}
+                >
+                  {loadingMap[`${order.id}-Delivery`] ? 'Processing...' : 'Mark as Delivery'}
+                </Button>
+              )}
+              {canMarkAllAsDelivered && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 text-white hover:bg-green-700"
+                  onClick={() => {
+                    setSelectedAction({ status: 'Delivered' })
+                    setConfirmOpen(true)
+                  }}
+                  disabled={loadingMap[`${order.id}-Delivered`]}
+                >
+                  {loadingMap[`${order.id}-Delivered`] ? 'Processing...' : 'Mark as Delivered'}
+                </Button>
+              )}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {order.orders_details.length === 0 ? (
             <p className="text-gray-500 text-sm">No items found.</p>
           ) : (
             <div className="space-y-4">
-              {order.orders_details.map((item) => {
-                const nextStatus = item.status === 'Preparing'
-                  ? 'Delivery'
-                  : item.status === 'Delivery'
-                  ? 'Delivered'
-                  : null
-
-                const key = `${order.id}-${item.productId}`
-                return (
+              {order.orders_details.map((item) => (
                 <div
                   key={item.id}
                   className="flex gap-4 items-start border rounded-md p-3 shadow-sm"
@@ -173,30 +194,9 @@ export default function ShipperOrderDetailClient() {
                         <p className="text-gray-500 italic">Note: {item.note}</p>
                       )}
                     </div>
-
-                    {/* Button aligned to bottom right */}
-                    {nextStatus && (
-                      <div className="flex justify-end pt-2">
-                        <Button
-                          onClick={() => {
-                            setSelectedAction({
-                              orderId: order.id,
-                              productId: item.productId,
-                              status: nextStatus,
-                            })
-                            setConfirmOpen(true)
-                          }}
-                          size="sm"
-                          disabled={loadingMap[key]}
-                        >
-                          {loadingMap[key] ? 'Processing...' : `Mark as ${nextStatus}`}
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </div>
-                )
-              })}
+              ))}
             </div>
           )}
         </CardContent>

@@ -7,10 +7,7 @@ import {
   fetchSupplierOrderDetail,
   updateOrderItemStatus,
 } from '@/services/product/OrderService'
-import type {
-  SupplierOrderItem,
-  OrderDetail
-} from '@/model/response/order'
+import type { SupplierOrderItem } from '@/model/response/order'
 import type { UpdateOrderStatusRequest } from '@/model/request/orderRequest'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -25,11 +22,8 @@ export default function OrderDetailClient() {
   const [order, setOrder] = useState<SupplierOrderItem | null>(null)
   const [loading, setLoading] = useState(true)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [loadingMap, setLoadingMap] = useState<Record<number, boolean>>({})
-  const [selectedAction, setSelectedAction] = useState<{
-    item: OrderDetail
-    status: UpdateOrderStatusRequest['status']
-  } | null>(null)
+  const [selectedStatus, setSelectedStatus] = useState<UpdateOrderStatusRequest['status'] | null>(null)
+  const [updating, setUpdating] = useState(false)
 
   const loadOrder = async () => {
     if (typeof id !== 'string') return
@@ -49,27 +43,19 @@ export default function OrderDetailClient() {
     loadOrder()
   }, [id])
 
-  const handleConfirm = async () => {
-    if (!order || !selectedAction) return
-    const { item, status } = selectedAction
-    const key = item.productId
-    setLoadingMap((prev) => ({ ...prev, [key]: true }))
+  const handleUpdateOrderStatus = async () => {
+    if (!order || !selectedStatus) return
+    setUpdating(true)
     try {
-      await updateOrderItemStatus({
-        orderId: order.id,
-        productId: item.productId,
-        status,
-      })
-      toast.success(
-        `Item ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`
-      )
+      await updateOrderItemStatus({ orderId: order.id, status: selectedStatus })
+      toast.success(`Order ${selectedStatus === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
       await loadOrder()
     } catch {
-      toast.error('Failed to update item status.')
+      toast.error(`Failed to ${selectedStatus === 'Preparing' ? 'accept' : 'reject'} order.`)
     } finally {
-      setLoadingMap((prev) => ({ ...prev, [key]: false }))
+      setUpdating(false)
       setConfirmOpen(false)
-      setSelectedAction(null)
+      setSelectedStatus(null)
     }
   }
 
@@ -87,14 +73,30 @@ export default function OrderDetailClient() {
     return <p className="p-6 text-red-500">Order not found.</p>
   }
 
+  const hasPendingItems = order.orders_details.some(item => item.status === 'Pending')
+
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <ToastContainer position="bottom-right" autoClose={3000} />
 
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => {
+          setConfirmOpen(false)
+          setSelectedStatus(null)
+        }}
+        onConfirm={handleUpdateOrderStatus}
+        title={`Confirm ${selectedStatus === 'Preparing' ? 'Accept' : 'Reject'} Order?`}
+        description={`Are you sure you want to ${selectedStatus === 'Preparing' ? 'accept' : 'reject'} this order and all its items?`}
+        confirmText={selectedStatus === 'Preparing' ? 'Accept' : 'Reject'}
+        loading={updating}
+      />
+
       {/* Order Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Order #{order.id.slice(0, 8)}...</CardTitle>
+          <CardTitle className="text-xl">Order #{order.id}</CardTitle>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
           <div>
@@ -110,7 +112,7 @@ export default function OrderDetailClient() {
         </CardContent>
       </Card>
 
-      {/* Order Status */}
+      {/* Status */}
       <Card>
         <CardHeader>
           <CardTitle>Status & Timeline</CardTitle>
@@ -127,88 +129,70 @@ export default function OrderDetailClient() {
         </CardContent>
       </Card>
 
-      {/* Order Items */}
+      {/* Items + Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Items</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>Items</CardTitle>
+            {hasPendingItems && (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="bg-green-600 text-white hover:bg-green-700"
+                  onClick={() => {
+                    setSelectedStatus('Preparing')
+                    setConfirmOpen(true)
+                  }}
+                >
+                  Accept All
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-red-600 text-white hover:bg-red-700"
+                  onClick={() => {
+                    setSelectedStatus('Cancelled')
+                    setConfirmOpen(true)
+                  }}
+                >
+                  Reject All
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {order.orders_details.length === 0 ? (
             <p className="text-gray-500 text-sm">No items found.</p>
           ) : (
             <div className="space-y-4">
-              {order.orders_details.map((item) => {
-                const isPending = item.status === 'Pending'
-                const loading = loadingMap[item.productId]
-
-                return (
-                  <div
-                    key={item.id}
-                    className="flex gap-4 items-start border rounded-md p-3 shadow-sm"
-                  >
-                    <img
-                      src={item.productImage || undefined}
-                      alt={item.productName}
-                      className="w-20 h-20 object-cover rounded-md border"
-                    />
-                    <div className="flex-1 space-y-1 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">{item.productName}</span>
-                        <Badge variant={statusToBadgeVariant(item.status)}>{item.status}</Badge>
-                      </div>
-                      <p>Quantity: {item.quantity}</p>
-                      <p>Price: {item.price.toLocaleString()} ₫</p>
-                      <p>Discount: {item.discountPercent}%</p>
-                      {item.note && (
-                        <p className="text-gray-500 italic">Note: {item.note}</p>
-                      )}
-                      {isPending && (
-                        <div className="flex gap-2 pt-2">
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                            onClick={() => {
-                              setSelectedAction({ item, status: 'Preparing' })
-                              setConfirmOpen(true)
-                            }}
-                            disabled={loading}
-                          >
-                            {loading ? 'Processing...' : 'Accept'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                            onClick={() => {
-                              setSelectedAction({ item, status: 'Cancelled' })
-                              setConfirmOpen(true)
-                            }}
-                            disabled={loading}
-                          >
-                            {loading ? 'Processing...' : 'Reject'}
-                          </Button>
-                        </div>
-                      )}
+              {order.orders_details.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex gap-4 items-start border rounded-md p-3 shadow-sm"
+                >
+                  <img
+                    src={item.productImage || undefined}
+                    alt={item.productName}
+                    className="w-20 h-20 object-cover rounded-md border"
+                  />
+                  <div className="flex-1 space-y-1 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">{item.productName}</span>
+                      <Badge variant={statusToBadgeVariant(item.status)}>{item.status}</Badge>
                     </div>
+                    <p>Quantity: {item.quantity}</p>
+                    <p>Price: {item.price.toLocaleString()} ₫</p>
+                    <p>Discount: {item.discountPercent}%</p>
+                    {item.note && (
+                      <p className="text-gray-500 italic">Note: {item.note}</p>
+                    )}
                   </div>
-                )
-              })}
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
       </Card>
-
-      <ConfirmDialog
-        open={confirmOpen}
-        onClose={() => {
-          setConfirmOpen(false)
-          setSelectedAction(null)
-        }}
-        onConfirm={handleConfirm}
-        title={`Confirm ${selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}?`}
-        description={`Are you sure you want to ${selectedAction?.status === 'Preparing' ? 'accept' : 'reject'} this item?`}
-        confirmText={selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}
-        loading={selectedAction ? loadingMap[selectedAction.item.productId] : false}
-      />
     </div>
   )
 }

@@ -63,7 +63,7 @@ export default function Card({ categoryId }: Props) {
     size: parseInt(searchParams.get('size') || '20', 10),
     sortOrder: searchParams.get('sortOrder') || 'desc',
     sortBy: searchParams.get('sortBy') || 'createdAt',
-    categoryId: null,
+    categoryId: searchParams.get('categoryId') ? parseInt(searchParams.get('categoryId') || '0', 10) : null,
   })
 
   useEffect(() => {

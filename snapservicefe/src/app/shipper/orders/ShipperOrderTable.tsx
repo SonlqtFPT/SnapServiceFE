@@ -20,6 +20,8 @@ import { Badge } from '@/components/ui/badge'
 import { getPageNumbers } from '@/lib/helper'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { toast } from 'react-toastify'
+import { updateOrderItemStatus } from '@/services/product/OrderService'
 
 type Props = {
   orders: ShipperOrder[]
@@ -36,12 +38,32 @@ export default function ShipperOrderTable({
   pageSize,
   totalItems,
   onPageChange,
+  onRefresh,
 }: Props) {
   const router = useRouter()
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
+  const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
 
   const totalPages = Math.ceil(totalItems / pageSize)
+
+const handleUpdateStatus = async (
+  orderId: string,
+  status: 'Delivery' | 'Delivered'
+) => {
+  const key = `${orderId}-${status}`
+  setLoadingMap(prev => ({ ...prev, [key]: true }))
+  try {
+    await updateOrderItemStatus({ orderId, status }) 
+    toast.success(`Marked order as ${status}.`)
+    onRefresh()
+  } catch {
+    toast.error(`Failed to update order.`)
+  } finally {
+    setLoadingMap(prev => ({ ...prev, [key]: false }))
+  }
+}
+
 
   const columns = useMemo<ColumnDef<ShipperOrder>[]>(() => [
     {
@@ -49,7 +71,7 @@ export default function ShipperOrderTable({
       header: 'Order ID',
       cell: ({ getValue }) => (
         <span className="text-xs text-gray-700 break-all">
-          {getValue<string>().slice(0, 8)}...
+          {getValue<string>()}
         </span>
       ),
     },
@@ -107,8 +129,9 @@ export default function ShipperOrderTable({
       id: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const detail = row.original.orders_details?.[0]
-        const rawStatus = detail?.status ?? 'Pending'
+        const details = row.original.orders_details
+        const statuses = details.map(d => d.status)
+        const statusSet = new Set(statuses)
 
         const badgeMap: Record<OrderStatus, 'success' | 'warning' | 'destructive' | 'default'> = {
           Pending: 'warning',
@@ -121,39 +144,55 @@ export default function ShipperOrderTable({
           Refunded: 'destructive',
         }
 
-        const variant = (badgeMap[rawStatus as OrderStatus] || 'default') as
-          | 'success'
-          | 'warning'
-          | 'destructive'
-          | 'default'
+        const mostCommon = statuses[0] as OrderStatus
+        const variant = badgeMap[mostCommon] || 'default'
 
         return (
           <Badge variant={variant} className={variant === 'destructive' ? 'text-white' : ''}>
-            {rawStatus}
+            {statusSet.size === 1 ? mostCommon : 'Mixed'}
           </Badge>
         )
       },
     },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => {
-        const orderId = row.original.id
-        return (
+{
+  id: 'actions',
+  header: 'Actions',
+  cell: ({ row }) => {
+    const order = row.original
+    const statuses = order.orders_details.map(d => d.status)
+    const allPreparing = statuses.every(s => s === 'Preparing')
+    const allDelivery = statuses.every(s => s === 'Delivery')
+    const nextStatus: 'Delivery' | 'Delivered' | null = allPreparing
+      ? 'Delivery'
+      : allDelivery
+      ? 'Delivered'
+      : null
+
+    const loadingKey = `${order.id}-${nextStatus}`
+
+    return (
+      <div className="flex flex-col gap-1">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => router.push(`/shipper/orders/${order.id}`)}
+        >
+          View
+        </Button>
+        {nextStatus && (
           <Button
             size="sm"
-            variant="outline"
-            onClick={(e) => {
-              e.stopPropagation()
-              router.push(`/shipper/orders/${orderId}`)
-            }}
+            onClick={() => handleUpdateStatus(order.id, nextStatus)}
+            disabled={loadingMap[loadingKey]}
           >
-            View
+            {loadingMap[loadingKey] ? 'Processing...' : `Mark All as ${nextStatus}`}
           </Button>
-        )
-      },
-    },
-  ], [])
+        )}
+      </div>
+    )
+  },
+}
+  ], [loadingMap])
 
   const table = useReactTable({
     data: orders,

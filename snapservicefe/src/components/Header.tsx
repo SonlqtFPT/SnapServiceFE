@@ -81,18 +81,36 @@ export default function Header() {
                     className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50"
                   >
                     <div className="flex flex-col">
-                      <Link
-                        href="/profile"
-                        className="px-4 py-2 hover:bg-gray-100 text-sm"
-                      >
-                        Profile
-                      </Link>
+                      {user.Role === 'CUSTOMER' && (
+                        <Link
+                          href="/profile"
+                          className="px-4 py-2 hover:bg-gray-100 text-sm"
+                        >
+                          Profile
+                        </Link>
+                      )}
                       {user.Role === 'ADMIN' && (
                         <Link
                           href="/admin"
                           className="px-4 py-2 hover:bg-gray-100 text-sm"
                         >
                           Admin
+                        </Link>
+                      )}
+                      {user.Role === 'SUPPLIER' && (
+                        <Link
+                          href="/supplier"
+                          className="px-4 py-2 hover:bg-gray-100 text-sm"
+                        >
+                          Supplier
+                        </Link>
+                      )}
+                      {user.Role === 'SHIPPER' && (
+                        <Link
+                          href="/shipper/orders"
+                          className="px-4 py-2 hover:bg-gray-100 text-sm"
+                        >
+                          Shipper
                         </Link>
                       )}
                       <button
