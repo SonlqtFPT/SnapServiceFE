@@ -27,16 +27,22 @@ export default function CheckoutClient() {
         lat: 10.762622,
         lng: 106.660172,
     });
-    const [errors, setErrors] = useState({
-        name: '',
-        phone: '',
-        districtCode: '',
-        wardCode: '',
-        address: '',
-    });
 
     const [districts, setDistricts] = useState<District[]>([]);
     const [wards, setWards] = useState<Ward[]>([]);
+
+    const validateFormData = () => {
+        const errors: string[] = [];
+
+        if (!formData.name.trim()) errors.push("Full name is required\n");
+        if (!formData.phone.trim()) errors.push("Phone number is required\n");
+        if (!formData.address.trim()) errors.push("Address is required\n");
+        if (!formData.districtCode) errors.push("District is required\n");
+        if (!formData.wardCode) errors.push("Ward is required\n");
+
+
+        return errors;
+    };
 
     useEffect(() => {
         const storedItems = localStorage.getItem('checkout');
@@ -80,43 +86,7 @@ export default function CheckoutClient() {
     const selectedItems = cartItems.filter(item => item.isChecked);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        updateFormData({ [name]: value });
-
-        switch (name) {
-            case 'name':
-                setErrors(prev => ({
-                    ...prev,
-                    name: value.trim().length < 5 ? 'Họ và tên phải có ít nhất 5 ký tự.' : '',
-                }));
-                break;
-            case 'phone':
-                setErrors(prev => ({
-                    ...prev,
-                    phone: !/^(0\d{9,10})$/.test(value) ? 'Số điện thoại không hợp lệ.' : '',
-                }));
-                break;
-            case 'address':
-                setErrors(prev => ({
-                    ...prev,
-                    address: value.trim() === '' ? 'Vui lòng nhập địa chỉ.' : '',
-                }));
-                break;
-            case 'districtCode':
-                setErrors(prev => ({
-                    ...prev,
-                    districtCode: value === '' ? 'Vui lòng chọn Quận / Huyện.' : '',
-                }));
-                break;
-            case 'wardCode':
-                setErrors(prev => ({
-                    ...prev,
-                    wardCode: value === '' ? 'Vui lòng chọn Phường / Xã.' : '',
-                }));
-                break;
-            default:
-                break;
-        }
+        updateFormData({ [e.target.name]: e.target.value });
     };
 
 
@@ -200,7 +170,11 @@ export default function CheckoutClient() {
                 </form>
             </div>
 
-            <CartSumary cartItems={selectedItems} />
+            <CartSumary
+                cartItems={selectedItems}
+                validateFormData={validateFormData}
+            />
+
         </div>
     );
 }
