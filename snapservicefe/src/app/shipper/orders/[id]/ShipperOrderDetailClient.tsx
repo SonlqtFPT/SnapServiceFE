@@ -12,7 +12,6 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { Button } from '@/components/ui/button'
 
 type UpdateAction = {
-  productIds: number[]
   status: 'Delivery' | 'Delivered'
 }
 
@@ -24,7 +23,8 @@ export default function ShipperOrderDetailClient() {
   const [loading, setLoading] = useState(true)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [selectedAction, setSelectedAction] = useState<UpdateAction | null>(null)
-  const [loadingMap, setLoadingMap] = useState<Record<number, boolean>>({})
+  const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({})
+
 
   const refreshOrder = async () => {
     if (typeof id !== 'string') return
@@ -39,27 +39,22 @@ export default function ShipperOrderDetailClient() {
     }).finally(() => setLoading(false))
   }, [id])
 
-  const handleBatchUpdate = async () => {
-    if (!selectedAction || !order) return
-    for (const pid of selectedAction.productIds) {
-      setLoadingMap(prev => ({ ...prev, [pid]: true }))
-      try {
-        await updateOrderItemStatus({
-          orderId: order.id,
-          productId: pid,
-          status: selectedAction.status
-        })
-      } catch {
-        toast.error(`Failed to update product ${pid}`)
-      } finally {
-        setLoadingMap(prev => ({ ...prev, [pid]: false }))
-      }
-    }
-    toast.success(`Updated all items to ${selectedAction.status}`)
+const handleUpdateStatus = async () => {
+  if (!selectedAction || !order) return
+  const key = `${order.id}-${selectedAction.status}`
+  setLoadingMap(prev => ({ ...prev, [key]: true }))
+  try {
+    await updateOrderItemStatus({ orderId: order.id, status: selectedAction.status })
+    toast.success(`Updated order to ${selectedAction.status}`)
     setConfirmOpen(false)
     setSelectedAction(null)
     await refreshOrder()
+  } catch {
+    toast.error(`Failed to update order`)
+  } finally {
+    setLoadingMap(prev => ({ ...prev, [key]: false }))
   }
+}
 
   if (loading) {
     return (
@@ -93,15 +88,11 @@ export default function ShipperOrderDetailClient() {
           setConfirmOpen(false)
           setSelectedAction(null)
         }}
-        onConfirm={handleBatchUpdate}
+        onConfirm={handleUpdateStatus}
         title={`Confirm update?`}
-        description={`Are you sure you want to mark all applicable items as "${selectedAction?.status}"?`}
-        confirmText={`Mark all as ${selectedAction?.status}`}
-        loading={
-          selectedAction
-            ? selectedAction.productIds.some(pid => loadingMap[pid])
-            : false
-        }
+        description={`Are you sure you want to mark this order as "${selectedAction?.status}"?`}
+        confirmText={`Mark as ${selectedAction?.status}`}
+        loading={selectedAction ? loadingMap[`${order?.id}-${selectedAction.status}`] : false}
       />
 
       {/* Order Summary */}
@@ -151,14 +142,12 @@ export default function ShipperOrderDetailClient() {
                   size="sm"
                   className="bg-blue-600 text-white hover:bg-blue-700"
                   onClick={() => {
-                    setSelectedAction({
-                      productIds: preparingItems.map(i => i.productId),
-                      status: 'Delivery',
-                    })
+                    setSelectedAction({ status: 'Delivery' })
                     setConfirmOpen(true)
                   }}
+                  disabled={loadingMap[`${order.id}-Delivery`]}
                 >
-                  Mark all as Delivery
+                  {loadingMap[`${order.id}-Delivery`] ? 'Processing...' : 'Mark as Delivery'}
                 </Button>
               )}
               {canMarkAllAsDelivered && (
@@ -166,14 +155,12 @@ export default function ShipperOrderDetailClient() {
                   size="sm"
                   className="bg-green-600 text-white hover:bg-green-700"
                   onClick={() => {
-                    setSelectedAction({
-                      productIds: deliveryItems.map(i => i.productId),
-                      status: 'Delivered',
-                    })
+                    setSelectedAction({ status: 'Delivered' })
                     setConfirmOpen(true)
                   }}
+                  disabled={loadingMap[`${order.id}-Delivered`]}
                 >
-                  Mark all as Delivered
+                  {loadingMap[`${order.id}-Delivered`] ? 'Processing...' : 'Mark as Delivered'}
                 </Button>
               )}
             </div>

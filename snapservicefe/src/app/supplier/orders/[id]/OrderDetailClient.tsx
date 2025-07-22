@@ -52,7 +52,7 @@ export default function OrderDetailClient() {
     for (const pid of productIds) {
       setLoadingMap(prev => ({ ...prev, [pid]: true }))
       try {
-        await updateOrderItemStatus({ orderId: order.id, productId: pid, status })
+        await updateOrderItemStatus({ orderId: order.id, status })
       } catch {
         toast.error(`Failed to ${status === 'Preparing' ? 'accept' : 'reject'} item ${pid}`)
       } finally {

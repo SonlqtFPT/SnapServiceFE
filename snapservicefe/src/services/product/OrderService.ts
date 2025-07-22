@@ -40,7 +40,6 @@ export const updateOrderItemStatus = async (
     const response = await api.put('/api/Order/update-status', null, {
       params: {
         orderId: payload.orderId,
-        productId: payload.productId,
         status: payload.status,
       },
       headers: {
