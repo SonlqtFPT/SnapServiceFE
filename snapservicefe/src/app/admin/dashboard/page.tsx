@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import SummaryCards from "./components/SummaryCards";
 import SalesChart from "./components/SalesChart";
 import RecentOrdersTable from "./components/RecentOrdersTable";
-import RecentUsersTable from "./components/RecentUsersTable";
+// import RecentUsersTable from "./components/RecentUsersTable";
 import useDashboardSummary from "./components/useDashboardSummary";
 import { fetchOrdersByMonth } from "@/services/report/reportService";
 import { fetchUsersByMonth } from "@/services/users/fetchUsersByMonth";
@@ -12,7 +12,7 @@ import { fetchUsersByMonth } from "@/services/users/fetchUsersByMonth";
 
 export default function AdminEcommerceDashboardPage() {
   const summaryData = useDashboardSummary();
-  const [activeTab, setActiveTab] = useState<"orders" | "users">("orders");
+  // const [activeTab, setActiveTab] = useState<"orders" | "users">("orders");
 
   const [salesData, setSalesData] = useState<{ label: string; value: number }[]>([]);
   const [userChartData, setUserChartData] = useState<{ label: string; value: number }[]>([]);
@@ -84,7 +84,7 @@ export default function AdminEcommerceDashboardPage() {
 
 
       {/* Tabs */}
-      <div className="flex gap-4 border-b">
+      {/* <div className="flex gap-4 border-b">
         <button
           onClick={() => setActiveTab("orders")}
           className={`pb-2 border-b-2 ${activeTab === "orders"
@@ -103,10 +103,11 @@ export default function AdminEcommerceDashboardPage() {
         >
           Recent Users
         </button>
-      </div>
+      </div> */}
 
       {/* Tab Content */}
-      {activeTab === "orders" ? <RecentOrdersTable /> : <RecentUsersTable />}
+      {/* {activeTab === "orders" ? <RecentOrdersTable /> : <RecentUsersTable />} */}
+      <RecentOrdersTable/>
     </div>
   );
 }

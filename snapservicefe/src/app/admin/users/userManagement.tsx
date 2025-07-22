@@ -135,7 +135,7 @@ export default function UserManagement({ role }: Props) {
                         onClick={async () => {
                           try {
                             await toggleUserStatus(user.id);
-                            loadUsers(); // reload danh sách user
+                            loadUsers();
                           } catch (error) {
                             console.error("Lỗi cập nhật trạng thái:", error);
                           }

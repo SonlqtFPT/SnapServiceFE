@@ -1,99 +1,140 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useEffect, useState } from 'react';
+import { getAllSuppliers, moderateSupplier } from '@/services/users/supplierService';
+import { Supplier } from '@/types/user/SupplierType';
+import ZoomableImage from './component/ZoomableImage';
+import { Check, X } from 'lucide-react';
 
-type Supplier = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  status: "inactive" | "active";
-};
-
-const fakeSuppliers: Supplier[] = [
-  {
-    id: "S001",
-    name: "Cửa hàng A",
-    email: "a@example.com",
-    phone: "0123456789",
-    address: "123 Lê Lợi, Q.1, TP.HCM",
-    status: "inactive",
-  },
-  {
-    id: "S002",
-    name: "Cửa hàng B",
-    email: "b@example.com",
-    phone: "0987654321",
-    address: "456 Trần Hưng Đạo, Q.5, TP.HCM",
-    status: "inactive",
-  },
-];
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from '@/components/ui/card';
 
 export default function ModerateSupplier() {
-  const [suppliers, setSuppliers] = useState<Supplier[]>(fakeSuppliers);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
-  const handleApprove = (id: string) => {
-    setSuppliers(prev =>
-      prev.map(sup => (sup.id === id ? { ...sup, status: "active" } : sup))
-    );
+  const loadSuppliers = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllSuppliers();
+      setSuppliers(data.filter((s) => !s.isVerified));
+    } catch (error) {
+      alert('Failed to fetch suppliers');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReject = (id: string) => {
+  useEffect(() => {
+    loadSuppliers();
+  }, []);
+
+  const handleAction = async (id: number, action: 'approve' | 'reject') => {
+  try {
+    setUpdatingId(id);
+    const approve = action === 'approve';
+    await moderateSupplier(id, approve);
+    alert(`Supplier ${action}d successfully`);
     setSuppliers(prev => prev.filter(sup => sup.id !== id));
-  };
+  } catch (error) {
+    alert(`Failed to ${action} supplier`);
+    console.error(error);
+  } finally {
+    setUpdatingId(null);
+  }
+};
+
+
+  if (loading) return <p className="p-6 text-muted-foreground">Loading suppliers...</p>;
 
   return (
-    <div className="p-6">
+    <div className="p-4">
+      <h1 className="text-3xl font-bold mb-6">Moderate Suppliers ({suppliers.length})</h1>
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-bold">Danh sách nhà cung cấp chờ duyệt</h2>
+          {/* <p className="text-muted-foreground text-sm">
+            Below are suppliers waiting for moderation. You can approve or reject them.
+          </p> */}
         </CardHeader>
+
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Tên</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>SĐT</TableHead>
-                <TableHead>Địa chỉ</TableHead>
-                <TableHead>Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {suppliers.filter(s => s.status === "inactive").length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-gray-500">
-                    Không có nhà cung cấp nào cần kiểm duyệt
-                  </TableCell>
-                </TableRow>
-              ) : (
-                suppliers
-                  .filter(s => s.status === "inactive")
-                  .map(supplier => (
-                    <TableRow key={supplier.id}>
-                      <TableCell>{supplier.id}</TableCell>
-                      <TableCell>{supplier.name}</TableCell>
-                      <TableCell>{supplier.email}</TableCell>
-                      <TableCell>{supplier.phone}</TableCell>
-                      <TableCell>{supplier.address}</TableCell>
-                      <TableCell className="space-x-2">
-                        <Button size="sm" onClick={() => handleApprove(supplier.id)}>
-                          Duyệt
-                        </Button>
-                        <Button variant="destructive" size="sm" onClick={() => handleReject(supplier.id)}>
-                          Từ chối
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-              )}
-            </TableBody>
-          </Table>
+          {suppliers.length === 0 ? (
+            <p className="text-muted-foreground text-sm">No pending suppliers to moderate.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Registered At</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">CCCD (Front)</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">CCCD (Back)</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {suppliers.map((sup, index) => (
+                    <tr key={sup.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{sup.name}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{sup.description}</td>
+                      <td className="px-6 py-4 text-sm text-center text-gray-700">
+                        {new Date(sup.registeredAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {sup.frontImageCCCD ? (
+                          <ZoomableImage src={sup.frontImageCCCD} alt="CCCD Front" />
+                        ) : (
+                          <span className="text-muted-foreground text-xs">No image</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {sup.backImageCCCD ? (
+                          <ZoomableImage src={sup.backImageCCCD} alt="CCCD Back" />
+                        ) : (
+                          <span className="text-muted-foreground text-xs">No image</span>
+                        )}
+                      </td>
+
+                      <td className="px-6 py-4 text-sm text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Button
+                            size="sm"
+                            className="w-24 gap-1"
+                            onClick={() => handleAction(sup.id, 'approve')}
+                            disabled={updatingId === sup.id}
+                          >
+                            <Check className="w-4 h-4" />
+                            Approve
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="w-24 gap-1"
+                            onClick={() => handleAction(sup.id, 'reject')}
+                            disabled={updatingId === sup.id}
+                          >
+                            <X className="w-4 h-4" />
+                            Reject
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
