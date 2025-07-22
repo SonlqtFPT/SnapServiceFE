@@ -7,10 +7,7 @@ import {
   fetchSupplierOrderDetail,
   updateOrderItemStatus,
 } from '@/services/product/OrderService'
-import type {
-  SupplierOrderItem,
-  OrderDetail
-} from '@/model/response/order'
+import type { SupplierOrderItem } from '@/model/response/order'
 import type { UpdateOrderStatusRequest } from '@/model/request/orderRequest'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -26,8 +23,8 @@ export default function OrderDetailClient() {
   const [loading, setLoading] = useState(true)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [loadingMap, setLoadingMap] = useState<Record<number, boolean>>({})
-  const [selectedAction, setSelectedAction] = useState<{
-    item: OrderDetail
+  const [selectedBatchAction, setSelectedBatchAction] = useState<{
+    productIds: number[]
     status: UpdateOrderStatusRequest['status']
   } | null>(null)
 
@@ -49,28 +46,23 @@ export default function OrderDetailClient() {
     loadOrder()
   }, [id])
 
-  const handleConfirm = async () => {
-    if (!order || !selectedAction) return
-    const { item, status } = selectedAction
-    const key = item.productId
-    setLoadingMap((prev) => ({ ...prev, [key]: true }))
-    try {
-      await updateOrderItemStatus({
-        orderId: order.id,
-        productId: item.productId,
-        status,
-      })
-      toast.success(
-        `Item ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`
-      )
-      await loadOrder()
-    } catch {
-      toast.error('Failed to update item status.')
-    } finally {
-      setLoadingMap((prev) => ({ ...prev, [key]: false }))
-      setConfirmOpen(false)
-      setSelectedAction(null)
+  const handleBatchUpdate = async () => {
+    if (!order || !selectedBatchAction) return
+    const { productIds, status } = selectedBatchAction
+    for (const pid of productIds) {
+      setLoadingMap(prev => ({ ...prev, [pid]: true }))
+      try {
+        await updateOrderItemStatus({ orderId: order.id, productId: pid, status })
+      } catch {
+        toast.error(`Failed to ${status === 'Preparing' ? 'accept' : 'reject'} item ${pid}`)
+      } finally {
+        setLoadingMap(prev => ({ ...prev, [pid]: false }))
+      }
     }
+    toast.success(`All items ${status === 'Preparing' ? 'accepted' : 'rejected'} successfully.`)
+    setConfirmOpen(false)
+    setSelectedBatchAction(null)
+    await loadOrder()
   }
 
   if (loading) {
@@ -87,6 +79,10 @@ export default function OrderDetailClient() {
     return <p className="p-6 text-red-500">Order not found.</p>
   }
 
+  const pendingProductIds = order.orders_details
+    .filter((item) => item.status === 'Pending')
+    .map((item) => item.productId)
+
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <ToastContainer position="bottom-right" autoClose={3000} />
@@ -94,7 +90,7 @@ export default function OrderDetailClient() {
       {/* Order Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Order #{order.id.slice(0, 8)}...</CardTitle>
+          <CardTitle className="text-xl">Order #{order.id}</CardTitle>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
           <div>
@@ -127,87 +123,87 @@ export default function OrderDetailClient() {
         </CardContent>
       </Card>
 
-      {/* Order Items */}
+      {/* Order Items + Bulk Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Items</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>Items</CardTitle>
+            {pendingProductIds.length > 0 && (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="bg-green-600 text-white hover:bg-green-700"
+                  onClick={() => {
+                    setSelectedBatchAction({ productIds: pendingProductIds, status: 'Preparing' })
+                    setConfirmOpen(true)
+                  }}
+                >
+                  Accept All
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-red-600 text-white hover:bg-red-700"
+                  onClick={() => {
+                    setSelectedBatchAction({ productIds: pendingProductIds, status: 'Cancelled' })
+                    setConfirmOpen(true)
+                  }}
+                >
+                  Reject All
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {order.orders_details.length === 0 ? (
             <p className="text-gray-500 text-sm">No items found.</p>
           ) : (
             <div className="space-y-4">
-              {order.orders_details.map((item) => {
-                const isPending = item.status === 'Pending'
-                const loading = loadingMap[item.productId]
-
-                return (
-                  <div
-                    key={item.id}
-                    className="flex gap-4 items-start border rounded-md p-3 shadow-sm"
-                  >
-                    <img
-                      src={item.productImage || undefined}
-                      alt={item.productName}
-                      className="w-20 h-20 object-cover rounded-md border"
-                    />
-                    <div className="flex-1 space-y-1 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">{item.productName}</span>
-                        <Badge variant={statusToBadgeVariant(item.status)}>{item.status}</Badge>
-                      </div>
-                      <p>Quantity: {item.quantity}</p>
-                      <p>Price: {item.price.toLocaleString()} ₫</p>
-                      <p>Discount: {item.discountPercent}%</p>
-                      {item.note && (
-                        <p className="text-gray-500 italic">Note: {item.note}</p>
-                      )}
-                      {isPending && (
-                        <div className="flex gap-2 pt-2">
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                            onClick={() => {
-                              setSelectedAction({ item, status: 'Preparing' })
-                              setConfirmOpen(true)
-                            }}
-                            disabled={loading}
-                          >
-                            {loading ? 'Processing...' : 'Accept'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                            onClick={() => {
-                              setSelectedAction({ item, status: 'Cancelled' })
-                              setConfirmOpen(true)
-                            }}
-                            disabled={loading}
-                          >
-                            {loading ? 'Processing...' : 'Reject'}
-                          </Button>
-                        </div>
-                      )}
+              {order.orders_details.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex gap-4 items-start border rounded-md p-3 shadow-sm"
+                >
+                  <img
+                    src={item.productImage || undefined}
+                    alt={item.productName}
+                    className="w-20 h-20 object-cover rounded-md border"
+                  />
+                  <div className="flex-1 space-y-1 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">{item.productName}</span>
+                      <Badge variant={statusToBadgeVariant(item.status)}>{item.status}</Badge>
                     </div>
+                    <p>Quantity: {item.quantity}</p>
+                    <p>Price: {item.price.toLocaleString()} ₫</p>
+                    <p>Discount: {item.discountPercent}%</p>
+                    {item.note && (
+                      <p className="text-gray-500 italic">Note: {item.note}</p>
+                    )}
                   </div>
-                )
-              })}
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
       </Card>
 
+      {/* Confirm Dialog */}
       <ConfirmDialog
         open={confirmOpen}
         onClose={() => {
           setConfirmOpen(false)
-          setSelectedAction(null)
+          setSelectedBatchAction(null)
         }}
-        onConfirm={handleConfirm}
-        title={`Confirm ${selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}?`}
-        description={`Are you sure you want to ${selectedAction?.status === 'Preparing' ? 'accept' : 'reject'} this item?`}
-        confirmText={selectedAction?.status === 'Preparing' ? 'Accept' : 'Reject'}
-        loading={selectedAction ? loadingMap[selectedAction.item.productId] : false}
+        onConfirm={handleBatchUpdate}
+        title={`Confirm ${selectedBatchAction?.status === 'Preparing' ? 'Accept All' : 'Reject All'}?`}
+        description={`Are you sure you want to ${selectedBatchAction?.status === 'Preparing' ? 'accept' : 'reject'} all pending items in this order?`}
+        confirmText={selectedBatchAction?.status === 'Preparing' ? 'Accept All' : 'Reject All'}
+        loading={
+          selectedBatchAction
+            ? selectedBatchAction.productIds.some(pid => loadingMap[pid])
+            : false
+        }
       />
     </div>
   )
