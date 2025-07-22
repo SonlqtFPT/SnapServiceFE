@@ -20,3 +20,10 @@ export interface UpdateOrderStatusRequest {
 export interface GetOrderDetailRequest {
   orderId: string
 }
+
+export interface ShipperOrderListRequest {
+  page: number;
+  pageSize: number;
+}
+
+

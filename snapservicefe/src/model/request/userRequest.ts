@@ -42,3 +42,9 @@ export interface CreateUserRequest {
   address: string;
   fullname: string;
 }
+
+export interface AssignAreaRequest {
+  provinceCode: number
+  districtCode: number
+  wardCode: number
+}

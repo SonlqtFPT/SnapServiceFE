@@ -1,6 +1,6 @@
 import { getAPI } from "@/lib/axios";
-import { loginRequest, registerRequest, registerSupplierRequest, UserRequest } from "@/model/request/userRequest";
-import { UserListItem } from "@/model/response/userResponse";
+import { AssignAreaRequest, loginRequest, registerRequest, registerSupplierRequest, UserRequest } from "@/model/request/userRequest";
+import { AssignAreaResponse, UserListItem } from "@/model/response/userResponse";
 import axios from "axios";
 import { CreateUserRequest } from "@/model/request/userRequest";
 import { User } from '@/types/user/UserType';
@@ -134,6 +134,29 @@ const deleteUser = async (id: string) => {
     }
   }
 };
+
+export const assignShipperArea = async (
+  payload: AssignAreaRequest
+): Promise<AssignAreaResponse> => {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) throw new Error('No token found')
+
+    const response = await api.post('/api/Shipper/assign_area', payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Failed to assign area:', error)
+    throw error
+  }
+}
+
 
 
 export { registerUser, loginUser, fetchUsers, createUser, updateUser, deleteUser, getUserById, userProfile, registerSupplier };
