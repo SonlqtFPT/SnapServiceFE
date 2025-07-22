@@ -32,14 +32,22 @@ export default function SalesChart({
         <div className="h-64 flex items-end justify-around gap-2 p-4 border-b border-l border-gray-200">
           {data.map((item, index) => (
             <div key={index} className="flex flex-col items-center justify-end h-full">
-              {item.value > 0 && (
-                <span className="text-xs text-gray-700 mb-1">{item.value.toLocaleString()}</span>
-              )}
+              {/* Always show the label */}
+              <span className="text-xs text-gray-700 mb-1">
+                {item.value.toLocaleString()}
+              </span>
+
+              {/* Ensure even zero values render with a visible bar */}
               <div
                 className={`w-8 ${barColor} rounded-t-md transition-all duration-300 ease-out`}
-                style={{ height: `${item.value * scaleFactor}%` }}
+                style={{
+                  height: `${item.value * scaleFactor}%`,
+                  minHeight: item.value > 0 ? '0' : '4px', // fallback height for zero values
+                  opacity: item.value > 0 ? 1 : 0.3, // visually distinguish zeros if desired
+                }}
                 title={`${item.label}: ${item.value.toLocaleString()}${unit}`}
               ></div>
+
               <span className="text-xs text-gray-600 mt-1">{item.label}</span>
             </div>
           ))}
